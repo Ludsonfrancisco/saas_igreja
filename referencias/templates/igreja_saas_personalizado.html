@@ -1,0 +1,1241 @@
+<!doctype html>
+<html lang="pt-BR"><head><script data-od-sandbox-shim="">(function(){
+  function makeStore(){
+    var data = {};
+    var api = {
+      getItem: function(k){ return Object.prototype.hasOwnProperty.call(data, k) ? data[k] : null; },
+      setItem: function(k, v){ data[k] = String(v); },
+      removeItem: function(k){ delete data[k]; },
+      clear: function(){ data = {}; },
+      key: function(i){ return Object.keys(data)[i] || null; }
+    };
+    Object.defineProperty(api, 'length', { get: function(){ return Object.keys(data).length; } });
+    return api;
+  }
+  function tryShim(name){
+    var works = false;
+    try { works = !!window[name] && typeof window[name].getItem === 'function'; void window[name].length; }
+    catch (_) { works = false; }
+    if (works) return;
+    try { Object.defineProperty(window, name, { configurable: true, value: makeStore() }); }
+    catch (_) { try { window[name] = makeStore(); } catch (__) {} }
+  }
+  tryShim('localStorage');
+  tryShim('sessionStorage');
+  document.addEventListener('click', (e) => {
+    if (!e.target || !(e.target instanceof Element)) return;
+    var link = e.target.closest('a[href]');
+    if (!link) return;
+    var href = link.getAttribute('href');
+    if (href === null) return;
+    var isAnchor = href.startsWith('#') || href === '';
+    if (isAnchor) {
+      e.preventDefault();
+      if (href === '' || href === '#') {
+        window.scrollTo({ top: 0 });
+        history.replaceState(null, '', ' ');
+      } else {
+        var targetId = href.slice(1);
+        var target = targetId ? document.getElementById(targetId) : null;
+        if (target) {
+          target.scrollIntoView();
+          location.hash === href && history.replaceState(null, '', ' ');
+          location.hash = href;
+        }
+      }
+    } else if (link.getAttribute('target') === '_blank') {
+      e.preventDefault();
+      let safe = false;
+      try {
+        var url = new URL(href, location.href);
+        safe =
+          url.protocol === 'http:' ||
+          url.protocol === 'https:' ||
+          url.protocol === 'mailto:';
+      } catch (_) {}
+      safe && window.open(href, '_blank', 'noopener,noreferrer');
+    }
+  });
+})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athos Dashboard — Guia Geral</title>
+    <link rel="icon" type="image/png" href="mpdi23ov-logo_projeto_SaaS_Igreja.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <!-- Alpine Plugins -->
+    <script defer="" src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.13.3/dist/cdn.min.js"></script>
+    <script defer="" src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        athos: {
+                            bg: "#F8F1E8",
+                            surface: "#FFFEFA",
+                            surfaceSoft: "#F6EADC",
+                            border: "#EADFD2",
+                            text: "#161412",
+                            muted: "#6C6259",
+                            primary: "#864507",
+                            primaryDark: "#6A3302",
+                            accent: "#F59A17",
+                            amberSoft: "#F4D6A1",
+                            green: "#557A35",
+                            danger: "#B43A21"
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --athos-canvas: #fcf8f2;
+            --athos-canvas-warm: #f8efe3;
+            --athos-card: rgba(255, 254, 250, 0.94);
+            --athos-line: rgba(118, 78, 39, 0.12);
+            --athos-line-soft: rgba(118, 78, 39, 0.075);
+            --athos-shadow-soft: 0 16px 38px rgba(76, 44, 16, 0.04);
+            --athos-shadow-md: 0 20px 52px rgba(76, 44, 16, 0.06);
+        }
+
+        body {
+            background:
+                radial-gradient(circle at 14% 8%, rgba(255, 247, 234, 0.6), transparent 36rem),
+                radial-gradient(circle at 86% 4%, rgba(255, 252, 244, 0.7), transparent 32rem),
+                var(--athos-canvas);
+        }
+
+        /* ─────────── Top header ─────────── */
+        .top-header {
+            height: 4.5rem;
+            background: rgba(255, 253, 248, 0.86);
+            border-bottom: 1px solid var(--athos-line-soft);
+            -webkit-backdrop-filter: blur(18px) saturate(0.96);
+            backdrop-filter: blur(18px) saturate(0.96);
+        }
+
+        .brand-lockup {
+            display: block;
+            width: 11rem;
+            height: 3.25rem;
+            overflow: hidden;
+            position: relative;
+        }
+        .brand-lockup img {
+            display: block;
+            position: absolute;
+            width: 14.2rem;
+            max-width: none;
+            height: auto;
+            left: -1.85rem;
+            top: -2.5rem;
+        }
+
+        /* ─────────── Horizontal nav rail ─────────── */
+        .nav-rail {
+            background:
+                linear-gradient(180deg, rgba(250, 241, 228, 0.72), rgba(246, 234, 216, 0.92)),
+                rgba(255, 253, 248, 0.6);
+            border-bottom: 1px solid var(--athos-line);
+            box-shadow: 0 12px 26px rgba(91, 58, 24, 0.035);
+        }
+        .nav-rail::after {
+            content: "";
+            display: block;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(126, 82, 38, 0.13) 18%, rgba(126, 82, 38, 0.06) 72%, transparent);
+        }
+
+        .nav-rail-inner {
+            display: flex;
+            align-items: stretch;
+            gap: 0.15rem;
+            padding: 0 1.25rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .nav-rail-inner::-webkit-scrollbar { display: none; }
+
+        .nav-item {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0 1rem;
+            height: 3rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #6C6259;
+            white-space: nowrap;
+            border-radius: 0;
+            transition: color .18s ease, background-color .18s ease;
+        }
+        .nav-item svg { width: 1.05rem; height: 1.05rem; flex-shrink: 0; }
+        .nav-item:hover { color: #161412; background: rgba(248, 237, 222, 0.55); }
+        .nav-item.is-active {
+            color: var(--tw-prose-headings, #864507);
+            color: #864507;
+            background: linear-gradient(180deg, rgba(255, 253, 248, 0.85), rgba(248, 234, 214, 0.7));
+        }
+        .nav-item.is-active::after {
+            content: "";
+            position: absolute;
+            left: 0.6rem; right: 0.6rem; bottom: 0;
+            height: 2.5px;
+            background: #864507;
+            border-radius: 2px 2px 0 0;
+        }
+        .nav-chev { opacity: 0.55; width: 0.9rem !important; height: 0.9rem !important; }
+
+        /* ─────────── Cards ─────────── */
+        .card {
+            background-color: var(--athos-card);
+            border: 1px solid var(--athos-line);
+            border-radius: 1.1rem;
+            box-shadow: var(--athos-shadow-soft);
+        }
+        .card-md { box-shadow: var(--athos-shadow-md); }
+
+        /* ─────────── Stat pills row ─────────── */
+        .stat-pill {
+            background: rgba(255, 254, 250, 0.92);
+            border: 1px solid var(--athos-line);
+            border-radius: 1rem;
+            padding: 1rem 1.15rem;
+            box-shadow: var(--athos-shadow-soft);
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+        .stat-icon {
+            width: 2.4rem; height: 2.4rem;
+            border-radius: 0.75rem;
+            background: rgba(248, 234, 214, 0.7);
+            color: #864507;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .stat-icon svg { width: 1.15rem; height: 1.15rem; }
+        .stat-num { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
+        .stat-delta { font-size: 0.7rem; font-weight: 600; color: #557A35; margin-left: 0.4rem; }
+        .stat-delta.neg { color: #B43A21; }
+        .stat-label { font-size: 0.74rem; color: #6C6259; font-weight: 500; }
+
+        /* ─────────── Calendar (mini, right column) ─────────── */
+        .cal-mini-wrap { cursor: pointer; }
+        .cal-mini-wrap:hover .cal-mini-cta { color: #864507; }
+        .cal-mini-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 2px;
+        }
+        .cal-mini-dow {
+            font-size: 0.58rem;
+            font-weight: 700;
+            color: #8a7f74;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.25rem 0 0.15rem;
+        }
+        .cal-mini-cell {
+            aspect-ratio: 1 / 1;
+            border-radius: 0.42rem;
+            font-size: 0.7rem;
+            color: #161412;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: background-color .15s ease;
+        }
+        .cal-mini-cell.is-muted { color: #c9bfb1; font-weight: 400; }
+        .cal-mini-cell.has-event::after {
+            content: "";
+            position: absolute;
+            bottom: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px; height: 3px;
+            border-radius: 50%;
+            background: #864507;
+        }
+        .cal-mini-cell.has-event.evt-accent::after { background: #F59A17; }
+        .cal-mini-cell.has-event.evt-green::after { background: #557A35; }
+        .cal-mini-cell.is-today {
+            background: linear-gradient(180deg, #8c4708, #6a3302);
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(106, 51, 2, 0.25);
+        }
+        .cal-mini-cell.is-today.has-event::after { background: #F4D6A1; }
+
+        /* ─────────── Calendar (full, modal) ─────────── */
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 0.3rem;
+        }
+        .cal-dow {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: #6C6259;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 0.4rem 0;
+        }
+        .cal-cell {
+            aspect-ratio: 1 / 0.82;
+            border-radius: 0.62rem;
+            padding: 0.4rem 0.5rem;
+            font-size: 0.78rem;
+            color: #161412;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid transparent;
+            position: relative;
+            cursor: pointer;
+            transition: background-color .15s ease, border-color .15s ease;
+        }
+        .cal-cell:hover { background: rgba(248, 237, 222, 0.6); border-color: var(--athos-line); }
+        .cal-cell.is-muted { color: #B7AB9C; font-weight: 400; }
+        .cal-cell.is-today {
+            background: linear-gradient(180deg, #8c4708, #6a3302);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 10px 22px rgba(106, 51, 2, 0.28);
+        }
+        .cal-cell.is-today .cal-num { color: #fff; }
+        .cal-cell.is-today .cal-event-dot { background: #F4D6A1; }
+        .cal-cell.is-today:hover { background: linear-gradient(180deg, #8c4708, #6a3302); }
+        .cal-cell.has-event { background: rgba(248, 237, 222, 0.45); }
+        .cal-num { display: block; }
+        .cal-dots { display: flex; gap: 0.18rem; }
+        .cal-event-dot {
+            width: 0.32rem; height: 0.32rem;
+            border-radius: 50%;
+            background: #864507;
+            display: inline-block;
+        }
+        .cal-event-dot.dot-accent { background: #F59A17; }
+        .cal-event-dot.dot-green { background: #557A35; }
+
+        /* ─────────── Modal overlay ─────────── */
+        .modal-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(38, 22, 7, 0.42);
+            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
+            z-index: 50;
+            display: flex; align-items: center; justify-content: center;
+            padding: 1.5rem;
+        }
+        .modal-card {
+            background: #fffdf8;
+            border: 1px solid var(--athos-line);
+            border-radius: 1.25rem;
+            box-shadow: 0 40px 100px rgba(54, 28, 4, 0.28);
+            max-width: 760px;
+            width: 100%;
+            max-height: 92vh;
+            overflow: auto;
+        }
+
+        /* ─────────── Reminders ─────────── */
+        .reminder-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.7rem;
+            padding: 0.55rem 0.25rem;
+            border-bottom: 1px dashed var(--athos-line-soft);
+        }
+        .reminder-item:last-of-type { border-bottom: none; }
+        .reminder-check {
+            width: 1.05rem; height: 1.05rem;
+            border-radius: 0.32rem;
+            border: 1.5px solid #c9b89e;
+            background: #fff;
+            margin-top: 0.18rem;
+            flex-shrink: 0;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .reminder-check.is-done {
+            background: #864507;
+            border-color: #864507;
+            color: #fff;
+        }
+        .reminder-check.is-done::after {
+            content: "";
+            width: 0.32rem; height: 0.6rem;
+            border-right: 2px solid #fff;
+            border-bottom: 2px solid #fff;
+            transform: rotate(45deg) translate(-1px, -1px);
+        }
+        .reminder-text { font-size: 0.83rem; color: #161412; line-height: 1.35; }
+        .reminder-text.is-done { color: #8a7f74; text-decoration: line-through; }
+        .reminder-meta { font-size: 0.68rem; color: #6C6259; margin-top: 0.1rem; }
+        .reminder-prio {
+            display: inline-block;
+            margin-left: 0.4rem;
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.05rem 0.4rem;
+            border-radius: 0.3rem;
+            background: rgba(244, 214, 161, 0.55);
+            color: #864507;
+        }
+        .reminder-prio.high { background: rgba(180, 58, 33, 0.12); color: #B43A21; }
+
+        /* ─────────── Schedule list ─────────── */
+        .sched-item {
+            display: flex;
+            align-items: stretch;
+            gap: 0.9rem;
+            padding: 0.7rem 0.25rem;
+            border-bottom: 1px solid var(--athos-line-soft);
+        }
+        .sched-item:last-of-type { border-bottom: none; }
+        .sched-date {
+            flex-shrink: 0;
+            width: 3rem;
+            text-align: center;
+            border-radius: 0.55rem;
+            background: rgba(248, 237, 222, 0.7);
+            border: 1px solid var(--athos-line);
+            padding: 0.25rem 0;
+        }
+        .sched-date .d-day { display: block; font-size: 0.94rem; font-weight: 700; color: #161412; line-height: 1; }
+        .sched-date .d-mon { display: block; font-size: 0.6rem; font-weight: 700; color: #864507; text-transform: uppercase; letter-spacing: 0.07em; margin-top: 0.18rem; }
+        .sched-body { flex: 1; min-width: 0; }
+        .sched-title { font-size: 0.86rem; font-weight: 600; color: #161412; }
+        .sched-meta { font-size: 0.72rem; color: #6C6259; margin-top: 0.12rem; display: flex; gap: 0.55rem; flex-wrap: wrap; }
+        .sched-tag {
+            font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+            padding: 0.1rem 0.45rem; border-radius: 0.3rem;
+        }
+        .sched-tag.tag-culto { background: rgba(134, 69, 7, 0.1); color: #864507; }
+        .sched-tag.tag-reuniao { background: rgba(245, 154, 23, 0.16); color: #b86a05; }
+        .sched-tag.tag-evento { background: rgba(85, 122, 53, 0.14); color: #557A35; }
+        .sched-tag.tag-pessoal { background: rgba(180, 58, 33, 0.1); color: #B43A21; }
+
+        /* ─────────── Notes ─────────── */
+        .notes-board {
+            background:
+                repeating-linear-gradient(180deg, transparent 0 1.45rem, rgba(118, 78, 39, 0.08) 1.45rem 1.46rem),
+                #fffdf8;
+            border-radius: 0.85rem;
+            border: 1px solid var(--athos-line);
+            min-height: 11rem;
+            padding: 0.5rem 0.85rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            line-height: 1.45rem;
+            color: #322a23;
+            resize: vertical;
+            width: 100%;
+            outline: none;
+        }
+        .notes-board:focus { border-color: #c8a374; box-shadow: 0 0 0 3px rgba(134, 69, 7, 0.08); }
+
+        /* ─────────── Announcement ─────────── */
+        .ann-item {
+            display: flex;
+            gap: 0.7rem;
+            padding: 0.65rem 0.25rem;
+            border-bottom: 1px solid var(--athos-line-soft);
+        }
+        .ann-item:last-of-type { border-bottom: none; }
+        .ann-rail {
+            width: 3px;
+            border-radius: 2px;
+            background: #864507;
+            flex-shrink: 0;
+        }
+        .ann-rail.rail-accent { background: #F59A17; }
+        .ann-rail.rail-green { background: #557A35; }
+        .ann-title { font-size: 0.84rem; font-weight: 600; color: #161412; }
+        .ann-body { font-size: 0.74rem; color: #6C6259; margin-top: 0.18rem; line-height: 1.4; }
+
+        /* ─────────── Scrollbar ─────────── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #E6D8C7; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6E6257; }
+
+        /* ─────────── Responsive ─────────── */
+        @media (max-width: 1100px) {
+            .nav-item { padding: 0 0.7rem; font-size: 0.82rem; }
+            .nav-item span.lbl { display: none; }
+            .nav-item.is-active span.lbl { display: inline; }
+        }
+        @media (max-width: 720px) {
+            .top-header .search-block { display: none; }
+        }
+    </style>
+<style data-od-tweaks-bridge-style="">
+[data-od-tweaks-hidden] .tw-panel {
+  transform: translateX(calc(100% + 32px)) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.tw-restore { display: none !important; }
+</style><script data-od-tweaks-bridge="">(function(){
+  // Synchronously hide BEFORE the artifact body parses so the panel never
+  // flashes on initial paint. The host removes the attribute via postMessage
+  // once it knows the desired state.
+  document.documentElement.setAttribute('data-od-tweaks-hidden', '');
+
+  var suppressEcho = false;
+  var observer = null;
+
+  function panelEl(){ return document.querySelector('.tw-panel'); }
+
+  function applyClassesToPanel(visible){
+    var panel = panelEl();
+    if (panel) panel.classList.toggle('tw-hidden', !visible);
+  }
+
+  function setPanelVisible(visible){
+    suppressEcho = true;
+    document.documentElement.toggleAttribute('data-od-tweaks-hidden', !visible);
+    applyClassesToPanel(visible);
+    // Clear flag after the MutationObserver has had a chance to fire for this
+    // change so we don't echo our own host-driven toggles back to the host.
+    Promise.resolve().then(function(){ suppressEcho = false; });
+  }
+
+  function postState(){
+    var panel = panelEl();
+    if (!panel) return;
+    try {
+      parent.postMessage({
+        type: 'od:tweaks-panel-state',
+        visible: !panel.classList.contains('tw-hidden'),
+      }, '*');
+    } catch (e) {}
+  }
+
+  function postAvailability(){
+    try {
+      parent.postMessage({
+        type: 'od:tweaks-available',
+        available: !!panelEl(),
+      }, '*');
+    } catch (e) {}
+  }
+
+  function attachObserver(){
+    var panel = panelEl();
+    if (!panel || observer) return;
+    observer = new MutationObserver(function(){
+      if (suppressEcho) return;
+      postState();
+    });
+    observer.observe(panel, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  function onReady(){
+    // Capture the panel authored visibility BEFORE we apply the host hidden
+    // attribute. The bridge sets data-od-tweaks-hidden synchronously in head
+    // (before the body parses), so on entry to onReady the attribute is
+    // always present even though the artifact may have authored the panel
+    // as default-visible. Reading the panel class first is the only place
+    // we can still observe the author intent. Then drive the attribute,
+    // classes, and posted state from that captured value so a default
+    // visible tw-panel reports visible:true and the toolbar toggle starts
+    // ON. Issue surfaced in PR #1643 review.
+    var panel = panelEl();
+    var initialVisible = !!panel && !panel.classList.contains('tw-hidden');
+    document.documentElement.toggleAttribute('data-od-tweaks-hidden', !initialVisible);
+    applyClassesToPanel(initialVisible);
+    attachObserver();
+    postAvailability();
+    // Post the captured initial visibility so the toolbar toggle reflects
+    // the default state on mount. Without this the toggle reads OFF while
+    // a default-visible tw-panel artifact clearly shows its panel and the
+    // user would have to click toggle-on then toggle-off to actually hide.
+    postState();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', onReady);
+  } else {
+    onReady();
+  }
+
+  window.addEventListener('message', function(ev){
+    if (!ev.data || ev.data.type !== 'od:tweaks-panel-visible') return;
+    setPanelVisible(!!ev.data.visible);
+  });
+})();</script></head>
+<body class="text-athos-text font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- ─────────────────── HEADER ─────────────────── -->
+    <header class="top-header sticky top-0 z-30 flex items-center justify-between px-6" data-od-id="path-0">
+        <div class="flex items-center gap-5" data-od-id="path-0-0">
+            <a href="#" class="brand-lockup" aria-label="Igreja Athos — servir, amar, cuidar" data-od-id="path-0-0-0">
+                <img src="mpdi23ov-logo_projeto_SaaS_Igreja.png" alt="Igreja Athos">
+            </a>
+            <div class="hidden md:flex items-center gap-2 pl-4 border-l border-athos-border/60 text-sm">
+                
+                <span class="text-[10px] uppercase tracking-wider font-bold text-athos-primary bg-athos-amberSoft/60 px-2 py-0.5 rounded">Premium</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-5" data-od-id="path-0-1">
+            <div class="search-block relative w-[26rem] hidden md:block">
+                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-athos-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" placeholder="Buscar membro, ministério, programação..." class="w-full bg-athos-surface/90 border border-athos-border text-sm rounded-xl pl-9 pr-4 py-2 focus:outline-none focus:border-athos-primary focus:ring-1 focus:ring-athos-primary/20 transition-all placeholder:text-athos-muted/70 shadow-sm">
+            </div>
+
+            <div class="flex items-center gap-4 pl-4 border-l border-athos-border/70">
+                <button class="text-athos-muted hover:text-athos-primary transition-colors" aria-label="Downloads" data-od-id="path-0-1-1-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                </button>
+                <button class="relative text-athos-muted hover:text-athos-primary transition-colors" aria-label="Notificações" data-od-id="path-0-1-1-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    <span class="absolute top-0 right-0 w-2 h-2 bg-athos-accent rounded-full ring-2 ring-white"></span>
+                </button>
+
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open" class="flex items-center gap-2 hover:opacity-80 transition-opacity" data-od-id="path-0-1-1-2-0">
+                        <div class="w-8 h-8 rounded-full bg-athos-primary text-white flex items-center justify-center text-xs font-semibold shadow-sm">MR</div>
+                        <div class="hidden sm:flex flex-col items-start leading-tight">
+                            <span class="text-xs font-semibold text-athos-text">Pr. Marcio R.</span>
+                            <span class="text-[10px] text-athos-muted">Pastor titular</span>
+                        </div>
+                        <svg class="w-4 h-4 text-athos-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div x-show="open" @click.away="open = false" x-transition.opacity.duration.200ms="" class="absolute right-0 mt-2 w-48 bg-athos-surface border border-athos-border rounded-xl shadow-lg py-1 z-50" style="display:none">
+                        <a href="#" class="block px-4 py-2 text-sm text-athos-text hover:bg-athos-surfaceSoft" data-od-id="path-0-1-1-2-1-0">Meu Perfil</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-athos-text hover:bg-athos-surfaceSoft" data-od-id="path-0-1-1-2-1-1">Configurações</a>
+                        <div class="border-t border-athos-border my-1"></div>
+                        <a href="#" class="block px-4 py-2 text-sm text-athos-danger hover:bg-athos-surfaceSoft" data-od-id="path-0-1-1-2-1-3">Sair</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ─────────────────── HORIZONTAL NAV ─────────────────── -->
+    <nav class="nav-rail sticky top-[4.5rem] z-20" data-od-id="path-1">
+        <div class="nav-rail-inner" data-od-id="path-1-0">
+            <a href="#" class="nav-item is-active" data-od-id="path-1-0-0">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                <span class="lbl">Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-od-id="path-1-0-1">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <span class="lbl">Membros</span>
+            </a>
+            <a href="#" class="nav-item" data-od-id="path-1-0-2">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <span class="lbl">Comunidades</span>
+            </a>
+            <a href="#" class="nav-item" data-od-id="path-1-0-3">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                <span class="lbl">Ministérios</span>
+            </a>
+            <a href="#" class="nav-item" data-od-id="path-1-0-4">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <span class="lbl">Presença</span>
+            </a>
+            <a href="#" class="nav-item" data-od-id="path-1-0-5">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="lbl">Financeiro</span>
+                <svg class="nav-chev" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </a>
+            <a href="#" class="nav-item" data-od-id="path-1-0-6">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                <span class="lbl">Relatórios</span>
+                <svg class="nav-chev" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </a>
+            <a href="#" class="nav-item" data-od-id="path-1-0-7">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span class="lbl">Configurações</span>
+            </a>
+            <a href="#" class="nav-item" data-od-id="path-1-0-8">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="lbl">Ajuda</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- ─────────────────── MAIN CANVAS ─────────────────── -->
+    <main class="flex-1 px-6 lg:px-8 py-6 max-w-[1500px] w-full mx-auto" data-od-id="path-2">
+
+        <!-- Welcome strip -->
+        <section class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-6" data-od-id="path-2-0">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-athos-primary mb-1">Guia Geral · 27 maio 2026</p>
+                <h1 class="text-2xl md:text-[1.7rem] font-bold tracking-tight text-athos-text" data-od-id="path-2-0-0-1">Bom dia, Pr. Marcio.</h1>
+                <p class="text-sm text-athos-muted mt-1">Quarta-feira tranquila. Tem 3 lembretes pendentes e o culto de oração começa em 9 horas.</p>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0" data-od-id="path-2-0-1">
+                <button class="flex items-center gap-2 px-3 py-2 bg-athos-surface border border-athos-border rounded-lg text-sm font-medium shadow-sm hover:bg-athos-surfaceSoft transition-colors" data-od-id="path-2-0-1-0">
+                    <svg class="w-4 h-4 text-athos-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    Maio 2026
+                </button>
+                <button class="flex items-center gap-2 px-3 py-2 bg-athos-primary hover:bg-athos-primaryDark text-white rounded-lg text-sm font-semibold shadow-sm transition-colors" data-od-id="path-2-0-1-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Novo lançamento
+                </button>
+            </div>
+        </section>
+
+        <!-- General (non-financial) stats -->
+        <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6" data-od-id="path-2-1">
+            <div class="stat-pill" data-od-id="path-2-1-0">
+                <div class="stat-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                </div>
+                <div>
+                    <div class="flex items-baseline">
+                        <span class="stat-num">324</span>
+                        <span class="stat-delta">+12 mês</span>
+                    </div>
+                    <p class="stat-label">Membros ativos</p>
+                </div>
+            </div>
+
+            <div class="stat-pill" data-od-id="path-2-1-1">
+                <div class="stat-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </div>
+                <div>
+                    <div class="flex items-baseline">
+                        <span class="stat-num">9</span>
+                        <span class="stat-label ml-2">/ 9</span>
+                    </div>
+                    <p class="stat-label">Departamentos</p>
+                </div>
+            </div>
+
+            <div class="stat-pill" data-od-id="path-2-1-2">
+                <div class="stat-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                </div>
+                <div>
+                    <div class="flex items-baseline">
+                        <span class="stat-num">14</span>
+                        <span class="stat-delta">+2 novos</span>
+                    </div>
+                    <p class="stat-label">Ministérios em atividade</p>
+                </div>
+            </div>
+
+            <div class="stat-pill" data-od-id="path-2-1-3">
+                <div class="stat-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <div class="flex items-baseline">
+                        <span class="stat-num">62</span>
+                        <span class="stat-delta neg">-4 vs sem.</span>
+                    </div>
+                    <p class="stat-label">Voluntários nesta semana</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────────────── NEW DATA AREA ─────────────────── -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6" data-od-id="path-2-2">
+            
+            <!-- Frequência de Células -->
+            <div class="card p-5" data-od-id="path-2-2-0">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-athos-text" data-od-id="path-2-2-0-0-0-0">Frequência de Células</h2>
+                        <p class="text-xs text-athos-muted mt-0.5">Média de presença nas últimas 4 semanas</p>
+                    </div>
+                    <span class="text-sm font-bold text-athos-green bg-athos-green/10 px-2 py-1 rounded">+5%</span>
+                </div>
+                <div class="flex gap-3 h-32 mt-2">
+                    <div class="flex-1 h-full flex flex-col justify-end gap-1 group">
+                        <div class="w-full bg-athos-amberSoft/60 rounded-t-md h-[55%] group-hover:bg-athos-primary transition-colors relative">
+                            <span class="opacity-0 group-hover:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-athos-text text-white px-1.5 py-0.5 rounded transition-opacity">380</span>
+                        </div>
+                        <span class="text-[10px] text-center text-athos-muted font-semibold uppercase tracking-wider">Sem 1</span>
+                    </div>
+                    <div class="flex-1 h-full flex flex-col justify-end gap-1 group">
+                        <div class="w-full bg-athos-amberSoft/60 rounded-t-md h-[60%] group-hover:bg-athos-primary transition-colors relative">
+                            <span class="opacity-0 group-hover:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-athos-text text-white px-1.5 py-0.5 rounded transition-opacity">395</span>
+                        </div>
+                        <span class="text-[10px] text-center text-athos-muted font-semibold uppercase tracking-wider">Sem 2</span>
+                    </div>
+                    <div class="flex-1 h-full flex flex-col justify-end gap-1 group">
+                        <div class="w-full bg-athos-amberSoft/60 rounded-t-md h-[72%] group-hover:bg-athos-primary transition-colors relative">
+                            <span class="opacity-0 group-hover:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-athos-text text-white px-1.5 py-0.5 rounded transition-opacity">410</span>
+                        </div>
+                        <span class="text-[10px] text-center text-athos-muted font-semibold uppercase tracking-wider">Sem 3</span>
+                    </div>
+                    <div class="flex-1 h-full flex flex-col justify-end gap-1 group">
+                        <div class="w-full bg-athos-primary rounded-t-md h-[85%] relative">
+                            <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-athos-text text-white px-1.5 py-0.5 rounded">428</span>
+                        </div>
+                        <span class="text-[10px] text-center text-athos-text font-bold uppercase tracking-wider">Sem 4</span>
+                    </div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-athos-border/60 flex justify-between items-center text-sm">
+                    <span class="text-athos-muted">Média de frequência mensal</span>
+                    <span class="font-bold text-athos-text">403 pessoas</span>
+                </div>
+            </div>
+
+            <!-- Gap Geral de Voluntários -->
+            <div class="card p-5" x-data="{ expanded: false }" data-od-id="path-2-2-1">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-athos-text" data-od-id="path-2-2-1-0-0-0">Gap Geral de Voluntários</h2>
+                        <p class="text-xs text-athos-muted mt-0.5">Necessidade atual para suprir as escalas</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-athos-danger/10 flex items-center justify-center text-athos-danger font-bold text-lg">
+                        36
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 mb-2 mt-6">
+                    <div class="flex-1 bg-athos-surfaceSoft h-2.5 rounded-full overflow-hidden">
+                        <div class="bg-athos-danger h-full w-[25%] rounded-full"></div>
+                    </div>
+                    <span class="text-xs font-semibold text-athos-danger">25% de déficit</span>
+                </div>
+
+                <button @click="expanded = !expanded" class="w-full flex items-center justify-between text-xs font-semibold text-athos-primary hover:text-athos-primaryDark mt-6 pt-3 border-t border-athos-border/60 transition-colors" data-od-id="path-2-2-1-2">
+                    <span x-text="expanded ? 'Ocultar detalhes por departamento' : 'Ver gap por departamento'">Ver gap por departamento</span>
+                    <svg class="w-4 h-4 transform transition-transform" :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+
+                <div x-show="expanded" x-collapse="" class="mt-3 space-y-3">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-athos-muted flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-athos-danger"></span> Ministério Infantil</span>
+                        <span class="font-semibold text-athos-text">15 vagas</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-athos-muted flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-athos-accent"></span> Recepção &amp; Acolhimento</span>
+                        <span class="font-semibold text-athos-text">12 vagas</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-athos-muted flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-athos-primary"></span> Louvor &amp; Artes</span>
+                        <span class="font-semibold text-athos-text">5 vagas</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-athos-muted flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-athos-muted"></span> Mídia &amp; Transmissão</span>
+                        <span class="font-semibold text-athos-text">4 vagas</span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Two-column grid -->
+        <section class="grid grid-cols-12 gap-5" data-od-id="path-2-3">
+
+            <!-- ── LEFT COLUMN (Notas, Programação, Avisos) ── -->
+            <div class="col-span-12 lg:col-span-8 flex flex-col gap-5" data-od-id="path-2-3-0">
+
+                <!-- Notas / Esboços -->
+                <div class="card p-5" x-data="{ 
+                    view: 'edit', 
+                    title: 'O servo que ama', 
+                    date: '2026-05-31', 
+                    notes: 'Esboço · Culto noite domingo\n\nTema: \&quot;O servo que ama\&quot;  — João 13.1-17\n1. Jesus se levanta da mesa (v.4) — postura do servo\n2. A bacia e a toalha — tarefa comum, gesto sagrado\n3. \&quot;Vós me chamais Mestre e Senhor\&quot; — ordem invertida do reino\n4. Aplicação: lista de 3 pessoas que vou servir esta semana\n\nIdéia: convidar a Diac. Eliana para testemunho de 2 minutos.', 
+                    saved: [ 
+                        { title: 'Fé Inabalável', date: '2026-05-24' }, 
+                        { title: 'Graça que Alcança', date: '2026-05-17' } 
+                    ] 
+                }">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-base font-bold text-athos-text" data-od-id="path-2-3-0-0-0-0-0">Notas &amp; Esboços</h2>
+                            <p class="text-xs text-athos-muted mt-0.5">Gerencie suas ministrações e ideias</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button @click="view = 'list'" :class="view === 'list' ? 'bg-athos-primary text-white shadow-sm' : 'bg-athos-surfaceSoft text-athos-muted hover:text-athos-primary'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors" data-od-id="path-2-3-0-0-0-1-0">Salvos <span x-text="'(' + saved.length + ')'"></span></button>
+                            <button @click="view = 'edit'; title = ''; date = ''; notes = '';" :class="view === 'edit' ? 'bg-athos-primary text-white shadow-sm' : 'bg-athos-surfaceSoft text-athos-muted hover:text-athos-primary'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors" data-od-id="path-2-3-0-0-0-1-1">Novo</button>
+                        </div>
+                    </div>
+
+                    <!-- Edit View -->
+                    <div x-show="view === 'edit'">
+                        <div class="flex flex-col md:flex-row gap-3 mb-3">
+                            <input type="text" x-model="title" placeholder="Título do Esboço / Série" class="flex-1 bg-athos-surface border border-athos-border text-sm font-semibold rounded-lg px-3 py-2.5 focus:outline-none focus:border-athos-primary focus:ring-1 focus:ring-athos-primary/20 transition-all shadow-sm">
+                            <input type="date" x-model="date" class="w-full md:w-auto bg-athos-surface border border-athos-border text-sm text-athos-muted rounded-lg px-3 py-2.5 focus:outline-none focus:border-athos-primary focus:ring-1 focus:ring-athos-primary/20 transition-all shadow-sm" title="Data programada para ministrar">
+                        </div>
+
+                        <div class="relative">
+                            <div class="absolute top-2 right-2 flex items-center gap-1 bg-white/90 p-1 rounded-md shadow-sm border border-athos-border/50">
+                                <button class="w-7 h-7 rounded hover:bg-athos-surfaceSoft text-athos-muted hover:text-athos-primary transition-colors flex items-center justify-center" data-od-id="path-2-3-0-0-1-1-0-0"><b class="text-sm">B</b></button>
+                                <button class="w-7 h-7 rounded hover:bg-athos-surfaceSoft text-athos-muted hover:text-athos-primary transition-colors italic flex items-center justify-center" data-od-id="path-2-3-0-0-1-1-0-1"><span class="text-sm">I</span></button>
+                                <button class="w-7 h-7 rounded hover:bg-athos-surfaceSoft text-athos-muted hover:text-athos-primary transition-colors flex items-center justify-center" data-od-id="path-2-3-0-0-1-1-0-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                                </button>
+                            </div>
+                            <textarea x-model="notes" class="notes-board !min-h-[14rem]" rows="8" placeholder="Comece a digitar seu esboço aqui..."></textarea>
+                        </div>
+
+                        <div class="flex items-center justify-between mt-4 pt-3 border-t border-athos-border/60">
+                            <div class="flex items-center gap-1.5 text-[11px] text-athos-muted">
+                                <span class="w-1.5 h-1.5 bg-athos-green rounded-full animate-pulse"></span>
+                                Auto-salvo
+                            </div>
+                            <button @click="if(title &amp;&amp; !saved.find(s =&gt; s.title === title)) { saved.unshift({title, date}); }" class="px-5 py-2 bg-athos-primary hover:bg-athos-primaryDark text-white text-xs font-semibold rounded-lg shadow-sm transition-colors" data-od-id="path-2-3-0-0-1-2-1">
+                                Salvar Esboço
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- List View -->
+                    <div x-show="view === 'list'" style="display: none;" class="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                        <template x-for="item in saved" :key="item.title">
+                            <div class="flex items-center justify-between p-3 border border-athos-border rounded-lg hover:bg-athos-surfaceSoft transition-colors cursor-pointer group" @click="title = item.title; date = item.date; view = 'edit'">
+                                <div>
+                                    <h3 class="text-sm font-semibold text-athos-text group-hover:text-athos-primary transition-colors" x-text="item.title"></h3>
+                                    <p class="text-xs text-athos-muted mt-1 flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        <span x-text="item.date ? item.date.split('-').reverse().join('/') : 'Sem data'"></span>
+                                    </p>
+                                </div>
+                                <svg class="w-4 h-4 text-athos-muted group-hover:text-athos-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            </div>
+                        </template>
+                        <div x-show="saved.length === 0" class="text-center py-6 text-sm text-athos-muted">
+                            Nenhum esboço salvo ainda.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Schedule list -->
+                <div class="card p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h2 class="text-base font-bold text-athos-text" data-od-id="path-2-3-0-1-0-0-0">Próximas programações</h2>
+                            <p class="text-xs text-athos-muted mt-0.5">Os próximos 7 dias na agenda da igreja</p>
+                        </div>
+                        <a href="#" class="text-xs font-semibold text-athos-primary hover:text-athos-primaryDark transition-colors" data-od-id="path-2-3-0-1-0-1">Ver tudo →</a>
+                    </div>
+
+                    <div class="sched-item">
+                        <div class="sched-date"><span class="d-day">27</span><span class="d-mon">Mai</span></div>
+                        <div class="sched-body">
+                            <p class="sched-title">Culto de oração</p>
+                            <p class="sched-meta"><span>19h30 – 21h00</span><span>· Templo principal</span><span class="sched-tag tag-culto">Culto</span></p>
+                        </div>
+                        <span class="text-[11px] font-semibold text-athos-primary self-center whitespace-nowrap">Hoje</span>
+                    </div>
+
+                    <div class="sched-item">
+                        <div class="sched-date"><span class="d-day">29</span><span class="d-mon">Mai</span></div>
+                        <div class="sched-body">
+                            <p class="sched-title">Reunião de líderes &amp; diáconos</p>
+                            <p class="sched-meta"><span>20h00 – 22h00</span><span>· Sala de reuniões</span><span class="sched-tag tag-reuniao">Reunião</span></p>
+                        </div>
+                        <span class="text-[11px] text-athos-muted self-center whitespace-nowrap">Sex</span>
+                    </div>
+
+                    <div class="sched-item">
+                        <div class="sched-date"><span class="d-day">31</span><span class="d-mon">Mai</span></div>
+                        <div class="sched-body">
+                            <p class="sched-title">Culto matutino + Escola Bíblica</p>
+                            <p class="sched-meta"><span>09h00 – 12h00</span><span>· Templo + salas</span><span class="sched-tag tag-culto">Culto</span></p>
+                        </div>
+                        <span class="text-[11px] text-athos-muted self-center whitespace-nowrap">Dom</span>
+                    </div>
+
+                    <div class="sched-item">
+                        <div class="sched-date"><span class="d-day">31</span><span class="d-mon">Mai</span></div>
+                        <div class="sched-body">
+                            <p class="sched-title">Culto da noite — Pregação Pr. Marcio</p>
+                            <p class="sched-meta"><span>19h00 – 21h30</span><span>· Templo principal</span><span class="sched-tag tag-culto">Culto</span></p>
+                        </div>
+                        <span class="text-[11px] text-athos-muted self-center whitespace-nowrap">Dom</span>
+                    </div>
+
+                    <div class="sched-item">
+                        <div class="sched-date"><span class="d-day">03</span><span class="d-mon">Jun</span></div>
+                        <div class="sched-body">
+                            <p class="sched-title">Aniversário · Diac. Daniel Souza</p>
+                            <p class="sched-meta"><span>Lembrar de ligar ou mandar mensagem</span><span class="sched-tag tag-pessoal">Pessoal</span></p>
+                        </div>
+                        <span class="text-[11px] text-athos-muted self-center whitespace-nowrap">Qua</span>
+                    </div>
+                </div>
+
+                <!-- Avisos & comunicados -->
+                <div class="card p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-base font-bold text-athos-text" data-od-id="path-2-3-0-2-0-0">Avisos &amp; comunicados</h2>
+                        <button class="text-athos-muted hover:text-athos-primary transition-colors" aria-label="Novo aviso" data-od-id="path-2-3-0-2-0-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </button>
+                    </div>
+
+                    <div class="ann-item">
+                        <div class="ann-rail"></div>
+                        <div>
+                            <p class="ann-title">Conferência de Famílias — 21 a 23 de junho</p>
+                            <p class="ann-body">Inscrições abertas até 14 jun. 124 confirmados até o momento.</p>
+                        </div>
+                    </div>
+                    <div class="ann-item">
+                        <div class="ann-rail rail-accent"></div>
+                        <div>
+                            <p class="ann-title">Treinamento de novos voluntários</p>
+                            <p class="ann-body">Terça-feira, 02 jun, 19h30, sala 02. Cobre acolhimento, mídia e infantil.</p>
+                        </div>
+                    </div>
+                    <div class="ann-item">
+                        <div class="ann-rail rail-green"></div>
+                        <div>
+                            <p class="ann-title">Coral abriu novas vagas</p>
+                            <p class="ann-body">Falar com Diac. Eliana após qualquer culto deste mês.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ── RIGHT COLUMN (Mini Calendário, Lembretes) ── -->
+            <aside class="col-span-12 lg:col-span-4 flex flex-col gap-5" data-od-id="path-2-3-1">
+
+                <!-- Calendar (Mini -> expands to modal) -->
+                <div class="card p-5" x-data="{ showModal: false }" data-od-id="path-2-3-1-0">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-base font-bold text-athos-text" data-od-id="path-2-3-1-0-0-0-0">Calendário</h2>
+                            <p class="text-xs text-athos-muted mt-0.5">Maio · 2026</p>
+                        </div>
+                        <button @click="showModal = true" class="text-xs font-semibold text-athos-primary hover:text-athos-primaryDark transition-colors" data-od-id="path-2-3-1-0-0-1">Expandir ↗</button>
+                    </div>
+
+                    <!-- Mini Calendar UI -->
+                    <div class="cal-mini-wrap" @click="showModal = true">
+                        <div class="cal-mini-grid mb-1">
+                            <div class="cal-mini-dow">D</div><div class="cal-mini-dow">S</div><div class="cal-mini-dow">T</div><div class="cal-mini-dow">Q</div><div class="cal-mini-dow">Q</div><div class="cal-mini-dow">S</div><div class="cal-mini-dow">S</div>
+                        </div>
+                        <div class="cal-mini-grid">
+                            <div class="cal-mini-cell is-muted">26</div><div class="cal-mini-cell is-muted">27</div><div class="cal-mini-cell is-muted">28</div><div class="cal-mini-cell is-muted">29</div><div class="cal-mini-cell is-muted">30</div><div class="cal-mini-cell has-event evt-accent">1</div><div class="cal-mini-cell">2</div>
+                            <div class="cal-mini-cell has-event">3</div><div class="cal-mini-cell">4</div><div class="cal-mini-cell">5</div><div class="cal-mini-cell has-event">6</div><div class="cal-mini-cell">7</div><div class="cal-mini-cell has-event evt-accent">8</div><div class="cal-mini-cell">9</div>
+                            <div class="cal-mini-cell has-event evt-green">10</div><div class="cal-mini-cell">11</div><div class="cal-mini-cell">12</div><div class="cal-mini-cell has-event">13</div><div class="cal-mini-cell">14</div><div class="cal-mini-cell">15</div><div class="cal-mini-cell">16</div>
+                            <div class="cal-mini-cell has-event">17</div><div class="cal-mini-cell">18</div><div class="cal-mini-cell">19</div><div class="cal-mini-cell has-event">20</div><div class="cal-mini-cell">21</div><div class="cal-mini-cell has-event evt-accent">22</div><div class="cal-mini-cell has-event evt-green">23</div>
+                            <div class="cal-mini-cell has-event">24</div><div class="cal-mini-cell">25</div><div class="cal-mini-cell">26</div><div class="cal-mini-cell is-today has-event">27</div><div class="cal-mini-cell">28</div><div class="cal-mini-cell has-event evt-accent">29</div><div class="cal-mini-cell">30</div>
+                            <div class="cal-mini-cell has-event">31</div><div class="cal-mini-cell is-muted">1</div><div class="cal-mini-cell is-muted">2</div><div class="cal-mini-cell is-muted">3</div><div class="cal-mini-cell is-muted">4</div><div class="cal-mini-cell is-muted">5</div><div class="cal-mini-cell is-muted">6</div>
+                        </div>
+                        <div class="text-center mt-3 pt-3 border-t border-athos-border/60">
+                            <span class="cal-mini-cta text-[11px] font-semibold text-athos-muted transition-colors">Clique para ver programação completa</span>
+                        </div>
+                    </div>
+
+                    <!-- Modal for full calendar -->
+                    <template x-teleport="body">
+                        <div x-show="showModal" style="display: none;">
+                            <div class="modal-backdrop" @click="showModal = false" x-transition.opacity="">
+                                <div class="modal-card p-6" @click.stop="" x-transition="">
+                                    <div class="flex items-center justify-between mb-6">
+                                        <div>
+                                            <h2 class="text-xl font-bold text-athos-text">Calendário · Maio 2026</h2>
+                                            <p class="text-sm text-athos-muted mt-0.5">Visão geral de programações e eventos</p>
+                                        </div>
+                                        <button @click="showModal = false" class="w-8 h-8 rounded-full bg-athos-surfaceSoft flex items-center justify-center text-athos-muted hover:text-athos-text transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+                                    </div>
+
+                                    <!-- Full Calendar grid -->
+                                    <div class="cal-grid mb-1">
+                                        <div class="cal-dow">Dom</div><div class="cal-dow">Seg</div><div class="cal-dow">Ter</div><div class="cal-dow">Qua</div><div class="cal-dow">Qui</div><div class="cal-dow">Sex</div><div class="cal-dow">Sáb</div>
+                                    </div>
+                                    <div class="cal-grid">
+                                        <div class="cal-cell is-muted"><span class="cal-num">26</span></div><div class="cal-cell is-muted"><span class="cal-num">27</span></div><div class="cal-cell is-muted"><span class="cal-num">28</span></div><div class="cal-cell is-muted"><span class="cal-num">29</span></div><div class="cal-cell is-muted"><span class="cal-num">30</span></div><div class="cal-cell has-event"><span class="cal-num">1</span><span class="cal-dots"><span class="cal-event-dot dot-accent"></span></span></div><div class="cal-cell"><span class="cal-num">2</span></div>
+                                        <div class="cal-cell has-event"><span class="cal-num">3</span><span class="cal-dots"><span class="cal-event-dot"></span><span class="cal-event-dot"></span></span></div><div class="cal-cell"><span class="cal-num">4</span></div><div class="cal-cell"><span class="cal-num">5</span></div><div class="cal-cell has-event"><span class="cal-num">6</span><span class="cal-dots"><span class="cal-event-dot"></span></span></div><div class="cal-cell"><span class="cal-num">7</span></div><div class="cal-cell has-event"><span class="cal-num">8</span><span class="cal-dots"><span class="cal-event-dot dot-accent"></span></span></div><div class="cal-cell"><span class="cal-num">9</span></div>
+                                        <div class="cal-cell has-event"><span class="cal-num">10</span><span class="cal-dots"><span class="cal-event-dot"></span><span class="cal-event-dot dot-green"></span></span></div><div class="cal-cell"><span class="cal-num">11</span></div><div class="cal-cell"><span class="cal-num">12</span></div><div class="cal-cell has-event"><span class="cal-num">13</span><span class="cal-dots"><span class="cal-event-dot"></span></span></div><div class="cal-cell"><span class="cal-num">14</span></div><div class="cal-cell"><span class="cal-num">15</span></div><div class="cal-cell"><span class="cal-num">16</span></div>
+                                        <div class="cal-cell has-event"><span class="cal-num">17</span><span class="cal-dots"><span class="cal-event-dot"></span></span></div><div class="cal-cell"><span class="cal-num">18</span></div><div class="cal-cell"><span class="cal-num">19</span></div><div class="cal-cell has-event"><span class="cal-num">20</span><span class="cal-dots"><span class="cal-event-dot"></span></span></div><div class="cal-cell"><span class="cal-num">21</span></div><div class="cal-cell has-event"><span class="cal-num">22</span><span class="cal-dots"><span class="cal-event-dot dot-accent"></span></span></div><div class="cal-cell has-event"><span class="cal-num">23</span><span class="cal-dots"><span class="cal-event-dot dot-green"></span></span></div>
+                                        <div class="cal-cell has-event"><span class="cal-num">24</span><span class="cal-dots"><span class="cal-event-dot"></span></span></div><div class="cal-cell"><span class="cal-num">25</span></div><div class="cal-cell"><span class="cal-num">26</span></div><div class="cal-cell is-today"><span class="cal-num">27</span><span class="cal-dots"><span class="cal-event-dot"></span></span></div><div class="cal-cell"><span class="cal-num">28</span></div><div class="cal-cell has-event"><span class="cal-num">29</span><span class="cal-dots"><span class="cal-event-dot dot-accent"></span></span></div><div class="cal-cell"><span class="cal-num">30</span></div>
+                                        <div class="cal-cell has-event"><span class="cal-num">31</span><span class="cal-dots"><span class="cal-event-dot"></span></span></div><div class="cal-cell is-muted"><span class="cal-num">1</span></div><div class="cal-cell is-muted"><span class="cal-num">2</span></div><div class="cal-cell is-muted"><span class="cal-num">3</span></div><div class="cal-cell is-muted"><span class="cal-num">4</span></div><div class="cal-cell is-muted"><span class="cal-num">5</span></div><div class="cal-cell is-muted"><span class="cal-num">6</span></div>
+                                    </div>
+
+                                    <div class="flex items-center gap-6 mt-6 pt-4 border-t border-athos-border/60">
+                                        <div class="flex items-center gap-2"><span class="cal-event-dot w-2 h-2"></span><span class="text-xs text-athos-muted">Culto / oração</span></div>
+                                        <div class="flex items-center gap-2"><span class="cal-event-dot dot-accent w-2 h-2"></span><span class="text-xs text-athos-muted">Reunião de líderes</span></div>
+                                        <div class="flex items-center gap-2"><span class="cal-event-dot dot-green w-2 h-2"></span><span class="text-xs text-athos-muted">Evento especial</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Lembretes -->
+                <div class="card p-5" data-od-id="path-2-3-1-1">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h2 class="text-base font-bold text-athos-text" data-od-id="path-2-3-1-1-0-0-0">Lembretes</h2>
+                            <p class="text-xs text-athos-muted mt-0.5">3 pendentes · 2 concluídos</p>
+                        </div>
+                        <button class="text-athos-muted hover:text-athos-primary transition-colors" aria-label="Novo lembrete" data-od-id="path-2-3-1-1-0-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </button>
+                    </div>
+
+                    <div class="reminder-item">
+                        <div class="reminder-check" role="checkbox" aria-checked="false"></div>
+                        <div class="flex-1 min-w-0">
+                            <p class="reminder-text">Confirmar lista de batismos do 2º semestre <span class="reminder-prio high">Alta</span></p>
+                            <p class="reminder-meta">Vence hoje · 14 nomes</p>
+                        </div>
+                    </div>
+
+                    <div class="reminder-item">
+                        <div class="reminder-check" role="checkbox" aria-checked="false"></div>
+                        <div class="flex-1 min-w-0">
+                            <p class="reminder-text">Aprovar escala do culto de domingo <span class="reminder-prio">Média</span></p>
+                            <p class="reminder-meta">Vence amanhã · 6 ministérios envolvidos</p>
+                        </div>
+                    </div>
+
+                    <div class="reminder-item">
+                        <div class="reminder-check" role="checkbox" aria-checked="false"></div>
+                        <div class="flex-1 min-w-0">
+                            <p class="reminder-text">Imprimir manuais de obreiros (15 cópias)</p>
+                            <p class="reminder-meta">Vence em 3 dias</p>
+                        </div>
+                    </div>
+
+                    <div class="reminder-item">
+                        <div class="reminder-check is-done" role="checkbox" aria-checked="true"></div>
+                        <div class="flex-1 min-w-0">
+                            <p class="reminder-text is-done">Visitar irmã Lúcia no hospital São Lucas</p>
+                            <p class="reminder-meta">Concluído ontem</p>
+                        </div>
+                    </div>
+
+                    <div class="reminder-item">
+                        <div class="reminder-check is-done" role="checkbox" aria-checked="true"></div>
+                        <div class="flex-1 min-w-0">
+                            <p class="reminder-text is-done">Ligar para Pr. Mateus sobre evento conjunto</p>
+                            <p class="reminder-meta">Concluído ontem</p>
+                        </div>
+                    </div>
+
+                    <button class="w-full text-center text-xs font-semibold text-athos-primary hover:text-athos-primaryDark mt-3 pt-3 border-t border-athos-border/60 transition-colors" data-od-id="path-2-3-1-1-6">
+                        + adicionar lembrete
+                    </button>
+                </div>
+
+            </aside>
+        </section>
+
+        <footer class="text-center text-[11px] text-athos-muted/80 mt-8 pb-2" data-od-id="path-2-4">
+            Igreja Athos · servir, amar, cuidar  ·  Atualização: 27 mai 2026, 08h12
+        </footer>
+    </main>
+
+
+
+<script data-od-snapshot-bridge="">(function(){
+  function copyComputedStyle(source, target){
+    if (!source || !target || source.nodeType !== 1 || target.nodeType !== 1) return;
+    var computed = window.getComputedStyle(source);
+    var style = target.getAttribute('style') || '';
+    for (var i = 0; i < computed.length; i++){
+      var prop = computed[i];
+      style += prop + ':' + computed.getPropertyValue(prop) + ';';
+    }
+    target.setAttribute('style', style);
+  }
+  function syncElementState(source, target){
+    var tag = source.tagName ? source.tagName.toLowerCase() : '';
+    if (tag === 'img' && source.currentSrc) target.setAttribute('src', source.currentSrc);
+    if (tag === 'input' || tag === 'textarea') target.setAttribute('value', source.value || '');
+    if (tag === 'canvas') {
+      try {
+        var img = document.createElement('img');
+        img.setAttribute('src', source.toDataURL('image/png'));
+        img.setAttribute('style', target.getAttribute('style') || '');
+        target.parentNode && target.parentNode.replaceChild(img, target);
+      } catch (_) {}
+    }
+  }
+  function inlineSnapshotStyles(originalRoot, cloneRoot){
+    copyComputedStyle(originalRoot, cloneRoot);
+    syncElementState(originalRoot, cloneRoot);
+    var originals = originalRoot.querySelectorAll('*');
+    var clones = cloneRoot.querySelectorAll('*');
+    var count = Math.min(originals.length, clones.length);
+    for (var i = 0; i < count; i++){
+      copyComputedStyle(originals[i], clones[i]);
+      syncElementState(originals[i], clones[i]);
+    }
+    var scripts = cloneRoot.querySelectorAll('script');
+    for (var s = scripts.length - 1; s >= 0; s--) scripts[s].remove();
+  }
+  function waitForImages(){
+    var imgs = Array.prototype.slice.call(document.images || []);
+    return Promise.all(imgs.map(function(img){
+      if (img.complete) return Promise.resolve();
+      return new Promise(function(resolve){
+        img.addEventListener('load', resolve, { once: true });
+        img.addEventListener('error', resolve, { once: true });
+      });
+    }));
+  }
+  function renderSnapshot(id){
+    var w = Math.max(1, window.innerWidth || document.documentElement.clientWidth || 1);
+    var h = Math.max(1, window.innerHeight || document.documentElement.clientHeight || 1);
+    var dpr = window.devicePixelRatio || 1;
+    var docW = Math.max(w, document.documentElement.scrollWidth || 0, document.body ? document.body.scrollWidth : 0);
+    var docH = Math.max(h, document.documentElement.scrollHeight || 0, document.body ? document.body.scrollHeight : 0);
+    var clone = document.documentElement.cloneNode(true);
+    clone.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+    inlineSnapshotStyles(document.documentElement, clone);
+    var serializer = new XMLSerializer();
+    var html = serializer.serializeToString(clone);
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '">' +
+      '<foreignObject x="' + (-window.scrollX || 0) + '" y="' + (-window.scrollY || 0) + '" width="' + docW + '" height="' + docH + '">' +
+      html +
+      '</foreignObject></svg>';
+    var img = new Image();
+    img.onload = function(){
+      try {
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.floor(w * dpr));
+        canvas.height = Math.max(1, Math.floor(h * dpr));
+        var ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('no 2d context');
+        ctx.scale(dpr, dpr);
+        ctx.drawImage(img, 0, 0, w, h);
+        window.parent.postMessage({ type: 'od:snapshot:result', id: id, dataUrl: canvas.toDataURL('image/png'), w: canvas.width, h: canvas.height }, '*');
+      } catch (err) {
+        window.parent.postMessage({ type: 'od:snapshot:result', id: id, error: String(err && err.message || err) }, '*');
+      }
+    };
+    img.onerror = function(){
+      window.parent.postMessage({ type: 'od:snapshot:result', id: id, error: 'snapshot image failed' }, '*');
+    };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if (!data || data.type !== 'od:snapshot' || !data.id) return;
+    waitForImages().then(function(){ renderSnapshot(String(data.id)); });
+  });
+})();</script><script data-od-srcdoc-transport-activation="">(function(){
+  window.addEventListener('message', function(ev){
+    var data = ev && ev.data;
+    if (!data || data.type !== 'od:srcdoc-transport-activate' || typeof data.html !== 'string') return;
+    document.open();
+    document.write(data.html);
+    document.close();
+  });
+})();</script></body></html>

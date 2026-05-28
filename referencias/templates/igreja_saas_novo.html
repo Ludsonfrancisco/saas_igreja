@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sua Igreja Dashboard — Guia Geral</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <!-- Alpine Plugins -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.13.3/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            bg: "#F8FAFC",
+                            surface: "#FFFFFF",
+                            surfaceSoft: "#F1F5F9",
+                            border: "#E2E8F0",
+                            text: "#0F172A",
+                            muted: "#64748B",
+                            primary: "#4F46E5",
+                            primaryDark: "#4338CA",
+                            accent: "#0EA5E9",
+                            amberSoft: "#E0E7FF",
+                            green: "#10B981",
+                            danger: "#EF4444"
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --brand-canvas: #f8fafc;
+            --brand-canvas-warm: #f1f5f9;
+            --brand-card: rgba(255, 255, 255, 0.98);
+            --brand-line: rgba(148, 163, 184, 0.2);
+            --brand-line-soft: rgba(148, 163, 184, 0.1);
+            --brand-shadow-soft: 0 10px 25px rgba(15, 23, 42, 0.03);
+            --brand-shadow-md: 0 20px 40px rgba(15, 23, 42, 0.05);
+        }
+
+        body {
+            background: var(--brand-canvas);
+        }
+
+        /* ─────────── Top header ─────────── */
+        .top-header {
+            height: 4.5rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid var(--brand-line-soft);
+            -webkit-backdrop-filter: blur(18px) saturate(0.96);
+            backdrop-filter: blur(18px) saturate(0.96);
+        }
+
+        .brand-lockup {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+        .brand-logo-circle {
+            width: 2.2rem;
+            height: 2.2rem;
+            background: var(--brand-primary);
+            color: white;
+            border-radius: 0.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+        }
+        .brand-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--brand-text);
+            letter-spacing: -0.02em;
+        }
+
+        /* ─────────── Horizontal nav rail ─────────── */
+        .nav-rail {
+            background:
+                
+                #ffffff;
+            border-bottom: 1px solid var(--brand-line);
+            box-shadow: 0 12px 26px rgba(91, 58, 24, 0.035);
+        }
+        .nav-rail::after {
+            content: "";
+            display: block;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(126, 82, 38, 0.13) 18%, rgba(126, 82, 38, 0.06) 72%, transparent);
+        }
+
+        .nav-rail-inner {
+            display: flex;
+            align-items: stretch;
+            gap: 0.15rem;
+            padding: 0 1.25rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .nav-rail-inner::-webkit-scrollbar { display: none; }
+
+        .nav-item {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0 1rem;
+            height: 3rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--brand-muted);
+            white-space: nowrap;
+            border-radius: 0;
+            transition: color .18s ease, background-color .18s ease;
+        }
+        .nav-item svg { width: 1.05rem; height: 1.05rem; flex-shrink: 0; }
+        .nav-item:hover { color: var(--brand-text); background: rgba(248, 237, 222, 0.55); }
+        .nav-item.is-active {
+            color: var(--tw-prose-headings, var(--brand-primary));
+            color: var(--brand-primary);
+            background: linear-gradient(180deg, rgba(255, 253, 248, 0.85), rgba(248, 234, 214, 0.7));
+        }
+        .nav-item.is-active::after {
+            content: "";
+            position: absolute;
+            left: 0.6rem; right: 0.6rem; bottom: 0;
+            height: 2.5px;
+            background: var(--brand-primary);
+            border-radius: 2px 2px 0 0;
+        }
+        .nav-chev { opacity: 0.55; width: 0.9rem !important; height: 0.9rem !important; }
+
+        /* ─────────── Cards ─────────── */
+        .card {
+            background-color: var(--brand-card);
+            border: 1px solid var(--brand-line);
+            border-radius: 1.1rem;
+            box-shadow: var(--brand-shadow-soft);
+        }
+        .card-md { box-shadow: var(--brand-shadow-md); }
+
+        /* ─────────── Stat pills row ─────────── */
+        .stat-pill {
+            background: #ffffff;
+            border: 1px solid var(--brand-line);
+            border-radius: 1rem;
+            padding: 1rem 1.15rem;
+            box-shadow: var(--brand-shadow-soft);
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+        .stat-icon {
+            width: 2.4rem; height: 2.4rem;
+            border-radius: 0.75rem;
+            background: rgba(248, 234, 214, 0.7);
+            color: var(--brand-primary);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .stat-icon svg { width: 1.15rem; height: 1.15rem; }
+        .stat-num { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
+        .stat-delta { font-size: 0.7rem; font-weight: 600; color: #557A35; margin-left: 0.4rem; }
+        .stat-delta.neg { color: #B43A21; }
+        .stat-label { font-size: 0.74rem; color: var(--brand-muted); font-weight: 500; }
+
+        /* ─────────── Calendar (mini, right column) ─────────── */
+        .cal-mini-wrap { cursor: pointer; }
+        .cal-mini-wrap:hover .cal-mini-cta { color: var(--brand-primary); }
+        .cal-mini-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 2px;
+        }
+        .cal-mini-dow {
+            font-size: 0.58rem;
+            font-weight: 700;
+            color: #8a7f74;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.25rem 0 0.15rem;
+        }
+        .cal-mini-cell {
+            aspect-ratio: 1 / 1;
+            border-radius: 0.42rem;
+            font-size: 0.7rem;
+            color: var(--brand-text);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: background-color .15s ease;
+        }
+        .cal-mini-cell.is-muted { color: #c9bfb1; font-weight: 400; }
+        .cal-mini-cell.::after {
+            content: "";
+            position: absolute;
+            bottom: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px; height: 3px;
+            border-radius: 50%;
+            background: var(--brand-primary);
+        }
+        .cal-mini-cell..::after { background: #F59A17; }
+        .cal-mini-cell..::after { background: #557A35; }
+        .cal-mini-cell.is-today {
+            background: linear-gradient(180deg, #8c4708, #6a3302);
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(106, 51, 2, 0.25);
+        }
+        .cal-mini-cell.is-today.::after { background: #F4D6A1; }
+
+        /* ─────────── Calendar (full, modal) ─────────── */
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 0.3rem;
+        }
+        .cal-dow {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--brand-muted);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 0.4rem 0;
+        }
+        .cal-cell {
+            aspect-ratio: 1 / 0.82;
+            border-radius: 0.62rem;
+            padding: 0.4rem 0.5rem;
+            font-size: 0.78rem;
+            color: var(--brand-text);
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid transparent;
+            position: relative;
+            cursor: pointer;
+            transition: background-color .15s ease, border-color .15s ease;
+        }
+        .cal-cell:hover { background: rgba(248, 237, 222, 0.6); border-color: var(--brand-line); }
+        .cal-cell.is-muted { color: #B7AB9C; font-weight: 400; }
+        .cal-cell.is-today {
+            background: linear-gradient(180deg, #8c4708, #6a3302);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 10px 22px rgba(106, 51, 2, 0.28);
+        }
+        .cal-cell.is-today .cal-num { color: #fff; }
+        .cal-cell.is-today .cal-event-dot { background: #F4D6A1; }
+        .cal-cell.is-today:hover { background: linear-gradient(180deg, #8c4708, #6a3302); }
+        .cal-cell. { background: rgba(248, 237, 222, 0.45); }
+        .cal-num { display: block; }
+        .cal-dots { display: flex; gap: 0.18rem; }
+        .cal-event-dot {
+            width: 0.32rem; height: 0.32rem;
+            border-radius: 50%;
+            background: var(--brand-primary);
+            display: inline-block;
+        }
+        .cal-event-dot.dot-accent { background: #F59A17; }
+        .cal-event-dot.dot-green { background: #557A35; }
+
+        /* ─────────── Modal overlay ─────────── */
+        .modal-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(38, 22, 7, 0.42);
+            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
+            z-index: 50;
+            display: flex; align-items: center; justify-content: center;
+            padding: 1.5rem;
+        }
+        .modal-card {
+            background: #fffdf8;
+            border: 1px solid var(--brand-line);
+            border-radius: 1.25rem;
+            box-shadow: 0 40px 100px rgba(54, 28, 4, 0.28);
+            max-width: 760px;
+            width: 100%;
+            max-height: 92vh;
+            overflow: auto;
+        }
+
+        /* ─────────── Reminders ─────────── */
+        .reminder-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.7rem;
+            padding: 0.55rem 0.25rem;
+            border-bottom: 1px dashed var(--brand-line-soft);
+        }
+        .reminder-item:last-of-type { border-bottom: none; }
+        .reminder-check {
+            width: 1.05rem; height: 1.05rem;
+            border-radius: 0.32rem;
+            border: 1.5px solid #c9b89e;
+            background: #fff;
+            margin-top: 0.18rem;
+            flex-shrink: 0;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .reminder-check.is-done {
+            background: var(--brand-primary);
+            border-color: var(--brand-primary);
+            color: #fff;
+        }
+        .reminder-check.is-done::after {
+            content: "";
+            width: 0.32rem; height: 0.6rem;
+            border-right: 2px solid #fff;
+            border-bottom: 2px solid #fff;
+            transform: rotate(45deg) translate(-1px, -1px);
+        }
+        .reminder-text { font-size: 0.83rem; color: var(--brand-text); line-height: 1.35; }
+        .reminder-text.is-done { color: #8a7f74; text-decoration: line-through; }
+        .reminder-meta { font-size: 0.68rem; color: var(--brand-muted); margin-top: 0.1rem; }
+        .reminder-prio {
+            display: inline-block;
+            margin-left: 0.4rem;
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.05rem 0.4rem;
+            border-radius: 0.3rem;
+            background: rgba(244, 214, 161, 0.55);
+            color: var(--brand-primary);
+        }
+        .reminder-prio.high { background: rgba(180, 58, 33, 0.12); color: #B43A21; }
+
+        /* ─────────── Schedule list ─────────── */
+        .sched-item {
+            display: flex;
+            align-items: stretch;
+            gap: 0.9rem;
+            padding: 0.7rem 0.25rem;
+            border-bottom: 1px solid var(--brand-line-soft);
+        }
+        .sched-item:last-of-type { border-bottom: none; }
+        .sched-date {
+            flex-shrink: 0;
+            width: 3rem;
+            text-align: center;
+            border-radius: 0.55rem;
+            background: rgba(248, 237, 222, 0.7);
+            border: 1px solid var(--brand-line);
+            padding: 0.25rem 0;
+        }
+        .sched-date .d-day { display: block; font-size: 0.94rem; font-weight: 700; color: var(--brand-text); line-height: 1; }
+        .sched-date .d-mon { display: block; font-size: 0.6rem; font-weight: 700; color: var(--brand-primary); text-transform: uppercase; letter-spacing: 0.07em; margin-top: 0.18rem; }
+        .sched-body { flex: 1; min-width: 0; }
+        .sched-title { font-size: 0.86rem; font-weight: 600; color: var(--brand-text); }
+        .sched-meta { font-size: 0.72rem; color: var(--brand-muted); margin-top: 0.12rem; display: flex; gap: 0.55rem; flex-wrap: wrap; }
+        .sched-tag {
+            font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+            padding: 0.1rem 0.45rem; border-radius: 0.3rem;
+        }
+        .sched-tag.tag-culto { background: rgba(134, 69, 7, 0.1); color: var(--brand-primary); }
+        .sched-tag.tag-reuniao { background: rgba(245, 154, 23, 0.16); color: #b86a05; }
+        .sched-tag.tag-evento { background: rgba(85, 122, 53, 0.14); color: #557A35; }
+        .sched-tag.tag-pessoal { background: rgba(180, 58, 33, 0.1); color: #B43A21; }
+
+        /* ─────────── Notes ─────────── */
+        .notes-board {
+            background:
+                repeating-linear-gradient(180deg, transparent 0 1.45rem, rgba(118, 78, 39, 0.08) 1.45rem 1.46rem),
+                #fffdf8;
+            border-radius: 0.85rem;
+            border: 1px solid var(--brand-line);
+            min-height: 11rem;
+            padding: 0.5rem 0.85rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            line-height: 1.45rem;
+            color: #322a23;
+            resize: vertical;
+            width: 100%;
+            outline: none;
+        }
+        .notes-board:focus { border-color: #c8a374; box-shadow: 0 0 0 3px rgba(134, 69, 7, 0.08); }
+
+        /* ─────────── Announcement ─────────── */
+        .ann-item {
+            display: flex;
+            gap: 0.7rem;
+            padding: 0.65rem 0.25rem;
+            border-bottom: 1px solid var(--brand-line-soft);
+        }
+        .ann-item:last-of-type { border-bottom: none; }
+        .ann-rail {
+            width: 3px;
+            border-radius: 2px;
+            background: var(--brand-primary);
+            flex-shrink: 0;
+        }
+        .ann-rail.rail-accent { background: #F59A17; }
+        .ann-rail.rail-green { background: #557A35; }
+        .ann-title { font-size: 0.84rem; font-weight: 600; color: var(--brand-text); }
+        .ann-body { font-size: 0.74rem; color: var(--brand-muted); margin-top: 0.18rem; line-height: 1.4; }
+
+        /* ─────────── Scrollbar ─────────── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #E6D8C7; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6E6257; }
+
+        /* ─────────── Responsive ─────────── */
+        @media (max-width: 1100px) {
+            .nav-item { padding: 0 0.7rem; font-size: 0.82rem; }
+            .nav-item span.lbl { display: none; }
+            .nav-item.is-active span.lbl { display: inline; }
+        }
+        @media (max-width: 720px) {
+            .top-header .search-block { display: none; }
+        }
+    </style>
+</head>
+<body x-data="{ showCustomizer: false }" class="text-brand-text font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- ─────────────────── HEADER ─────────────────── -->
+    <header class="top-header sticky top-0 z-30 flex items-center justify-between px-6">
+        <div class="flex items-center gap-5">
+            <a href="#" class="brand-lockup">
+                <div class="brand-logo-circle">S</div>
+                <span class="brand-name">Sua Igreja</span>
+            </a>
+            <div class="hidden md:flex items-center gap-2 pl-4 border-l border-brand-border/60 text-sm">
+                
+                <span class="text-[10px] uppercase tracking-wider font-bold text-brand-primary bg-brand-amberSoft/60 px-2 py-0.5 rounded">Premium</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-5">
+            <div class="search-block relative w-[26rem] hidden md:block">
+                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" placeholder="Buscar membro, ministério, programação..." class="w-full bg-brand-surface/90 border border-brand-border text-sm rounded-xl pl-9 pr-4 py-2 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20 transition-all placeholder:text-brand-muted/70 shadow-sm">
+            </div>
+
+            <div class="flex items-center gap-4 pl-4 border-l border-brand-border/70">
+                <button class="text-brand-muted hover:text-brand-primary transition-colors" aria-label="Downloads">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                </button>
+                <button class="relative text-brand-muted hover:text-brand-primary transition-colors" aria-label="Notificações">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    <span class="absolute top-0 right-0 w-2 h-2 bg-brand-accent rounded-full ring-2 ring-white"></span>
+                </button>
+
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                        <div class="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center text-xs font-semibold shadow-sm">MR</div>
+                        <div class="hidden sm:flex flex-col items-start leading-tight">
+                            <span class="text-xs font-semibold text-brand-text">Administrador</span>
+                            <span class="text-[10px] text-brand-muted">Pastor titular</span>
+                        </div>
+                        <svg class="w-4 h-4 text-brand-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div x-show="open" @click.away="open = false" x-transition.opacity.duration.200ms class="absolute right-0 mt-2 w-48 bg-brand-surface border border-brand-border rounded-xl shadow-lg py-1 z-50" style="display:none">
+                        <a href="#" class="block px-4 py-2 text-sm text-brand-text hover:bg-brand-surfaceSoft">Meu Perfil</a>
+                        <a href="#" @click.prevent="showCustomizer = true; open = false" class="block px-4 py-2 text-sm text-brand-text hover:bg-brand-surfaceSoft">Personalizar</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-brand-text hover:bg-brand-surfaceSoft">Configurações</a>
+                        <div class="border-t border-brand-border my-1"></div>
+                        <a href="#" class="block px-4 py-2 text-sm text-brand-danger hover:bg-brand-surfaceSoft">Sair</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ─────────────────── HORIZONTAL NAV ─────────────────── -->
+    <nav class="nav-rail sticky top-[4.5rem] z-20">
+        <div class="nav-rail-inner">
+            <a href="#" class="nav-item is-active">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                <span class="lbl">Dashboard</span>
+            </a>
+            <a href="#" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <span class="lbl">Membros</span>
+            </a>
+            <a href="#" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <span class="lbl">Comunidades</span>
+            </a>
+            <a href="#" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                <span class="lbl">Ministérios</span>
+            </a>
+            <a href="#" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <span class="lbl">Presença</span>
+            </a>
+            <a href="#" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="lbl">Financeiro</span>
+                <svg class="nav-chev" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </a>
+            <a href="#" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                <span class="lbl">Relatórios</span>
+                <svg class="nav-chev" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </a>
+            <a href="#" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span class="lbl">Configurações</span>
+            </a>
+            <a href="#" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="lbl">Ajuda</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- ─────────────────── MAIN CANVAS ─────────────────── -->
+    <main class="flex-1 px-6 lg:px-8 py-6 max-w-[1500px] w-full mx-auto">
+
+        <!-- Welcome strip -->
+        <section class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-6">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-brand-primary mb-1">Guia Geral · 27 maio 2026</p>
+                <h1 class="text-2xl md:text-[1.7rem] font-bold tracking-tight text-brand-text">Bem-vindo(a), Administrador.</h1>
+                <p class="text-sm text-brand-muted mt-1">Quarta-feira tranquila. Tem 3 lembretes pendentes e o culto de oração começa em 9 horas.</p>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <button class="flex items-center gap-2 px-3 py-2 bg-brand-surface border border-brand-border rounded-lg text-sm font-medium shadow-sm hover:bg-brand-surfaceSoft transition-colors">
+                    <svg class="w-4 h-4 text-brand-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    Maio 2026
+                </button>
+                <button class="flex items-center gap-2 px-3 py-2 bg-brand-primary hover:bg-brand-primaryDark text-white rounded-lg text-sm font-semibold shadow-sm transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Novo lançamento
+                </button>
+            </div>
+        </section>
+
+        <!-- General (non-financial) stats -->
+        <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="stat-pill">
+                <div class="stat-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                </div>
+                <div>
+                    <div class="flex items-baseline">
+                        <span class="stat-num">324</span>
+                        <span class="stat-delta">+12 mês</span>
+                    </div>
+                    <p class="stat-label">Membros ativos</p>
+                </div>
+            </div>
+
+            <div class="stat-pill">
+                <div class="stat-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </div>
+                <div>
+                    <div class="flex items-baseline">
+                        <span class="stat-num">9</span>
+                        <span class="stat-label ml-2">/ 9</span>
+                    </div>
+                    <p class="stat-label">Departamentos</p>
+                </div>
+            </div>
+
+            <div class="stat-pill">
+                <div class="stat-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                </div>
+                <div>
+                    <div class="flex items-baseline">
+                        <span class="stat-num">14</span>
+                        <span class="stat-delta">+2 novos</span>
+                    </div>
+                    <p class="stat-label">Ministérios em atividade</p>
+                </div>
+            </div>
+
+            <div class="stat-pill">
+                <div class="stat-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <div class="flex items-baseline">
+                        <span class="stat-num">62</span>
+                        <span class="stat-delta neg">-4 vs sem.</span>
+                    </div>
+                    <p class="stat-label">Voluntários nesta semana</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────────────────── NEW DATA AREA ─────────────────── -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
+            
+            <!-- Frequência de Células -->
+            <div class="card p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-brand-text">Frequência de Células</h2>
+                        <p class="text-xs text-brand-muted mt-0.5">Média de presença nas últimas 4 semanas</p>
+                    </div>
+                    <span class="text-sm font-bold text-brand-green bg-brand-green/10 px-2 py-1 rounded">+5%</span>
+                </div>
+                <div class="flex gap-3 h-32 mt-2">
+                    <div class="flex-1 h-full flex flex-col justify-end gap-1 group">
+                        <div class="w-full bg-brand-amberSoft/60 rounded-t-md h-[55%] group-hover:bg-brand-primary transition-colors relative">
+                            <span class="opacity-0 group-hover:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-brand-text text-white px-1.5 py-0.5 rounded transition-opacity">380</span>
+                        </div>
+                        <span class="text-[10px] text-center text-brand-muted font-semibold uppercase tracking-wider">Sem 1</span>
+                    </div>
+                    <div class="flex-1 h-full flex flex-col justify-end gap-1 group">
+                        <div class="w-full bg-brand-amberSoft/60 rounded-t-md h-[5%] group-hover:bg-brand-primary transition-colors relative">
+                            <span class="opacity-0 group-hover:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-brand-text text-white px-1.5 py-0.5 rounded transition-opacity">0</span>
+                        </div>
+                        <span class="text-[10px] text-center text-brand-muted font-semibold uppercase tracking-wider">Sem 2</span>
+                    </div>
+                    <div class="flex-1 h-full flex flex-col justify-end gap-1 group">
+                        <div class="w-full bg-brand-amberSoft/60 rounded-t-md h-[5%] group-hover:bg-brand-primary transition-colors relative">
+                            <span class="opacity-0 group-hover:opacity-100 absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-brand-text text-white px-1.5 py-0.5 rounded transition-opacity">0</span>
+                        </div>
+                        <span class="text-[10px] text-center text-brand-muted font-semibold uppercase tracking-wider">Sem 3</span>
+                    </div>
+                    <div class="flex-1 h-full flex flex-col justify-end gap-1 group">
+                        <div class="w-full bg-brand-primary rounded-t-md h-[5%] relative">
+                            <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-brand-text text-white px-1.5 py-0.5 rounded">0</span>
+                        </div>
+                        <span class="text-[10px] text-center text-brand-text font-bold uppercase tracking-wider">Sem 4</span>
+                    </div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-brand-border/60 flex justify-between items-center text-sm">
+                    <span class="text-brand-muted">Média de frequência mensal</span>
+                    <span class="font-bold text-brand-text">0 pessoas</span>
+                </div>
+            </div>
+
+            <!-- Gap Geral de Voluntários -->
+            <div class="card p-5" x-data="{ expanded: false }">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-base font-bold text-brand-text">Gap Geral de Voluntários</h2>
+                        <p class="text-xs text-brand-muted mt-0.5">Necessidade atual para suprir as escalas</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-brand-danger/10 flex items-center justify-center text-brand-danger font-bold text-lg">
+                        0
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 mb-2 mt-6">
+                    <div class="flex-1 bg-brand-surfaceSoft h-2.5 rounded-full overflow-hidden">
+                        <div class="bg-brand-danger h-full w-[0%] rounded-full"></div>
+                    </div>
+                    <span class="text-xs font-semibold text-brand-danger">0% de déficit</span>
+                </div>
+
+                <button @click="expanded = !expanded" class="w-full flex items-center justify-between text-xs font-semibold text-brand-primary hover:text-brand-primaryDark mt-6 pt-3 border-t border-brand-border/60 transition-colors">
+                    <span x-text="expanded ? 'Ocultar detalhes por departamento' : 'Ver gap por departamento'">Ver gap por departamento</span>
+                    <svg class="w-4 h-4 transform transition-transform" :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+
+                <div x-show="expanded" x-collapse class="mt-3 space-y-3"><div class="text-sm text-brand-muted text-center py-4">Nenhuma vaga registrada no momento.</div></div>
+            </div>
+            </div>
+
+        </section>
+
+        <!-- Two-column grid -->
+        <section class="grid grid-cols-12 gap-5">
+
+            <!-- ── LEFT COLUMN (Notas, Programação, Avisos) ── -->
+            <div class="col-span-12 lg:col-span-8 flex flex-col gap-5">
+
+                <!-- Notas / Esboços -->
+                <div class="card p-5" x-data="{ 
+                    view: 'edit', 
+                    title: '', 
+                    date: '', 
+                    notes: '', 
+                    saved: [] 
+                }">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-base font-bold text-brand-text">Notas &amp; Esboços</h2>
+                            <p class="text-xs text-brand-muted mt-0.5">Gerencie suas ministrações e ideias</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button @click="view = 'list'" :class="view === 'list' ? 'bg-brand-primary text-white shadow-sm' : 'bg-brand-surfaceSoft text-brand-muted hover:text-brand-primary'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">Salvos <span x-text="'(' + saved.length + ')'"></span></button>
+                            <button @click="view = 'edit'; title = ''; date = ''; notes = '';" :class="view === 'edit' ? 'bg-brand-primary text-white shadow-sm' : 'bg-brand-surfaceSoft text-brand-muted hover:text-brand-primary'" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">Novo</button>
+                        </div>
+                    </div>
+
+                    <!-- Edit View -->
+                    <div x-show="view === 'edit'">
+                        <div class="flex flex-col md:flex-row gap-3 mb-3">
+                            <input type="text" x-model="title" placeholder="Título do Esboço / Série" class="flex-1 bg-brand-surface border border-brand-border text-sm font-semibold rounded-lg px-3 py-2.5 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20 transition-all shadow-sm">
+                            <input type="date" x-model="date" class="w-full md:w-auto bg-brand-surface border border-brand-border text-sm text-brand-muted rounded-lg px-3 py-2.5 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20 transition-all shadow-sm" title="Data programada para ministrar">
+                        </div>
+
+                        <div class="relative">
+                            <div class="absolute top-2 right-2 flex items-center gap-1 bg-white/90 p-1 rounded-md shadow-sm border border-brand-border/50">
+                                <button class="w-7 h-7 rounded hover:bg-brand-surfaceSoft text-brand-muted hover:text-brand-primary transition-colors flex items-center justify-center"><b class="text-sm">B</b></button>
+                                <button class="w-7 h-7 rounded hover:bg-brand-surfaceSoft text-brand-muted hover:text-brand-primary transition-colors italic flex items-center justify-center"><span class="text-sm">I</span></button>
+                                <button class="w-7 h-7 rounded hover:bg-brand-surfaceSoft text-brand-muted hover:text-brand-primary transition-colors flex items-center justify-center">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                                </button>
+                            </div>
+                            <textarea x-model="notes" class="notes-board !min-h-[14rem]" rows="8" placeholder="Comece a digitar seu esboço aqui..."></textarea>
+                        </div>
+
+                        <div class="flex items-center justify-between mt-4 pt-3 border-t border-brand-border/60">
+                            <div class="flex items-center gap-1.5 text-[11px] text-brand-muted">
+                                <span class="w-1.5 h-1.5 bg-brand-green rounded-full animate-pulse"></span>
+                                Auto-salvo
+                            </div>
+                            <button @click="if(title && !saved.find(s => s.title === title)) { saved.unshift({title, date}); }" class="px-5 py-2 bg-brand-primary hover:bg-brand-primaryDark text-white text-xs font-semibold rounded-lg shadow-sm transition-colors">
+                                Salvar Esboço
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- List View -->
+                    <div x-show="view === 'list'" style="display: none;" class="space-y-2 max-h-[300px] overflow-y-auto pr-2">
+                        <template x-for="item in saved" :key="item.title">
+                            <div class="flex items-center justify-between p-3 border border-brand-border rounded-lg hover:bg-brand-surfaceSoft transition-colors cursor-pointer group" @click="title = item.title; date = item.date; view = 'edit'">
+                                <div>
+                                    <h3 class="text-sm font-semibold text-brand-text group-hover:text-brand-primary transition-colors" x-text="item.title"></h3>
+                                    <p class="text-xs text-brand-muted mt-1 flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        <span x-text="item.date ? item.date.split('-').reverse().join('/') : 'Sem data'"></span>
+                                    </p>
+                                </div>
+                                <svg class="w-4 h-4 text-brand-muted group-hover:text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            </div>
+                        </template>
+                        <div x-show="saved.length === 0" class="text-center py-6 text-sm text-brand-muted">
+                            Nenhum esboço salvo ainda.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Schedule list -->
+                <div class="card p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h2 class="text-base font-bold text-brand-text">Próximas programações</h2>
+                            <p class="text-xs text-brand-muted mt-0.5">Os próximos 7 dias na agenda da igreja</p>
+                        </div>
+                        <a href="#" class="text-xs font-semibold text-brand-primary hover:text-brand-primaryDark transition-colors">Ver tudo →</a>
+                    </div>
+
+                    <div class="text-sm text-brand-muted text-center py-8">Nenhuma programação cadastrada para os próximos 7 dias.</div>
+                </div>
+
+                <!-- Avisos & comunicados -->
+                <div class="card p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-base font-bold text-brand-text">Avisos &amp; comunicados</h2>
+                        <button class="text-brand-muted hover:text-brand-primary transition-colors" aria-label="Novo aviso">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </button>
+                    </div>
+
+                    <div class="text-sm text-brand-muted text-center py-8">Sem avisos no momento.</div>
+                </div>
+
+            </div>
+
+            <!-- ── RIGHT COLUMN (Mini Calendário, Lembretes) ── -->
+            <aside class="col-span-12 lg:col-span-4 flex flex-col gap-5">
+
+                <!-- Calendar (Mini -> expands to modal) -->
+                <div class="card p-5" x-data="{ showModal: false }">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-base font-bold text-brand-text">Calendário</h2>
+                            <p class="text-xs text-brand-muted mt-0.5">Maio · 2026</p>
+                        </div>
+                        <button @click="showModal = true" class="text-xs font-semibold text-brand-primary hover:text-brand-primaryDark transition-colors">Expandir ↗</button>
+                    </div>
+
+                    <!-- Mini Calendar UI -->
+                    <div class="cal-mini-wrap" @click="showModal = true">
+                        <div class="cal-mini-grid mb-1">
+                            <div class="cal-mini-dow">D</div><div class="cal-mini-dow">S</div><div class="cal-mini-dow">T</div><div class="cal-mini-dow">Q</div><div class="cal-mini-dow">Q</div><div class="cal-mini-dow">S</div><div class="cal-mini-dow">S</div>
+                        </div>
+                        <div class="cal-mini-grid">
+                            <div class="cal-mini-cell is-muted">26</div><div class="cal-mini-cell is-muted">27</div><div class="cal-mini-cell is-muted">28</div><div class="cal-mini-cell is-muted">29</div><div class="cal-mini-cell is-muted">30</div><div class="cal-mini-cell  ">1</div><div class="cal-mini-cell">2</div>
+                            <div class="cal-mini-cell ">3</div><div class="cal-mini-cell">4</div><div class="cal-mini-cell">5</div><div class="cal-mini-cell ">6</div><div class="cal-mini-cell">7</div><div class="cal-mini-cell  ">8</div><div class="cal-mini-cell">9</div>
+                            <div class="cal-mini-cell  ">10</div><div class="cal-mini-cell">11</div><div class="cal-mini-cell">12</div><div class="cal-mini-cell ">13</div><div class="cal-mini-cell">14</div><div class="cal-mini-cell">15</div><div class="cal-mini-cell">16</div>
+                            <div class="cal-mini-cell ">17</div><div class="cal-mini-cell">18</div><div class="cal-mini-cell">19</div><div class="cal-mini-cell ">20</div><div class="cal-mini-cell">21</div><div class="cal-mini-cell  ">22</div><div class="cal-mini-cell  ">23</div>
+                            <div class="cal-mini-cell ">24</div><div class="cal-mini-cell">25</div><div class="cal-mini-cell">26</div><div class="cal-mini-cell is-today ">27</div><div class="cal-mini-cell">28</div><div class="cal-mini-cell  ">29</div><div class="cal-mini-cell">30</div>
+                            <div class="cal-mini-cell ">31</div><div class="cal-mini-cell is-muted">1</div><div class="cal-mini-cell is-muted">2</div><div class="cal-mini-cell is-muted">3</div><div class="cal-mini-cell is-muted">4</div><div class="cal-mini-cell is-muted">5</div><div class="cal-mini-cell is-muted">6</div>
+                        </div>
+                        <div class="text-center mt-3 pt-3 border-t border-brand-border/60">
+                            <span class="cal-mini-cta text-[11px] font-semibold text-brand-muted transition-colors">Clique para ver programação completa</span>
+                        </div>
+                    </div>
+
+                    <!-- Modal for full calendar -->
+                    <template x-teleport="body">
+                        <div x-show="showModal" style="display: none;">
+                            <div class="modal-backdrop" @click="showModal = false" x-transition.opacity>
+                                <div class="modal-card p-6" @click.stop x-transition>
+                                    <div class="flex items-center justify-between mb-6">
+                                        <div>
+                                            <h2 class="text-xl font-bold text-brand-text">Calendário · Maio 2026</h2>
+                                            <p class="text-sm text-brand-muted mt-0.5">Visão geral de programações e eventos</p>
+                                        </div>
+                                        <button @click="showModal = false" class="w-8 h-8 rounded-full bg-brand-surfaceSoft flex items-center justify-center text-brand-muted hover:text-brand-text transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+                                    </div>
+
+                                    <!-- Full Calendar grid -->
+                                    <div class="cal-grid mb-1">
+                                        <div class="cal-dow">Dom</div><div class="cal-dow">Seg</div><div class="cal-dow">Ter</div><div class="cal-dow">Qua</div><div class="cal-dow">Qui</div><div class="cal-dow">Sex</div><div class="cal-dow">Sáb</div>
+                                    </div>
+                                    <div class="cal-grid">
+                                        <div class="cal-cell is-muted"><span class="cal-num">26</span></div><div class="cal-cell is-muted"><span class="cal-num">27</span></div><div class="cal-cell is-muted"><span class="cal-num">28</span></div><div class="cal-cell is-muted"><span class="cal-num">29</span></div><div class="cal-cell is-muted"><span class="cal-num">30</span></div><div class="cal-cell "><span class="cal-num">1</span></div><div class="cal-cell"><span class="cal-num">2</span></div>
+                                        <div class="cal-cell "><span class="cal-num">3</span></div><div class="cal-cell"><span class="cal-num">4</span></div><div class="cal-cell"><span class="cal-num">5</span></div><div class="cal-cell "><span class="cal-num">6</span></div><div class="cal-cell"><span class="cal-num">7</span></div><div class="cal-cell "><span class="cal-num">8</span></div><div class="cal-cell"><span class="cal-num">9</span></div>
+                                        <div class="cal-cell "><span class="cal-num">10</span></div><div class="cal-cell"><span class="cal-num">11</span></div><div class="cal-cell"><span class="cal-num">12</span></div><div class="cal-cell "><span class="cal-num">13</span></div><div class="cal-cell"><span class="cal-num">14</span></div><div class="cal-cell"><span class="cal-num">15</span></div><div class="cal-cell"><span class="cal-num">16</span></div>
+                                        <div class="cal-cell "><span class="cal-num">17</span></div><div class="cal-cell"><span class="cal-num">18</span></div><div class="cal-cell"><span class="cal-num">19</span></div><div class="cal-cell "><span class="cal-num">20</span></div><div class="cal-cell"><span class="cal-num">21</span></div><div class="cal-cell "><span class="cal-num">22</span></div><div class="cal-cell "><span class="cal-num">23</span></div>
+                                        <div class="cal-cell "><span class="cal-num">24</span></div><div class="cal-cell"><span class="cal-num">25</span></div><div class="cal-cell"><span class="cal-num">26</span></div><div class="cal-cell is-today"><span class="cal-num">27</span></div><div class="cal-cell"><span class="cal-num">28</span></div><div class="cal-cell "><span class="cal-num">29</span></div><div class="cal-cell"><span class="cal-num">30</span></div>
+                                        <div class="cal-cell "><span class="cal-num">31</span></div><div class="cal-cell is-muted"><span class="cal-num">1</span></div><div class="cal-cell is-muted"><span class="cal-num">2</span></div><div class="cal-cell is-muted"><span class="cal-num">3</span></div><div class="cal-cell is-muted"><span class="cal-num">4</span></div><div class="cal-cell is-muted"><span class="cal-num">5</span></div><div class="cal-cell is-muted"><span class="cal-num">6</span></div>
+                                    </div>
+
+                                    <div class="flex items-center gap-6 mt-6 pt-4 border-t border-brand-border/60">
+                                        <div class="flex items-center gap-2"><span class="text-xs text-brand-muted">Culto / oração</span></div>
+                                        <div class="flex items-center gap-2"><span class="text-xs text-brand-muted">Reunião de líderes</span></div>
+                                        <div class="flex items-center gap-2"><span class="text-xs text-brand-muted">Evento especial</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Lembretes -->
+                <div class="card p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h2 class="text-base font-bold text-brand-text">Lembretes</h2>
+                            <p class="text-xs text-brand-muted mt-0.5">0 pendentes · 0 concluídos</p>
+                        </div>
+                        <button class="text-brand-muted hover:text-brand-primary transition-colors" aria-label="Novo lembrete">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </button>
+                    </div>
+
+                    <div class="text-sm text-brand-muted text-center py-8">Nenhum lembrete pendente.</div>
+
+                    <button class="w-full text-center text-xs font-semibold text-brand-primary hover:text-brand-primaryDark mt-3 pt-3 border-t border-brand-border/60 transition-colors">
+                        + adicionar lembrete
+                    </button>
+                </div>
+
+            </aside>
+        </section>
+
+        <footer class="text-center text-[11px] text-brand-muted/80 mt-8 pb-2">
+            Sua Igreja · servir, amar, cuidar  ·  Atualização: 27 mai 2026, 08h12
+        </footer>
+    </main>
+
+    <!-- Modal Personalizar -->
+    <template x-teleport="body">
+        <div x-show="showCustomizer" style="display: none;" class="relative z-[100]">
+            <div class="modal-backdrop" @click="showCustomizer = false" x-transition.opacity>
+                <div class="modal-card p-6 max-w-2xl" @click.stop x-transition>
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-brand-text">Personalizar Aparência</h2>
+                            <p class="text-sm text-brand-muted mt-0.5">Altere as cores e fontes para combinar com a identidade da sua igreja.</p>
+                        </div>
+                        <button @click="showCustomizer = false" class="w-8 h-8 rounded-full bg-brand-surfaceSoft flex items-center justify-center text-brand-muted hover:text-brand-text transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <div class="space-y-8">
+                        <!-- Paletas -->
+                        <div>
+                            <h3 class="text-sm font-semibold text-brand-text mb-3">Paletas Sugeridas</h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                <!-- Indigo SaaS (Atual) -->
+                                <button class="flex flex-col text-left p-3 border border-brand-primary ring-1 ring-brand-primary/20 rounded-xl bg-brand-surfaceSoft/50 transition-all">
+                                    <div class="flex items-center gap-1.5 mb-2">
+                                        <div class="w-4 h-4 rounded-full bg-[#4F46E5]"></div>
+                                        <div class="w-4 h-4 rounded-full bg-[#0EA5E9]"></div>
+                                        <div class="w-4 h-4 rounded-full bg-[#1E293B]"></div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-brand-text">Padrão SaaS</span>
+                                    <span class="text-[10px] text-brand-muted">Indigo & Slate (Atual)</span>
+                                </button>
+                                
+                                <!-- Athos Original -->
+                                <button class="flex flex-col text-left p-3 border border-brand-border hover:border-brand-primary/50 hover:bg-brand-surfaceSoft transition-all rounded-xl">
+                                    <div class="flex items-center gap-1.5 mb-2">
+                                        <div class="w-4 h-4 rounded-full bg-[#8c4708]"></div>
+                                        <div class="w-4 h-4 rounded-full bg-[#F59A17]"></div>
+                                        <div class="w-4 h-4 rounded-full bg-[#322a23]"></div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-brand-text">Acolhedor</span>
+                                    <span class="text-[10px] text-brand-muted">Laranja & Marrom</span>
+                                </button>
+
+                                <!-- Ocean -->
+                                <button class="flex flex-col text-left p-3 border border-brand-border hover:border-brand-primary/50 hover:bg-brand-surfaceSoft transition-all rounded-xl">
+                                    <div class="flex items-center gap-1.5 mb-2">
+                                        <div class="w-4 h-4 rounded-full bg-[#0284C7]"></div>
+                                        <div class="w-4 h-4 rounded-full bg-[#38BDF8]"></div>
+                                        <div class="w-4 h-4 rounded-full bg-[#0F172A]"></div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-brand-text">Modern Ocean</span>
+                                    <span class="text-[10px] text-brand-muted">Azul & Cinza</span>
+                                </button>
+
+                                <!-- Nature -->
+                                <button class="flex flex-col text-left p-3 border border-brand-border hover:border-brand-primary/50 hover:bg-brand-surfaceSoft transition-all rounded-xl">
+                                    <div class="flex items-center gap-1.5 mb-2">
+                                        <div class="w-4 h-4 rounded-full bg-[#059669]"></div>
+                                        <div class="w-4 h-4 rounded-full bg-[#10B981]"></div>
+                                        <div class="w-4 h-4 rounded-full bg-[#1C1917]"></div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-brand-text">Natureza</span>
+                                    <span class="text-[10px] text-brand-muted">Esmeralda & Stone</span>
+                                </button>
+
+                                <!-- Sunset -->
+                                <button class="flex flex-col text-left p-3 border border-brand-border hover:border-brand-primary/50 hover:bg-brand-surfaceSoft transition-all rounded-xl">
+                                    <div class="flex items-center gap-1.5 mb-2">
+                                        <div class="w-4 h-4 rounded-full bg-[#E11D48]"></div>
+                                        <div class="w-4 h-4 rounded-full bg-[#FB7185]"></div>
+                                        <div class="w-4 h-4 rounded-full bg-[#27272A]"></div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-brand-text">Pôr do Sol</span>
+                                    <span class="text-[10px] text-brand-muted">Rose & Zinco</span>
+                                </button>
+                                
+                                <!-- Minimal -->
+                                <button class="flex flex-col text-left p-3 border border-brand-border hover:border-brand-primary/50 hover:bg-brand-surfaceSoft transition-all rounded-xl">
+                                    <div class="flex items-center gap-1.5 mb-2">
+                                        <div class="w-4 h-4 rounded-full bg-[#171717]"></div>
+                                        <div class="w-4 h-4 rounded-full bg-[#52525B]"></div>
+                                        <div class="w-4 h-4 rounded-full bg-[#FFFFFF] border border-brand-border"></div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-brand-text">Minimalista</span>
+                                    <span class="text-[10px] text-brand-muted">Preto & Branco</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Fontes -->
+                        <div class="pt-2">
+                            <h3 class="text-sm font-semibold text-brand-text mb-3">Combinação de Fontes</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <button class="flex items-center justify-between p-3 border border-brand-primary ring-1 ring-brand-primary/20 rounded-xl bg-brand-surfaceSoft/50 transition-all text-left">
+                                    <div>
+                                        <span class="block text-sm font-bold" style="font-family: 'Inter', sans-serif;">Inter</span>
+                                        <span class="block text-[11px] text-brand-muted mt-0.5">Limpa, legível e moderna (Atual)</span>
+                                    </div>
+                                    <div class="w-4 h-4 rounded-full border-[4px] border-brand-primary"></div>
+                                </button>
+                                
+                                <button class="flex items-center justify-between p-3 border border-brand-border hover:border-brand-primary/50 hover:bg-brand-surfaceSoft transition-all rounded-xl text-left">
+                                    <div>
+                                        <span class="block text-sm font-bold" style="font-family: system-ui, -apple-system, sans-serif;">System UI</span>
+                                        <span class="block text-[11px] text-brand-muted mt-0.5">Nativa do dispositivo, super rápida</span>
+                                    </div>
+                                    <div class="w-4 h-4 rounded-full border border-brand-border"></div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Brand Logo -->
+                        <div class="pt-2 border-t border-brand-border/60">
+                            <h3 class="text-sm font-semibold text-brand-text mb-3">Sua Logo</h3>
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-xl border-2 border-dashed border-brand-border flex items-center justify-center bg-brand-surfaceSoft text-brand-muted">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                </div>
+                                <div class="flex-1">
+                                    <button class="px-4 py-2 bg-white border border-brand-border hover:bg-brand-surfaceSoft text-xs font-semibold text-brand-text rounded-lg transition-colors shadow-sm">Fazer Upload</button>
+                                    <p class="text-[10px] text-brand-muted mt-1.5">Recomendado: PNG ou SVG com fundo transparente, máx 2MB.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 flex justify-end">
+                            <button @click="showCustomizer = false" class="px-5 py-2.5 bg-brand-primary hover:bg-brand-primaryDark text-white text-sm font-semibold rounded-lg shadow-sm transition-colors">
+                                Salvar Alterações
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+</body>
+</html>
