@@ -1,0 +1,86 @@
+[project]
+name = "saas-igreja"
+version = "0.1.0"
+description = "SaaS de gestao de igrejas multi-tenant (schema-per-tenant)."
+requires-python = ">=3.12,<3.13"
+
+# Dependencias de runtime (Sprint 1 scaffold).
+# Cada item referencia a decisao/requisito que o justifica:
+#   - Django 5.2          : stack oficial (TECH_SPEC Secao 1).
+#   - django-tenants      : schema-per-tenant (RN-001, TENANT-01).
+#   - django-allauth      : login por email (SEC-02, P-ARQ-03); usado a partir da Sprint 2.
+#   - django-axes         : account lockout / brute force (SEC-02); usado a partir da Sprint 2.
+#   - sentry-sdk          : observabilidade + tag tenant_id + before_send PII (TECH_SPEC Secao 12.3).
+#   - psycopg2-binary     : driver PostgreSQL (banco obrigatorio, AP-13).
+#   - redis               : broker/result Celery + readiness check (OD-003, TECH_SPEC Secao 12.1).
+#   - celery              : tasks assincronas (OD-003 / A3 — desde Sprint 1).
+#   - python-decouple     : secrets via env vars, nunca no codigo (SEC-06 / AP-12).
+#   - weasyprint          : RESSALVA — incluido por exigencia explicita da sub-task de scaffold.
+#                           TECH_SPEC Secao 10 (A4) marca WeasyPrint como Fase 2 (MVP usa browser
+#                           print via @media print). Declarado aqui, mas NAO deve ser usado no MVP
+#                           ate a Fase 2. Imagem Docker pesa ~200MB por causa dele.
+dependencies = [
+    "django>=5.2,<5.3",
+    "django-tenants>=3.7",
+    "django-allauth>=65.0",
+    "django-axes>=7.0",
+    "sentry-sdk[django]>=2.0",
+    "psycopg2-binary>=2.9",
+    "redis>=5.0",
+    "celery>=5.4",
+    "python-decouple>=3.8",
+    "weasyprint>=62.0",
+]
+
+# Dependencias de desenvolvimento/CI (formato uv: PEP 735 dependency-groups).
+# Instaladas no CI via `uv sync` para que lint, auditoria e testes rodem.
+#   - ruff, black                 : lint + format (TECH_SPEC Secao 6, STYLE-01).
+#   - pytest, pytest-django,
+#     pytest-cov                  : test suite + cobertura (gate --cov-fail-under=80 no CI).
+#   - pip-audit, safety           : auditoria de CVEs (SEC-07).
+# NOTA: nplusone e django-debug-toolbar pertencem ao bloco "Performance baseline"
+# da Sprint 1, FORA do escopo deste scaffold; serao adicionados naquela onda.
+[dependency-groups]
+dev = [
+    "ruff>=0.6",
+    "black>=24.0",
+    "pytest>=8.0",
+    "pytest-django>=4.8",
+    "pytest-cov>=5.0",
+    "pip-audit>=2.7",
+    "safety>=3.2",
+]
+
+# ----------------------------------------------------------------------------
+# Black — formatador. Max line 88 (STYLE-01). Aspas simples preservadas via
+# skip-string-normalization (Black por padrao converte para aspas duplas).
+# ----------------------------------------------------------------------------
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+skip-string-normalization = true
+extend-exclude = '''
+/(
+    migrations
+  | \.venv
+)/
+'''
+
+# ----------------------------------------------------------------------------
+# Ruff — linter. Coerente com Black (line-length 88). Aspas simples no quote
+# style para casar com skip-string-normalization do Black (STYLE-01).
+# ----------------------------------------------------------------------------
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+extend-exclude = ["migrations", ".venv"]
+
+[tool.ruff.lint]
+# E/W pycodestyle, F pyflakes, I isort, UP pyupgrade, B bugbear, DJ flake8-django.
+select = ["E", "W", "F", "I", "UP", "B", "DJ"]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint.isort]
+known-first-party = ["apps", "core"]

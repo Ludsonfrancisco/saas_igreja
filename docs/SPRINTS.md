@@ -95,13 +95,13 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### Scaffold do projeto
 
-- [ ] (P0) `uv init` e configurar `pyproject.toml` com Django 5.2, django-tenants, allauth, axes, sentry-sdk, psycopg2-binary, redis, celery, weasyprint, python-decouple
-- [ ] (P0) Configurar Ruff e Black em `pyproject.toml`
-- [ ] (P0) Criar `docker-compose.yml` para dev (PostgreSQL 15 + Redis)
-- [ ] (P0) Criar `compose/django/Dockerfile` multi-stage
-- [ ] (P0) Criar estrutura `apps/` com apps vazias (`core`, `accounts`, `tenants`, `people`, `communities`, `ministries`, `gatherings`, `schedules`, `files`, `dashboard`)
-- [ ] (P0) Configurar `core/settings/{base,dev,prod}.py` com split
-- [ ] (P0) Configurar `.env.example` e adicionar `.env` em `.gitignore`
+- [x] (P0) `uv init` e configurar `pyproject.toml` com Django 5.2, django-tenants, allauth, axes, sentry-sdk, psycopg2-binary, redis, celery, weasyprint, python-decouple
+- [x] (P0) Configurar Ruff e Black em `pyproject.toml`
+- [x] (P0) Criar `docker-compose.yml` para dev (PostgreSQL 15 + Redis)
+- [x] (P0) Criar `compose/django/Dockerfile` multi-stage
+- [x] (P0) Criar estrutura `apps/` com apps vazias (`core`, `accounts`, `tenants`, `people`, `communities`, `ministries`, `gatherings`, `schedules`, `files`, `dashboard`)
+- [x] (P0) Configurar `core/settings/{base,dev,prod}.py` com split
+- [x] (P0) Configurar `.env.example` e adicionar `.env` em `.gitignore`
 
 #### Models de fundação
 

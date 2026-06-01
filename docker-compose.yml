@@ -1,0 +1,74 @@
+# =============================================================================
+# docker-compose.yml — ambiente de DESENVOLVIMENTO
+# -----------------------------------------------------------------------------
+# Sobe PostgreSQL 15 + Redis 7 como servicos com healthcheck (AP-13: SQLite
+# proibido; banco e Redis sao servicos — OPS-03 / OD-003).
+#
+# Secrets: NENHUM secret real aqui (AP-12). Credenciais de dev abaixo sao
+# valores locais nao-sensiveis, coerentes com o DATABASE_URL do CI
+# (postgres://saas:saas@localhost:5432/saas_igreja). Em prod, EasyPanel injeta
+# as variaveis — este arquivo nao vai para producao (ver compose/production.yml,
+# fora do escopo deste scaffold).
+#
+# O servico `web` esta sob o profile "app" e fica DESLIGADO por padrao: o codigo
+# Django ainda nao existe (sera criado na proxima onda). Assim, `docker compose
+# up` sobe apenas db + redis sem quebrar. Para subir tudo depois que houver
+# codigo: `docker compose --profile app up`.
+# =============================================================================
+
+services:
+  db:
+    image: postgres:15
+    container_name: saas_igreja_db
+    environment:
+      POSTGRES_USER: saas
+      POSTGRES_PASSWORD: saas
+      POSTGRES_DB: saas_igreja
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U saas -d saas_igreja']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    container_name: saas_igreja_redis
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---------------------------------------------------------------------------
+  # Servico da aplicacao Django. Sob profile "app" => nao sobe por padrao.
+  # Preparado para a proxima onda (quando existirem manage.py e core/).
+  # NAO faca db/redis dependerem deste servico.
+  # ---------------------------------------------------------------------------
+  web:
+    profiles: ['app']
+    build:
+      context: .
+      dockerfile: compose/django/Dockerfile
+      target: production
+    container_name: saas_igreja_web
+    env_file:
+      - .env
+    ports:
+      - '8000:8000'
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    # CMD do Dockerfile (Gunicorn) sera ativado quando core.wsgi existir.
+    # Em dev, sobrescreva para runserver, ex.:
+    # command: python manage.py runserver 0.0.0.0:8000
+
+volumes:
+  postgres_data:

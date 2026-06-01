@@ -1,0 +1,45 @@
+# --- Secrets (SEC-06 / AP-12): .env NUNCA versionado. Use .env.example. ---
+.env
+.env.*
+!.env.example
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# --- Ambientes virtuais / uv ---
+.venv/
+venv/
+env/
+
+# --- Django ---
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/media/
+/staticfiles/
+
+# --- Testes / cobertura ---
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# --- Ferramentas / cache ---
+.ruff_cache/
+.mypy_cache/
+
+# --- IDE / SO ---
+.idea/
+.vscode/
+*.swp
+.DS_Store
