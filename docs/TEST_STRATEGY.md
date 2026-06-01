@@ -87,7 +87,11 @@ apps/core/tests/
 ```python
 # conftest.py
 import pytest
+from django.utils import timezone
 from django_tenants.utils import schema_context
+
+# Nota (RN-003a / multi-role): `User.roles` é ArrayField. Fixtures sempre passam
+# `roles=[...]` (lista), nunca `role='...'`. Verificação via `user.has_any_role(...)`.
 
 @pytest.fixture
 def public_user(db):
@@ -96,7 +100,7 @@ def public_user(db):
     return User.objects.create_user(
         email='admin@platform.com',
         password='Test1234!',
-        role='pastor',
+        roles=['pastor'],
     )
 
 @pytest.fixture
@@ -121,7 +125,7 @@ def pastor_a(db, church_a):
     return User.objects.create_user(
         email='pastor@a.com',
         password='Test1234!',
-        role='pastor',
+        roles=['pastor'],
         church=church_a,
     )
 
@@ -131,7 +135,7 @@ def pastor_b(db, church_b):
     return User.objects.create_user(
         email='pastor@b.com',
         password='Test1234!',
-        role='pastor',
+        roles=['pastor'],
         church=church_b,
     )
 
@@ -141,7 +145,7 @@ def leader_a(db, church_a):
     return User.objects.create_user(
         email='leader@a.com',
         password='Test1234!',
-        role='leader',
+        roles=['leader'],
         church=church_a,
     )
 

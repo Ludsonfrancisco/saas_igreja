@@ -24,9 +24,15 @@ Este documento detalha decisões técnicas, modelos completos, estrutura de apps
 | Package manager | uv | — | Dependências |
 | Monitoramento | Sentry SDK | — | Erros + tags por tenant |
 | Async | Redis + Celery + Celery Beat | última estável | Importação CSV, purge LGPD semanal, emails (decisão OD-003) |
+| Email transacional | `django-anymail[brevo]` | última estável | Convites + recuperação de senha via Brevo free tier (decisão OD-012); desde Sprint 2 |
+| Validação de arquivos | `python-magic` | última estável | Validação de MIME real no upload (RF-080 / RN-012); desde Sprint 6 |
+| Config / secrets | `python-decouple` | última estável | Variáveis de ambiente e secrets fora do código (SEC-06); desde Sprint 1 |
 | PDF (pós-MVP) | WeasyPrint | — | Relatórios complexos |
 | Storage de mídia | Cloudflare R2 (S3-compatible) via `django-storages` | última estável | MVP desde Sprint 6 (decisão OD-003a / OD-007) |
+| Detecção de N+1 | `nplusone` | última estável | Raise em dev/CI quando há query N+1 (P-ARQ-09 / RNF-024); desde Sprint 1 |
+| Profiling de queries (dev) | `django-debug-toolbar` | última estável | Apenas dev; análise de queries em fluxos novos; desde Sprint 1 |
 | Deploy | Docker + EasyPanel Free + Cloudflare Free | — | Bootstrapped |
+| CI/CD | GitHub Actions | — | Lint, testes, auditoria de deps (decisão OD-015); desde Sprint 1 |
 
 ### 1.1 Proibições explícitas
 
@@ -75,7 +81,7 @@ saas_igreja/
     ├── core/                      # BaseModel, mixins, middleware, AuditLog, SecurityLog
     │   ├── models.py              # BaseModel + AuditLog + SecurityLog
     │   ├── mixins.py              # TenantRequiredMixin (re-export), PastorRequiredMixin, etc.
-    │   ├── middleware.py          # Headers de segurança extras se necessário
+    │   ├── middleware.py          # Headers de segurança extras + MFARequiredForRoleMiddleware (Sprint 7)
     │   ├── services.py            # Helpers compartilhados
     │   ├── validators.py          # FileExtensionValidator, MagicValidator
     │   ├── admin.py               # TenantAdminMixin (proíbe admin padrão em prod)
@@ -165,7 +171,7 @@ saas_igreja/
 | ID | Princípio | Aplicação |
 |---|---|---|
 | P-ARQ-01 | App-per-Bounded-Context | URLs, views, models, signals, templates e admin convivem na app. Cross-context só por FK string ou service. |
-| P-ARQ-02 | Todo model herda de `BaseModel` | `created_at` e `updated_at` desde o início. Index em `created_at`. |
+| P-ARQ-02 | Todo model herda de `BaseModel` | `created_at` e `updated_at` desde o início. Index em `created_at`. **Exceções:** models que herdam de `TenantMixin` (`Church`, que já define `created_at`) e tabelas-catálogo de plataforma (`Plan`) são isentos; `AuditLog`/`SecurityLog` também não herdam (têm `created_at` próprio e schema/índices específicos). |
 | P-ARQ-03 | Login por email | `USERNAME_FIELD = 'email'` desde a primeira migração. Trocar User depois é proibido (AP-02). |
 | P-ARQ-04 | Service Layer leve | Fluxos com >1 efeito vão em `services.py`. CBVs delegam. CRUD trivial não precisa de service. |
 | P-ARQ-05 | Multi-tenant via django-tenants | Toda view tenant-scoped usa `TenantRequiredMixin`. |
@@ -574,6 +580,17 @@ class SecurityLog(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 ```
 
+#### 5.9.1 Placement de schema (crítico — TENANT-04 / RN-014)
+
+`AuditLog` e `SecurityLog` **vivem no schema do tenant**, não no `public`. Isso é o que torna válido o uso de `user_id IntegerField` + `tenant_id CharField` (sem FK cross-schema). Regra de configuração obrigatória em `core/settings/base.py`:
+
+- O app `core` precisa estar listado em **`TENANT_APPS`** (e também em `SHARED_APPS` se contiver elementos compartilhados), de modo que `AuditLog`/`SecurityLog` migrem para **cada schema de tenant**.
+- `BaseModel` é abstrato (não gera tabela), então não exige decisão de schema.
+- Mixins, middleware e validators do `core` **não são models** e não afetam a migração de schema.
+- **Risco se violado:** se `AuditLog`/`SecurityLog` forem migrados apenas para `public`, perde-se o isolamento por tenant e quebra-se RN-014/TENANT-04 (RISK-001). Validado por `test_auditlog_no_cross_schema_fk` e `test_auditlog_scoped_by_tenant_id`.
+
+> Se no momento da implementação ficar inevitável separar os models compartilhados dos models de tenant dentro do `core`, mover `AuditLog`/`SecurityLog` para um submódulo dedicado migrado via `TENANT_APPS` (decisão técnica a registrar na Sprint 2, não inferir).
+
 ---
 
 ## 6. Estilo de Código
@@ -599,6 +616,7 @@ class SecurityLog(models.Model):
 | SEC-05 | Proteção contra OWASP Top 10. ModelForm com `fields` explícito (nunca `__all__`). |
 | SEC-06 | Secrets via `python-decouple` ou env vars. `.env` em `.gitignore`. |
 | SEC-07 | `pip-audit` + `safety check` no CI. Lock file com versões pinadas. |
+| SEC-08 | MFA: opt-in TOTP (allauth) desde Sprint 2. Enforcement obrigatório na Sprint 7 via `MFARequiredForRoleMiddleware` (decisão OD-002), aplicado a usuários com `'pastor' in roles` e a `PlatformAdmin`. Posição na cadeia: **após** `AuthenticationMiddleware` e **após** `TenantMiddleware`; login sem MFA configurado redireciona para setup, login com MFA configurado exige TOTP. Não bloqueia `leader`/`treasurer`/`member`. |
 
 ### 7.1 Bloco obrigatório em `core/settings/prod.py`
 
@@ -628,6 +646,7 @@ X_FRAME_OPTIONS = 'DENY'
 | OPS-02 | Idempotência em tasks e importações. CSV usa `import_id` para evitar duplicata. |
 | OPS-03 | Docker multi-stage. EasyPanel para prod. SQLite proibido. |
 | OPS-04 | Enforcement de limites do plano. `people/services.py.create_person` verifica `church.plan.max_persons` antes do save. |
+| OPS-05 | Enforcement de consentimento LGPD na **camada de service** (`people/services.py.create_person` e `import_csv`): se `email` ou `phone` preenchido, `consent_given_at` é obrigatório (RN-005 / RNF-007). O `ModelForm` espelha a regra para UX, mas a barreira efetiva é o service — garante cobertura no caminho de importação CSV (RF-033), que **não** passa por `ModelForm`. Validado por `test_person_create_requires_consent_when_email_or_phone` e por teste equivalente no fluxo CSV. |
 
 ---
 
@@ -659,7 +678,9 @@ X_FRAME_OPTIONS = 'DENY'
 | A2 | Attendance duplicado | `update_or_create` para `(person, gathering)`. Nunca criar duplicado. |
 | A3 | Celery no MVP | **Decidido (OD-003): incluído desde Sprint 1.** Importação CSV, purge LGPD semanal e emails justificam. |
 | A4 | WeasyPrint | Pesado (~200MB no Docker). MVP usa browser print (`@media print`). WeasyPrint entra na Fase 2 com relatórios complexos. |
-| A5 | django-guardian | Overkill no MVP. Permissões hierárquicas (pastor > leader > coordinator > member) resolvem com mixins customizados em `User.role`. Guardian disponível para per-object permissions no futuro. |
+| A5 | django-guardian | Overkill no MVP. Permissões hierárquicas (pastor > leader > coordinator > member) resolvem com mixins customizados em `User.roles`. Guardian disponível para per-object permissions no futuro. |
+| A6 | Performance e paginação (RNF-011/RNF-021) | Toda listagem >25 registros usa paginação backend (`Paginator`); proibido carregar lista completa no template. Índices de consulta já declarados nos models (`status`, `date`, `created_at`, `tenant_id`+ação). Meta: listagem ≤500 registros <500ms. N+1 coberto por P-ARQ-09 (`nplusone`). |
+| A7 | Acessibilidade (RNF-012/RNF-020) | WCAG AA: contraste via tokens Athos (nunca cor hardcoded — AP-05), `<label>` em todos os campos de form, navegação por teclado, foco visível. Mobile-first ≥360px. Meta Lighthouse mobile ≥90 nas telas principais. |
 
 ---
 
@@ -781,6 +802,17 @@ Decisões já fechadas:
 - OD-002 (MFA): split opt-in Sprint 2 + enforcement Sprint 7.
 - OD-003 (Celery): Celery + Redis no MVP desde Sprint 1.
 - OD-003a / OD-007 (Storage): Cloudflare R2 (S3-compatible) desde Sprint 6.
+- OD-004 (login de Membro): **fechada (2026-06-01)** — Membro existe apenas como `Person`, sem login no MVP. Mantém a app `accounts` enxuta; `member` permanece em `Role.choices` para evitar migração na Fase 2.
 - OD-006 (VPS): Hostinger KVM 2 (8GB, 2 vCPU, 100GB NVMe).
 - OD-012 (Email): Brevo free tier via `django-anymail`.
-- **CI/CD: GitHub Actions** (Seção 12.2).
+- OD-015 (CI/CD): **GitHub Actions** (Seção 12.2).
+- OD-016 (RTO/RPO baseline beta): RTO 4h / RPO 24h, limitado pelo `pg_dump` diário (PRD §20.4).
+- OD-017 (exclusão de tenant): **fechada (2026-06-01)** — igreja não é hard-deletável no MVP, apenas suspensa (RF-003). `on_delete=CASCADE` permanece no model, mas nenhum caminho de produto dispara delete de `Church`.
+- OD-018 (enforcement LGPD `consent_given_at`): **fechada (2026-06-01)** — validação na camada de service (`create_person`/`import_csv`), espelhada no form. Ver §OPS-05.
+
+Decisões **abertas com impacto direto em código** (não inferir — perguntar ao dono, G-05):
+
+| OD | Impacto técnico | Onde toca |
+|---|---|---|
+| OD-010 | Retenção de logs (`AuditLog`/`SecurityLog`) — crescimento de tabela e purge | Models §5.9; futura task de purge/particionamento (Sprint 7) |
+| OD-014 | Confirmação dupla na anonimização de Pessoa | UX de `anonymize_person` (Sprint 3) |

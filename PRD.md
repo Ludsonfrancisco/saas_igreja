@@ -163,7 +163,7 @@ Há aproximadamente 400 mil igrejas no Brasil. A maioria, na faixa de 50 a 2.000
 
 - Idade: ampla.
 - Contexto: cadastrado na igreja, pode acessar seu próprio perfil, sua comunidade, seus ministérios e seu histórico de presença.
-- Status no MVP: **decisão aberta** — se entra como `User` com login próprio ou apenas como `Person` (sem acesso). Ver `OPEN_DECISIONS`.
+- Status no MVP: **decisão fechada (OD-004, 2026-06-01)** — Membro existe apenas como `Person`, **sem login**. Login de Membro entra na Fase 2 se houver demanda. A role `member` permanece em `User.Role.choices` para evitar migração futura, mas nenhuma view de autoatendimento de Membro é construída no MVP.
 
 ### 6.7 Persona 7 — Platform Admin (operador da plataforma)
 
@@ -600,7 +600,7 @@ X_FRAME_OPTIONS = 'DENY'
 | Coordenador de Ministério (`leader` in roles) | Tenant, escopo do ministério | Gerencia escalas/voluntários via `ScopedToMinistryMixin` |
 | Tesoureiro (`treasurer` in roles) | Tenant, escopo financeiro | Pós-MVP; pode ser combinado com `leader` |
 | Voluntário | Tenant, escopo individual | Pessoa com `Schedule`; sem login dedicado |
-| Membro / Pessoa (`member` in roles) | Tenant, escopo individual | Decisão aberta OD-004 sobre login no MVP |
+| Membro / Pessoa (`member` in roles) | Tenant, escopo individual | OD-004 (fechada): **sem login no MVP**; existe apenas como `Person`. Login de Membro fica para a Fase 2 |
 
 **Multi-role:** um usuário pode ter `roles=['treasurer', 'leader']` e acumula permissões dos dois. Pastor sempre domina (adicionar outras roles a Pastor é redundante).
 
@@ -1328,6 +1328,9 @@ gantt
 |---|---|---|
 | OD-002 | MFA obrigatório | Split: opt-in Sprint 2; enforcement obrigatório Sprint 7 (`pastor`/`PlatformAdmin`) |
 | OD-003 | Celery + Redis no MVP | Incluído desde Sprint 1 |
+| OD-004 | Membro/Pessoa tem login no MVP | Não — Membro existe apenas como `Person`, sem login. Login de Membro fica para a Fase 2 (fechada 2026-06-01) |
+| OD-017 | Política de exclusão de tenant (Church) | Igreja não é hard-deletável no MVP — apenas suspensa (RF-003). Exclusão definitiva fica para pós-MVP (fechada 2026-06-01) |
+| OD-018 | Camada canônica de enforcement LGPD (`consent_given_at`) | Validação na camada de service (`create_person`/`import_csv`), espelhada no form (fechada 2026-06-01) |
 | OD-003a | Storage de mídia | Cloudflare R2 (S3-compatible) desde Sprint 6 |
 | OD-006 | VPS definitivo | Hostinger KVM 2 (8GB RAM, 2 vCPU, 100GB NVMe) |
 | OD-007 | Storage offsite | Cloudflare R2 (mesma conta do storage de mídia) |
@@ -1340,7 +1343,6 @@ gantt
 | ID | Decisão | Status | Owner | Prazo sugerido | Impacto se não decidir |
 |---|---|---|---|---|---|
 | OD-001 | Precificação final (valores e limites por plano) | Em aberto | Produto + Finanças | Antes do lançamento comercial | Bloqueio de cobrança automatizada e GTM |
-| OD-004 | Membro/Pessoa tem login no MVP | Em aberto | Produto | Sprint 3 | Define escopo da app `accounts` |
 | OD-005 | DPO/responsável LGPD | Em aberto | Jurídico | Antes do beta público | Risco regulatório |
 | OD-008 | OAuth2 Google opcional no MVP | Em aberto | Produto | Sprint 2 | Pode atrasar Sprint 2 |
 | OD-009 | Billing manual: planilha vs. Notion vs. ferramenta dedicada | Em aberto | Produto | Antes do segundo cliente pago | Operacional |

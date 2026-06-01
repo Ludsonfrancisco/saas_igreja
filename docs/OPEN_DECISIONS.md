@@ -109,17 +109,26 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 
 | Campo | Valor |
 |---|---|
-| Status | 🟢 Aberta |
+| Status | ✅ Fechada (2026-06-01) |
 | Impacto | Médio (escopo) |
 | Owner | Produto |
-| Prazo | Sprint 3 |
-| Bloqueia | Escopo da app `accounts` |
+| Decisão | **Membro existe apenas como `Person`, sem login no MVP (opção b)** |
 
 **Contexto:** PRD prevê persona "Membro / Pessoa" com acesso limitado (próprio perfil, comunidade, ministérios, presença). Custo: mais views, mais permissões, mais convites.
 
 **Opções:** (a) login para Membro no MVP; (b) Membro existe apenas como `Person` sem login; (c) decidir caso a caso pela igreja (flag por tenant).
 
-**Recomendação atual:** (b). MVP cobre Pastor, Líder, Coordenador. Login de Membro entra na Fase 2 se houver demanda.
+**Decisão:** **(b)** — o MVP cobre login apenas para Pastor, Líder e Coordenador. "Membro / Pessoa" existe somente como `Person` (sem conta de acesso). Login de Membro entra na Fase 2 se houver demanda.
+
+**Justificativa:**
+- Mantém a app `accounts` enxuta no MVP (menos views, menos permissões, menos fluxos de convite).
+- A persona Membro não tem ação operacional crítica no MVP — só visualizaria o próprio perfil.
+- `member` permanece em `User.Role.choices` para não exigir migração de schema na Fase 2, mas nenhuma view de autoatendimento de Membro é construída no MVP.
+
+**Implicações para o escopo:**
+- Convites (Sprint 2) são emitidos apenas para `pastor`, `leader`, `treasurer` (este último com escopo mínimo). Não há fluxo de convite para `member`.
+- Nenhuma view "minha conta de Membro" / "minhas escalas (Membro)" entra no MVP.
+- Reabrir como nova decisão (OD-XXX) se a demanda da Fase 2 exigir.
 
 ---
 
@@ -305,12 +314,63 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 
 ---
 
+### OD-017 — Política de exclusão de tenant (Church)
+
+| Campo | Valor |
+|---|---|
+| Status | ✅ Fechada (2026-06-01) |
+| Impacto | Alto (LGPD + integridade de auditoria) |
+| Owner | Segurança + Produto |
+| Decisão | **Igreja não é hard-deletável no MVP — apenas suspensa (opção a)** |
+
+**Contexto:** `User.church` está com `on_delete=CASCADE` (`TECH_SPEC §5.2`). Excluir uma `Church` apagaria os `User` do schema public, deixando `AuditLog.user_id`/`SecurityLog.user_id` órfãos no tenant. O PRD prevê apenas **suspender** igreja (RF-003), não há RF de exclusão definitiva.
+
+**Opções:** (a) igreja não é hard-deletável no MVP — apenas suspensa (RF-003); (b) hard delete com fluxo de anonimização/retenção prévio dos logs; (c) `on_delete=PROTECT` em `User.church` exigindo limpeza manual.
+
+**Decisão:** **(a)** — no MVP a igreja só é **suspensa** (RF-003), nunca excluída fisicamente. Os dados e a trilha de auditoria são preservados. Hard delete entra como fluxo auditado/anonimizado pós-MVP, se houver demanda real.
+
+**Implicações para o código:**
+- Não construir view/serviço de exclusão definitiva de `Church` no MVP.
+- O `on_delete=CASCADE` em `User.church` permanece no model (sem migração), mas **nenhum caminho de produto dispara a exclusão da Church** — a suspensão é via flag de status, não delete.
+- Reabrir como nova OD se a Fase 2 exigir exclusão definitiva (definir então retenção/anonimização prévia de logs).
+
+**Origem:** levantada na validação Tech Lead do TECH_SPEC (achado B-1, 2026-06-01).
+
+---
+
+### OD-018 — Camada canônica de enforcement LGPD (`consent_given_at`)
+
+| Campo | Valor |
+|---|---|
+| Status | ✅ Fechada (2026-06-01) |
+| Impacto | Crítico (LGPD) |
+| Owner | Tech Lead |
+| Decisão | **Validação na camada de service (espelhada no form) — opção a** |
+
+**Contexto:** RNF-007 diz que `consent_given_at` é validado "no `Person.save` ou form". Se a validação ficar **só no `ModelForm`**, a importação CSV (RF-033, que pode rodar via Celery e não passa por form) burlaria a regra LGPD (RN-005).
+
+**Opções:** (a) validar na **camada de service** (`create_person`/`import_csv`) e espelhar no form para UX; (b) validar no `Person.save()` (model-level); (c) validar apenas no form (rejeitada — não cobre CSV).
+
+**Decisão:** **(a)** — a barreira efetiva é a **camada de service**: `people/services.py.create_person` e `import_csv` rejeitam Pessoa com `email` ou `phone` sem `consent_given_at` (RN-005/RNF-007). O `ModelForm` espelha a regra para UX, mas não é a única defesa. Garante cobertura do caminho de importação CSV.
+
+**Implicações para o código:**
+- Regra de consentimento implementada em `people/services.py` (já registrada em `TECH_SPEC §OPS-05`).
+- Teste obrigatório no fluxo de form **e** no fluxo CSV (`test_person_create_requires_consent_when_email_or_phone` + equivalente CSV).
+- Form espelha a validação apenas para feedback ao usuário; não substitui a checagem no service.
+
+**Origem:** levantada na validação Tech Lead do TECH_SPEC (achado A-4, 2026-06-01).
+
+---
+
 ## Histórico — decisões fechadas
 
 | ID | Decisão | Data | Resultado |
 |---|---|---|---|
 | OD-002 | MFA obrigatório | 2026-05-27 | Split: opt-in Sprint 2; enforcement obrigatório Sprint 7 |
 | OD-003 | Celery + Redis no MVP | 2026-05-27 | Celery + Redis incluído desde Sprint 1 |
+| OD-004 | Membro/Pessoa tem login no MVP | 2026-06-01 | Não — Membro existe apenas como `Person`, sem login. Login de Membro fica para a Fase 2 |
+| OD-017 | Política de exclusão de tenant (Church) | 2026-06-01 | Igreja não é hard-deletável no MVP — apenas suspensa (RF-003). Exclusão definitiva fica para pós-MVP |
+| OD-018 | Camada canônica de enforcement LGPD (`consent_given_at`) | 2026-06-01 | Validação na camada de service (`create_person`/`import_csv`), espelhada no form. Cobre o caminho CSV |
 | OD-003a | Storage de mídia | 2026-05-27 | Cloudflare R2 (S3-compatible) desde Sprint 6 |
 | OD-006 | VPS definitivo | 2026-05-27 | Hostinger KVM 2 (8GB, 2 vCPU, 100GB NVMe) |
 | OD-007 | Storage offsite | 2026-05-27 | Cloudflare R2 (mesma conta de OD-003a) |

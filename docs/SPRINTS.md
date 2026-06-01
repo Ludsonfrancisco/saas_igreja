@@ -32,6 +32,7 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 ## Sprint 0 — Planejamento e Fundação SDD
 
+**Status:** ✅ **CONCLUÍDA (2026-06-01)** — documentação aprovada como source of truth pelo dono.
 **Objetivo:** PRD, Tech Spec, Matriz de Acesso, Estratégia de Testes e Sprints alinhados.
 **Duração estimada:** 10 dias.
 **Dependências:** Nenhuma.
@@ -48,8 +49,8 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [x] (P0) Criar `docs/SPRINTS.md` com plano de sprints
 - [x] (P0) Criar `docs/OPEN_DECISIONS.md` com decisões em aberto
 - [x] (P0) Criar `docs/README.md` como índice da documentação
-- [ ] (P0) Validar PRD com líder principal do produto
-- [ ] (P0) Validar Tech Spec com Tech Lead
+- [x] (P0) Validar PRD com líder principal do produto
+- [x] (P0) Validar Tech Spec com Tech Lead → **APROVADO COM RESSALVAS** (relatório em `TECH_SPEC_VALIDATION.md`; 1 achado P0 e ressalvas P1/P2 escaladas ao dono)
 
 #### Decisões críticas
 
@@ -58,28 +59,28 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [x] (P0) Decidir OD-003a/OD-007 — Storage → **Cloudflare R2 desde Sprint 6**
 - [x] (P0) Decidir OD-006 — VPS → **Hostinger KVM 2 (8GB, 2 vCPU, 100GB NVMe)**
 - [x] (P0) Decidir OD-012 — Email → **Brevo free tier (300/dia) via `django-anymail`**
-- [ ] (P1) Decidir OD-004 — Membro/Pessoa tem login no MVP
+- [x] (P1) Decidir OD-004 — Membro/Pessoa tem login no MVP → **Não: Membro existe apenas como `Person`, sem login. Login de Membro fica para a Fase 2**
 
 #### Backlog
 
-- [ ] (P0) Transcrever requisitos do PRD em backlog inicial (RF-001..101 como issues)
-- [ ] (P0) Vincular cada issue a sua sprint sugerida e papel responsável
+- [x] (P0) Transcrever requisitos do PRD em backlog inicial (RF-001..101 como issues) → `docs/BACKLOG.md`
+- [x] (P0) Vincular cada issue a sua sprint sugerida e papel responsável → `docs/BACKLOG.md`
 
 #### Fundação operacional
 
-- [ ] (P0) Definir RTO 4h e RPO 24h como baseline e documentar em `PRD §20.4` e futuro `INFRA.md`
-- [ ] (P0) Decidir e documentar plataforma de CI/CD: **GitHub Actions** (default)
-- [ ] (P0) Criar template `.github/workflows/ci.yml` (Ruff, Black, pip-audit, safety, pytest com Postgres+Redis service containers)
-- [ ] (P0) Threat model v1 (versão simples, ~1 página): atacantes considerados, superfície de ataque, mitigações principais. Vai para `docs/THREAT_MODEL.md`. Refinado na Sprint 7
+- [x] (P0) Definir RTO 4h e RPO 24h como baseline e documentar em `PRD §20.4` e futuro `INFRA.md` → documentado em **PRD §20.4** + RNF-023 + OD-016. `INFRA.md` é entregável da Sprint 1
+- [x] (P0) Decidir e documentar plataforma de CI/CD: **GitHub Actions** (default) → OD-015 (fechada) + **TECH_SPEC §12.2**
+- [x] (P0) Criar template `.github/workflows/ci.yml` (Ruff, Black, pip-audit, safety, pytest com Postgres+Redis service containers) → criado (`.github/workflows/ci.yml`)
+- [x] (P0) Threat model v1 (versão simples, ~1 página): atacantes considerados, superfície de ataque, mitigações principais. Vai para `docs/THREAT_MODEL.md`. Refinado na Sprint 7 → criado (`docs/THREAT_MODEL.md`)
 
 ### Critério de conclusão da Sprint 0
 
-- [ ] Documentação aprovada como source of truth
-- [ ] Backlog inicial criado com RFs vinculados a sprints
+- [x] Documentação aprovada como source of truth (aprovada pelo dono em 2026-06-01)
+- [x] Backlog inicial criado com RFs vinculados a sprints (`docs/BACKLOG.md`)
 - [x] Decisões críticas de infra/stack fechadas (OD-002, OD-003, OD-003a, OD-006, OD-007, OD-012)
-- [ ] RTO 4h / RPO 24h definidos e documentados (PRD §20.4)
-- [ ] CI/CD decidido (GitHub Actions) e template `.github/workflows/ci.yml` esboçado
-- [ ] `THREAT_MODEL.md` v1 (1 página) publicado
+- [x] RTO 4h / RPO 24h definidos e documentados (PRD §20.4)
+- [x] CI/CD decidido (GitHub Actions) e template `.github/workflows/ci.yml` esboçado
+- [x] `THREAT_MODEL.md` v1 (1 página) publicado
 
 ---
 

@@ -1,0 +1,101 @@
+# CI — SaaS Igreja
+#
+# Pipeline mínimo de integração contínua (decisão OD-015: GitHub Actions).
+# Esboçado na Sprint 0; torna-se efetivo a partir da Sprint 1, quando existirem
+# pyproject.toml, apps/ e testes. Referências: TECH_SPEC.md §12.2 e TEST_STRATEGY.md §8.
+#
+# Regras:
+# - Banco em dev e CI é PostgreSQL 15 (SQLite proibido — AP-13 / RN-001 schema-per-tenant).
+# - Redis necessário para Celery (OD-003).
+# - Falha em qualquer passo bloqueia o merge na main.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quality-and-tests:
+    name: Lint, auditoria e testes
+    runs-on: ubuntu-latest
+
+    env:
+      # Configuração consumida pelos settings via python-decouple (SEC-06).
+      DJANGO_SETTINGS_MODULE: core.settings.dev
+      SECRET_KEY: ci-insecure-secret-key-not-for-production
+      DATABASE_URL: postgres://saas:saas@localhost:5432/saas_igreja
+      REDIS_URL: redis://localhost:6379/0
+      # django-tenants exige permissão para criar schemas: o usuário do Postgres
+      # de CI é dono do banco (suficiente para CREATE SCHEMA em testes).
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: saas
+          POSTGRES_PASSWORD: saas
+          POSTGRES_DB: saas_igreja
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U saas -d saas_igreja"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Instalar Python
+        run: uv python install 3.12
+
+      - name: Instalar dependências
+        run: uv sync --frozen
+
+      - name: Ruff (lint)
+        run: uv run ruff check .
+
+      - name: Black (format check)
+        run: uv run black --check .
+
+      - name: pip-audit (CVEs)
+        run: uv run pip-audit
+
+      - name: safety check (CVEs)
+        run: uv run safety check
+
+      - name: pytest com cobertura
+        run: >-
+          uv run pytest
+          --cov=apps
+          --cov-report=term-missing
+          --cov-fail-under=80
+        # Nota: gates por app (90% para core/accounts/tenants/files; 80% operacionais;
+        # 70% dashboard) são definidos em TEST_STRATEGY.md §3. O --cov-fail-under global
+        # é o piso de segurança; os gates por app são validados na Definition of Done.
