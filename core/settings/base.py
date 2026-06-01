@@ -18,22 +18,27 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=Csv())
 
-# --- Apps ---
-DJANGO_APPS = [
+# --- Apps (django-tenants: schema-per-tenant) ---
+# SHARED_APPS vivem no schema `public`; TENANT_APPS migram para cada schema de
+# tenant. django_tenants precisa ser o primeiro. Church/Domain/Plan (tenants) e
+# User/Invite/PlatformAdmin/SupportAccess (accounts) sao models PUBLICOS
+# (TENANT-04). apps.core fica em TENANT_APPS para que AuditLog/SecurityLog
+# (Sprint 2) migrem para cada schema de tenant (TECH_SPEC §5.9.1).
+SHARED_APPS = [
+    'django_tenants',
+    'apps.tenants',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'apps.accounts',
 ]
 
-# Bounded contexts (P-ARQ-01). Apps vazias neste bloco de scaffold; models
-# entram nos blocos "Models de fundação" e seguintes.
-LOCAL_APPS = [
+# Bounded contexts tenant-scoped (P-ARQ-01).
+TENANT_APPS = [
     'apps.core',
-    'apps.accounts',
-    'apps.tenants',
     'apps.people',
     'apps.communities',
     'apps.ministries',
@@ -43,10 +48,14 @@ LOCAL_APPS = [
     'apps.dashboard',
 ]
 
-INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS
+INSTALLED_APPS = list(SHARED_APPS) + [
+    app for app in TENANT_APPS if app not in SHARED_APPS
+]
 
-# django-tenants (SHARED_APPS/TENANT_APPS/DATABASE_ROUTERS) — bloco
-# 'Models de fundação' / 'Multi-tenancy'. Nao configurar aqui ainda.
+# django-tenants core config (TECH_SPEC §5.9.1 / §4).
+TENANT_MODEL = 'tenants.Church'
+TENANT_DOMAIN_MODEL = 'tenants.Domain'
+DATABASE_ROUTERS = ('django_tenants.routers.TenantSyncRouter',)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -83,7 +92,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 _db = urlparse(config('DATABASE_URL'))
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django_tenants.postgresql_backend',
         'NAME': _db.path.lstrip('/'),
         'USER': _db.username or '',
         'PASSWORD': _db.password or '',
@@ -98,7 +107,15 @@ CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
 
 # --- Auth ---
-# AUTH_USER_MODEL = 'accounts.User'  # definido no bloco Models de fundação (Sprint 1)
+AUTH_USER_MODEL = 'accounts.User'
+
+# EmailBackend primeiro (login por email); ModelBackend como fallback para
+# admin/superuser (P-ARQ-03 / SEC-02).
+AUTHENTICATION_BACKENDS = [
+    'apps.accounts.backends.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 _PASSWORD_VALIDATION = 'django.contrib.auth.password_validation'
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': f'{_PASSWORD_VALIDATION}.UserAttributeSimilarityValidator'},

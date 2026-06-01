@@ -105,12 +105,12 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### Models de fundação
 
-- [ ] (P0) Criar `apps/core/models.py` com `BaseModel` abstrato
-- [ ] (P0) Criar `apps/accounts/models.py` com `User(AbstractUser)`, `USERNAME_FIELD='email'`, `UserManager`, `roles ArrayField`, métodos `has_any_role`/`has_all_roles`, `Invite` (com `roles ArrayField`), `PlatformAdmin`, `SupportAccess`
-- [ ] (P0) Criar `apps/accounts/backends.py` com `EmailBackend`
-- [ ] (P0) Criar `apps/tenants/models.py` com `Church(TenantMixin)`, `Plan`, `Domain`
-- [ ] (P0) Configurar `django-tenants` em `settings/base.py` (`SHARED_APPS`, `TENANT_APPS`, `DATABASE_ROUTERS`)
-- [ ] (P0) Primeiro `migrate` no schema public
+- [x] (P0) Criar `apps/core/models.py` com `BaseModel` abstrato
+- [x] (P0) Criar `apps/accounts/models.py` com `User(AbstractUser)`, `USERNAME_FIELD='email'`, `UserManager`, `roles ArrayField`, métodos `has_any_role`/`has_all_roles`, `Invite` (com `roles ArrayField`), `PlatformAdmin`, `SupportAccess`
+- [x] (P0) Criar `apps/accounts/backends.py` com `EmailBackend`
+- [x] (P0) Criar `apps/tenants/models.py` com `Church(TenantMixin)`, `Plan`, `Domain`
+- [x] (P0) Configurar `django-tenants` em `settings/base.py` (`SHARED_APPS`, `TENANT_APPS`, `DATABASE_ROUTERS`)
+- [x] (P0) Primeiro `migrate` no schema public
 
 #### Multi-tenancy
 
