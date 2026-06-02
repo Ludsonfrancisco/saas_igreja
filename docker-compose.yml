@@ -66,6 +66,19 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    # Readiness do container aponta para /ready/ (Postgres + Redis). Usa o
+    # proprio Python da imagem (sem depender de curl). 503 => unhealthy.
+    # Em prod, EasyPanel/Cloudflare monitoram /ready/ — ver docs/MONITORING.md.
+    healthcheck:
+      test:
+        - 'CMD'
+        - 'python'
+        - '-c'
+        - 'import urllib.request,sys; sys.exit(0 if urllib.request.urlopen("http://localhost:8000/ready/", timeout=5).status == 200 else 1)'
+      interval: 30s
+      timeout: 8s
+      retries: 3
+      start_period: 20s
     # CMD do Dockerfile (Gunicorn) sera ativado quando core.wsgi existir.
     # Em dev, sobrescreva para runserver, ex.:
     # command: python manage.py runserver 0.0.0.0:8000

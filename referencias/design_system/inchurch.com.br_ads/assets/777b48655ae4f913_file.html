@@ -1,0 +1,46 @@
+<!doctype html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:100,300,400,500,700,900"/><script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script><meta name="robots" content="noindex"/><link rel="stylesheet" href="./css/plyr.css"><link rel="stylesheet" href="./css/styles.css"><link rel="stylesheet" href="./css/pb.css"><title>Panda Video - Hospedagem de video</title></head><body id="body"><script>document.addEventListener('DOMContentLoaded', function () {
+                function validateDomainThumb(host) {
+                    const [pullzone_id] = host.match(/(vz-[a-z0-9]{8}-[a-z0-9]{3})/) || [];
+                    if (pullzone_id) {
+                        if (host.match(/vunel/)) {
+                            IS_VUNEL = true;
+                        }
+                        return pullzone_id;
+                    }
+                    return null
+                }
+                
+                const url = new URL(window.location.href);
+                let THUMB_VIDEO_ID = url.searchParams.get('v');
+                let THUMB_LIBRARY_ID = url.searchParams.get('l');
+                const libraryCheck = validateDomainThumb(url.host);
+                if (libraryCheck) THUMB_LIBRARY_ID = libraryCheck;
+                
+                if (!THUMB_VIDEO_ID || !THUMB_LIBRARY_ID) {
+                    return;
+                }
+                const coverUrl = `https://thumbs.tv.pandavideo.com.br/${THUMB_LIBRARY_ID}/${THUMB_VIDEO_ID}/cover.jpg`;
+                
+                const imgContainer = document.createElement('div');
+                imgContainer.alt = 'Thumbnail';
+                imgContainer.className = 'panda-cover-thumbnail panda-cover-thumbnail__img';
+                const img = new Image();
+                img.src = coverUrl;
+                img.id = 'cover-thumbnail';
+                
+                document.body.classList.add('has-cover');
+                document.body.insertAdjacentElement('afterbegin', imgContainer);
+                
+                img.onload = () => {
+                    imgContainer.appendChild(img);
+                    imgContainer.style.backgroundColor = '#000'
+                };
+                
+                img.onerror = () => {
+                    imgContainer.style.backgroundColor = '#000'
+                }
+                
+                img.onabort = () => {
+                    imgContainer.style.backgroundColor = '#000'
+                }
+            });</script><script src="vendors.803.bundle.js"></script><script src="main.803.bundle.js"></script></body>

@@ -1,0 +1,10 @@
+#EXTM3U
+#EXTINF:0,duration:196.321125|drm:false|block_download:false|percent_ts:0|security_type:regular|security_level:medium
+#EXT-X-STREAM-INF:BANDWIDTH=985600,RESOLUTION=640x360
+https://b-vz-ded14ebd-85a.tv.pandavideo.com.br/f7a741ee-5cad-4f8c-87bc-f6a008776edb/720p/video.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=1680800,RESOLUTION=854x480
+https://b-vz-ded14ebd-85a.tv.pandavideo.com.br/f7a741ee-5cad-4f8c-87bc-f6a008776edb/720p/video.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=3220800,RESOLUTION=1280x720
+https://b-vz-ded14ebd-85a.tv.pandavideo.com.br/f7a741ee-5cad-4f8c-87bc-f6a008776edb/720p/video.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=5711200,RESOLUTION=1920x1080
+https://b-vz-ded14ebd-85a.tv.pandavideo.com.br/f7a741ee-5cad-4f8c-87bc-f6a008776edb/720p/video.m3u8

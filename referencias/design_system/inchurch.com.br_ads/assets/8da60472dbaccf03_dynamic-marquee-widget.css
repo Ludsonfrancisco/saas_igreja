@@ -1,0 +1,33 @@
+.dynamic-marquee-widget {
+    overflow: hidden;
+    width: 100%;
+}
+
+.lista_marquee {
+    display: inline-flex;
+    white-space: nowrap;
+}
+
+.lista_marquee li {
+    display: inline-flex;
+    align-items: center;
+}
+
+.marquee_icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.marquee_texto {
+    display: inline-block;
+}
+
+@keyframes marquee {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}

@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>inChurch &#8211; Líder em Tecnologia para igrejas</title>
+	<atom:link href="https://inchurch.com.br/feed/" rel="self" type="application/rss+xml" />
+	<link>https://inchurch.com.br/</link>
+	<description>Líder em tecnologia para igrejas</description>
+	<lastBuildDate>Fri, 01 Nov 2024 20:13:19 +0000</lastBuildDate>
+	<language>pt-BR</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=6.7.5</generator>
+
+<image>
+	<url>https://inchurch.com.br/wp-content/uploads/2025/04/Prancheta-1.svg</url>
+	<title>inChurch &#8211; Líder em Tecnologia para igrejas</title>
+	<link>https://inchurch.com.br/</link>
+	<width>32</width>
+	<height>32</height>
+</image> 
+	<item>
+		<title>A Importância da segurança de dados: Proteja sua Igreja na era digital</title>
+		<link>https://inchurch.com.br/aqui-sera-o-nome-da-materia-em-questao-3/</link>
+					<comments>https://inchurch.com.br/aqui-sera-o-nome-da-materia-em-questao-3/#respond</comments>
+		
+		<dc:creator><![CDATA[Daniel]]></dc:creator>
+		<pubDate>Tue, 17 Sep 2024 02:25:05 +0000</pubDate>
+				<category><![CDATA[Sem categoria]]></category>
+		<guid isPermaLink="false">https://inchurch.com.br/?p=19504</guid>
+
+					<description><![CDATA[<p>Em um mundo onde a tecnologia está profundamente enraizada em nossas vidas diariamente, a segurança dos nossos dados é uma preocupação vital. Por isso, as igrejas devem garantir a proteção das informações de membros e líderes para manter a confiança e a integridade da comunidade. Continue lendo este artigo para descobrir a importância de se [...]</p>
+<p>O post <a href="https://inchurch.com.br/aqui-sera-o-nome-da-materia-em-questao-3/">A Importância da segurança de dados: Proteja sua Igreja na era digital</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<p>Em um mundo onde a tecnologia está profundamente enraizada em nossas vidas diariamente, a segurança dos nossos dados é uma preocupação vital. Por isso, as igrejas devem garantir a proteção das informações de membros e líderes para manter a confiança e a integridade da comunidade. Continue lendo este artigo para descobrir a importância de se preocupar com a segurança de dados, quais as boas práticas que a inChurch adota para proteger suas informações e como a segurança de dados pode transformar a gestão e a comunicação na sua igreja.</p>
+<h3 class="wp-block-heading"><strong>Por que Você Deve se Preocupar com a Segurança de Dados</strong></h3>
+<p>A segurança de dados não é apenas uma questão técnica, mas uma responsabilidade ética e legal. Com a vigência da Lei Geral de Proteção de Dados Pessoais (LGPD) no Brasil, organizações de todos os tipos, incluindo igrejas, precisam garantir que estão lidando com dados pessoais de maneira segura e em conformidade com as exigências da lei. A falha em proteger esses dados pode resultar em perdas financeiras, danos à reputação e, o mais importante, perda de confiança entre os membros da comunidade. Portanto, é essencial adotar medidas robustas de proteção das informações pessoais.</p>
+<h3 class="wp-block-heading"><strong>Boas Práticas de Segurança de Dados para Quem Usa a Internet</strong></h3>
+<p>Para garantir a segurança dos seus dados na internet, é importante adotar práticas que ajudem a proteger suas informações pessoais. Aqui estão algumas recomendações que você pode encontrar nas melhores práticas de proteção de dados:</p>
+<ul>
+<li><strong>Use Senhas Fortes e Únicas:</strong> Combine letras maiúsculas e minúsculas, números e caracteres especiais. Evite usar a mesma senha para múltiplas contas e utilize um gerenciador de senhas para criar e armazenar senhas seguras.</li>
+<li><strong>Atualização Periódica de Senhas:</strong> Não mantenha suas senhas ativas por tempo indeterminado, revise-as periodicamente para garantir a sua atualização.</li>
+<li><strong>Mantenha Seu Software Atualizado</strong> Sempre atualize o sistema operacional, aplicativos e navegadores para a versão mais recente. As atualizações frequentemente contêm correções para vulnerabilidades de segurança.</li>
+<li><strong>Seja Cauteloso com E-mails e Links</strong> Não clique em links ou baixe anexos de e-mails suspeitos. Verifique a autenticidade do remetente antes de fornecer qualquer informação.</li>
+<li><strong>Desconfie de Ofertas e Pedidos Incomuns: </strong>Seja cético em relação a ofertas que parecem boas demais para ser verdade e solicitações de dados pessoais. Verifique a legitimidade de sites e empresas antes de compartilhar informações, especialmente quando envolver o envio de dinheiro e/ou dados financeiros, de maneira geral.</li>
+</ul>
+<h3 class="wp-block-heading"><strong>Como O Cuidado com a Segurança de Dados Pode Influenciar a Sua Igreja</strong></h3>
+<p>Proteger os dados pessoais dos membros da sua igreja vai além de cumprir a legislação, é uma forma de demonstrar respeito e cuidado pela privacidade e segurança de cada indivíduo. A adoção de boas práticas de segurança de dados pode ter vários impactos positivos na sua igreja, dentre eles:</p>
+<ul>
+<li><strong>Aumento da Confiança:</strong> Quando os membros sabem que suas informações estão seguras, eles têm mais confiança na gestão da igreja.</li>
+<li><strong>Melhoria na Gestão:</strong> Dados seguros e bem organizados permitem uma gestão mais eficiente e eficaz das atividades da igreja.</li>
+<li><strong>Comunicação Transparente:</strong> A proteção de dados promove uma comunicação mais aberta e transparente com os membros.</li>
+<li><strong>Engajamento Maior:</strong> A confiança e a segurança proporcionadas incentivam um maior engajamento dos membros nas atividades e eventos da igreja.</li>
+</ul>
+<h3 class="wp-block-heading"><strong>Conclusão</strong></h3>
+<p>A segurança de dados é uma questão fundamental na era digital. Para igrejas, a proteção das informações pessoais dos seus administradores e membros não só é uma exigência legal, mas também uma obrigação ética, respeito e cuidado pela comunidade. Adotar boas práticas de segurança de dados, como as implementadas pela inChurch, pode transformar a maneira como sua igreja opera, aumentando a confiança, melhorando a gestão e promovendo uma comunicação mais eficaz.</p>
+<h3 class="wp-block-heading"><strong>Segurança com a Plataforma inChurch</strong></h3>
+<p>Optar pela plataforma inChurch significa escolher uma solução que prioriza a segurança e a privacidade dos dados. Nossa dedicação à conformidade com a LGPD e à implementação das melhores práticas de segurança garante que sua igreja possa operar com tranquilidade e confiança. Conecte-se conosco e descubra como nosso aplicativo pode ajudar sua igreja a prosperar na era digital, mantendo os dados dos seus membros sempre seguros.</p>
+<p>O post <a href="https://inchurch.com.br/aqui-sera-o-nome-da-materia-em-questao-3/">A Importância da segurança de dados: Proteja sua Igreja na era digital</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://inchurch.com.br/aqui-sera-o-nome-da-materia-em-questao-3/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Igreja Presente: Quem ama, cuida e quem cuida, conhece</title>
+		<link>https://inchurch.com.br/aqui-sera-o-nome-da-materia-em-questao-2/</link>
+					<comments>https://inchurch.com.br/aqui-sera-o-nome-da-materia-em-questao-2/#respond</comments>
+		
+		<dc:creator><![CDATA[Daniel]]></dc:creator>
+		<pubDate>Tue, 17 Sep 2024 02:24:59 +0000</pubDate>
+				<category><![CDATA[Sem categoria]]></category>
+		<guid isPermaLink="false">https://inchurch.com.br/?p=19505</guid>
+
+					<description><![CDATA[<p>A campanha “Igreja Presente” surge como uma resposta a essa necessidade crescente de estabelecer laços mais fortes e significativos entre as igrejas e seus fiéis. São diversos materiais que são disponibilizados gratuitamente e neste artigo, vamos explorar como eles podem facilitar a forma como as igrejas se relacionam com seus membros, oferecendo ferramentas e recursos [...]</p>
+<p>O post <a href="https://inchurch.com.br/aqui-sera-o-nome-da-materia-em-questao-2/">Igreja Presente: Quem ama, cuida e quem cuida, conhece</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<p>A campanha “Igreja Presente” surge como uma resposta a essa necessidade crescente de estabelecer laços mais fortes e significativos entre as igrejas e seus fiéis. São diversos materiais que são disponibilizados gratuitamente e neste artigo, vamos explorar como eles podem facilitar a forma como as igrejas se relacionam com seus membros, oferecendo ferramentas e recursos que prometem expandir o cuidado com as vidas.</p>
+<p><strong>Porque o cadastramento e acompanhamento das pessoas é importante?</strong></p>
+<p>Uma igreja presente começa pelo cuidado individual com cada membro, visitante e frequentador. Entender suas necessidades, acompanhar seu desenvolvimento espiritual e estar disponível para ajudar são aspectos essenciais desse cuidado. O cadastramento e acompanhamento adequados permitem que a igreja conheça profundamente cada pessoa e possa oferecer suporte e orientação de maneira personalizada.</p>
+<p><strong>Dados comprovam a importância de uma comunidade bem cuidada através do cadastro e conhecimento</strong>.</p>
+<ul>
+<li><strong>Maior conexão:</strong> Pesquisas revelam que 72% dos membros cadastrados afirmam sentir-se mais conectados à comunidade, demonstrando o impacto positivo do cadastro na construção de laços mais fortes entre as pessoas.</li>
+<li><strong>Maior participação:</strong> Igrejas que mantêm um alto índice de cadastro de membros, acima de 80%, experimentaram um aumento significativo na participação em grupos de estudo, com um acréscimo de 25%, e na taxa de voluntariado, que cresceu 30%.</li>
+<li><strong>Necessidades atendidas:</strong> O cadastro atualizado possibilitou às igrejas um aumento de 60% na capacidade de identificar e atender às necessidades individuais dos membros, promovendo um cuidado mais eficaz e personalizado.</li>
+<li><strong>Maior coesão:</strong> Comunidades que priorizam o cadastro de membros vivenciaram um crescimento expressivo na coesão entre os membros, com um aumento de 42%, e na percepção de senso de comunidade, que cresceu 38%.</li>
+</ul>
+<p><strong>E como você pode fazer isso?</strong></p>
+<p>A campanha “Igreja Presente” da inChurch foi desenvolvida com o objetivo de auxiliar as igrejas nesse processo de cuidado e acompanhamento. Com uma série de recursos exclusivos, desde manuais de ações para incentivo de cadastramento até materiais exclusivos para novos convertidos, a campanha oferece ferramentas completas para fortalecer o relacionamento entre a igreja e seus membros.</p>
+<p><strong>Tudo que a InChurch preparou para a sua Igreja:</strong></p>
+<ul>
+<li>Manual de ações para incentivo de cadastramento</li>
+<li>Modelo de formulário para Igrejas usarem no cadastramento</li>
+<li>Materiais exclusivos para novos convertidos</li>
+<li>Seleção de E-books gratuitos para a membresia</li>
+<li>Devocional The Chosen elaborado em parceria com a InChurch</li>
+<li>Materiais exclusivos de divulgação da campanha</li>
+</ul>
+<p>A campanha “Igreja Presente” apresenta recursos que podem mudar a forma como as igrejas lidam com o cuidado e o acompanhamento de seus membros. Não perca a oportunidade de tornar sua igreja ainda mais presente na vida de seus membros. Junte-se à campanha “Igreja Presente” hoje mesmo!</p>
+<p><strong>Atrair pessoas é importante, cuidar é ainda mais!</strong></p>
+<p>Quer proporcionar uma experiência ainda mais acolhedora e cuidadosa para os membros da sua igreja? Acesse agora mesmo a campanha “Igreja Presente” da inChurch e tenha acesso a todas as ferramentas e recursos disponíveis. Clique aqui para saber mais!</p>
+<p>O post <a href="https://inchurch.com.br/aqui-sera-o-nome-da-materia-em-questao-2/">Igreja Presente: Quem ama, cuida e quem cuida, conhece</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://inchurch.com.br/aqui-sera-o-nome-da-materia-em-questao-2/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Jesus: o maior comunicador que já existiu!</title>
+		<link>https://inchurch.com.br/aqui-sera-o-nome-da-materia-em-questao/</link>
+					<comments>https://inchurch.com.br/aqui-sera-o-nome-da-materia-em-questao/#respond</comments>
+		
+		<dc:creator><![CDATA[Daniel]]></dc:creator>
+		<pubDate>Tue, 17 Sep 2024 02:17:45 +0000</pubDate>
+				<category><![CDATA[Sem categoria]]></category>
+		<guid isPermaLink="false">https://inchurch.com.br/?p=19498</guid>
+
+					<description><![CDATA[<p>O sonho de todo profissional de comunicação é que seus vídeos tenham o maior número de views, seus conteúdos sejam os mais procurados da internet e que seus eventos tenham a presença do maior número de pessoas. Mas o que a maioria dos profissionais não se atentam é que para que isso aconteça é necessário ter [...]</p>
+<p>O post <a href="https://inchurch.com.br/aqui-sera-o-nome-da-materia-em-questao/">Jesus: o maior comunicador que já existiu!</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<p>O sonho de todo profissional de comunicação é que seus vídeos tenham o maior número de <em>views</em>, seus conteúdos sejam os mais procurados da internet e que seus eventos tenham a presença do maior número de pessoas. Mas o que a maioria dos profissionais não se atentam é que para que isso aconteça é necessário ter o conhecimento do público-alvo.</p>
+<h3 class="wp-block-heading">Quem você quer atingir com a sua mensagem?</h3>
+<p>Jesus é o maior modelo de comunicador. Para Jesus é de extrema importância estar próximo da vida das pessoas. Ele sempre se revestia à semelhança daqueles que iriam ouvir sua mensagem. Quando queria explicar algo para pessoas simples, utilizava parábolas para exemplificar e trazer para realidade do povo. Ele se apresentava no meio de todos, conhecia suas histórias, seus desafios e esperanças. Jesus não só os conhecia, mas especialmente vivia como alguém do povo.</p>
+<p>Era sua maneira mais simples de estudar e entender o alvo Dele; àqueles pelos quais ele queria transmitir a mensagem, e a fazia de acordo com o perfil de cada um. Se tivesse que ir às sinagogas para falar aos fariseus ele fazia, se tivesse que ir no meio do povo para falar ele ia.</p>
+<p>Aqui se encontra um dos mais importantes aspectos de todo comunicador: conhecer o seu público-alvo e estar no lugar certo e na hora certa. É de extrema importância conhecer o público no qual a mensagem será direcionada, e apresentá-la no local que o público está, para que se traga conteúdos que despertem o interesse.</p>
+<p>Mas como saber qual o público-alvo da minha igreja? Se hoje sua igreja já existe, você consegue definir quem é seu público-alvo à partir dos membros que você tem. Você sabe qual a faixa etária média de pessoas, se tem mais homens ou mais mulheres, qual a localidade que moram e hábitos que possuem. Por isso que ter uma plataforma com gestão de membresia ajuda bastante nesse processo, pois fica muito mais fácil segmentar seus membros através da tecnologia.</p>
+<p>À partir desse estudo você consegue definir quem são, o que gostam e quais são os hábitos deles, e assim desenvolver as mensagens e divulgá-las nos canais de comunicação que seu público tem o hábito de utilizar. Fazendo a comunicação correta de acordo com o perfil da sua igreja.</p>
+<p>Considerando que hoje 67% da população mundial possui um aparelho celular e 57% é um usuário na internet, não podemos descartar a utilização do espaço digital para divulgar o conteúdo e falar com as pessoas.</p>
+<p>Os aplicativos e sites estão aí para nos ajudar a atingir o maior número de pessoas da maneira mais fácil e rápida possível. Ter uma plataforma customizada com a identidade da sua igreja, traz um senso de pertencimento para o grupo. E com certeza, se na época de Jesus tivesse esse canal de comunicação, Ele ia aproveitá-lo da melhor maneira possível.</p>
+<p>O post <a href="https://inchurch.com.br/aqui-sera-o-nome-da-materia-em-questao/">Jesus: o maior comunicador que já existiu!</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://inchurch.com.br/aqui-sera-o-nome-da-materia-em-questao/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Você recebe bem seus visitantes? Algumas dicas importantes para sua igreja fazer bonito!</title>
+		<link>https://inchurch.com.br/ola-mundo/</link>
+					<comments>https://inchurch.com.br/ola-mundo/#respond</comments>
+		
+		<dc:creator><![CDATA[Igor Ferreira]]></dc:creator>
+		<pubDate>Tue, 01 Aug 2017 17:01:52 +0000</pubDate>
+				<category><![CDATA[Sem categoria]]></category>
+		<guid isPermaLink="false">http://u359718647.hostingerapp.com/?p=1</guid>
+
+					<description><![CDATA[<p>A primeira impressão é a que fica! Com certeza você já ouviu essa frase algumas vezes e, também em sua igreja, ela precisa valer. Sorrisos, abraços, bom estacionamento, ambiente limpo, sinalização e uma área de acolhimento são ações em que sua igreja precisa investir para receber pessoas. Lembre-se: o acolhimento é uma das expressões do [...]</p>
+<p>O post <a href="https://inchurch.com.br/ola-mundo/">Você recebe bem seus visitantes? Algumas dicas importantes para sua igreja fazer bonito!</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<p>A primeira impressão é a que fica! Com certeza você já ouviu essa frase algumas vezes e, também em sua igreja, ela precisa valer. Sorrisos, abraços, bom estacionamento, ambiente limpo, sinalização e uma área de acolhimento são ações em que sua igreja precisa investir para receber pessoas. Lembre-se: o acolhimento é uma das expressões do amor de Jesus tangíveis e, sim, você precisa estar pronto para ser o toque de Jesus aos visitantes de sua comunidade.</p>
+<p>Elencamos aqui alguns pontos importantes para se entender, planejar e agir quando o assunto é recepção de visitantes.</p>
+<p><strong>Área de visitantes</strong></p>
+<p>Ponto de partida, para todas as igrejas, é a criação de um bom espaço para recepcionar seus visitantes. Uma área bem sinalizada, ocupada por uma equipe preparada para acolher e direcionar essas novas pessoas aos locais indicados de<br />
+culto ou de atendimento as novas gerações, eventos etc. Aqui, o importante é que este espaço esteja visível, dentro da maior área de trânsito da igreja e sempre impecavelmente organizado.</p>
+<p><strong>Equipe de recepção</strong></p>
+<p>Este talvez seja o serviço mais importante em uma igreja. É esta equipe que apresenta ao visitante como essa igreja se manifesta, qual sua cultura e quão acolhedora esta comunidade é. Além disso, é esta equipe que tem a capacidade de antecipar problemas, conectar elos e atender necessidades especiais. Atente em um bom recrutamento com pessoas que, realmente, amem sua comunidade e adorem servir, treine-as constantemente e valorize essa turma! Eles são especiais!</p>
+<p><strong>Estacionamento<br />
+</strong>Você já pensou que um visitante tende a ficar perdido nas proximidades de sua igreja e, invariavelmente, terá problemas para estacionar? Afinal, ele não conhece a comunidade e não sabe os atalhos para encontrar as melhores vagas. Considere criar um estacionamento exclusivo para visitantes, deixando as melhores vagas ao redor de<br />
+sua comunidade para essas pessoas que escolheram conhecer sua igreja. É um sinal incrível de que você está preparado para acolhe-las.</p>
+<p><strong>Materiais impressos</strong></p>
+<p>Muitos visitantes chegam a igreja querendo entender um pouco mais sobre sua comunidade. Um bom pacote de materiais explicativos e que tenham a capacidade de direcionar as pessoas para um próximo passo na igreja é extremante importante. Pense nisso. Além do conteúdo, é importante você criar interações e de conexão dessa pessoa em seus canais de comunicação digital, oferecendo seus caminhos de redes sociais e, também, acesso de wifi para que este visitante baixe seu aplicativo e fique em contato com você.</p>
+<p><strong>Cadastro</strong><br />
+Não abra mão de criar um ponto de contato com esse visitante. É importante que você retenha algumas informações desta pessoa para poder estabelecer uma conversa posterior, para pesquisar sobre como foi a visita, para oferecer<br />
+oportunidades de eventos e criar uma relação. Além dos formulários internos, considere a possibilidade de criar <a href="https://inchurch.com.br/#produtos">totens digitais</a> ou <a href="https://inchurch.com.br/blog/comunicacao_igreja/aplicativo-dentro-das-igrejas/">apps</a> que possam tornar seu processo de cadastramento e mineração dos dados mais automático e com inteligência.</p>
+<p>O post <a href="https://inchurch.com.br/ola-mundo/">Você recebe bem seus visitantes? Algumas dicas importantes para sua igreja fazer bonito!</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://inchurch.com.br/ola-mundo/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Como a plataforma inChurch pode apoiar a gestão financeira da sua igreja</title>
+		<link>https://inchurch.com.br/real-estate-laws-on-the-move/</link>
+					<comments>https://inchurch.com.br/real-estate-laws-on-the-move/#respond</comments>
+		
+		<dc:creator><![CDATA[Igor Ferreira]]></dc:creator>
+		<pubDate>Thu, 02 Jul 2015 19:58:39 +0000</pubDate>
+				<category><![CDATA[Design]]></category>
+		<category><![CDATA[Finanças]]></category>
+		<category><![CDATA[Gestão]]></category>
+		<category><![CDATA[Financial]]></category>
+		<category><![CDATA[Taxes]]></category>
+		<guid isPermaLink="false">https://avada.theme-fusion.com/law/?p=974</guid>
+
+					<description><![CDATA[<p>Embora a igreja seja uma organização sem fins lucrativos, uma boa gestão financeira continua tendo um papel fundamental em sua administração. Assim como qualquer pessoa física ou jurídica, a igreja também possui compromissos fiscais e precisa se manter saudável. Além disso, as Igrejas devem ser bem geridas porque elas pertencem ao Senhor, que espera que sejamos bons [...]</p>
+<p>O post <a href="https://inchurch.com.br/real-estate-laws-on-the-move/">Como a plataforma inChurch pode apoiar a gestão financeira da sua igreja</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<p>Embora a igreja seja uma organização sem fins lucrativos, uma boa gestão financeira continua tendo um papel fundamental em sua administração. Assim como qualquer pessoa física ou jurídica, a igreja também possui compromissos fiscais e precisa se manter saudável. Além disso, as Igrejas devem ser bem geridas porque elas pertencem ao Senhor, que espera que sejamos bons mordomos do seu patrimônio.</p>
+<p>Para ajudar sua igreja com a realizar uma administração financeira cuidadosa e eficiente, explicaremos o que é e como realizar uma boa gestão financeira com o auxílio da tecnologia da plataforma inChurch.</p>
+<h3 class="wp-block-heading"><strong>O que é gestão financeira da igreja?</strong></h3>
+<p>A gestão financeira consiste em processos administrativos vinculados à análise, ao controle e ao planejamento de despesas fixas e variáveis, empréstimos, financiamentos, investimentos e valor patrimonial. Assim como em empresas e instituições, uma parte vital de uma gestão eficiente para igrejas é um setor financeiro organizado.</p>
+<p>Além de as congregações não serem isentas de obrigações legais, uma boa administração do dinheiro com o qual elas lidam possibilita realizar investimentos na expansão do Reino de forma estratégica –seja enviando missionários, criando ações beneficentes para a comunidade ou cuidando dos menos favorecidos.</p>
+<h2 class="wp-block-heading"><strong>Por onde começar a gestão financeira da igreja?</strong></h2>
+<h3 class="wp-block-heading"><strong>1. Escolha com zelo a equipe de finanças</strong></h3>
+<p>As pessoas encarregadas de administrar os livros contábeis e orçamentos precisam ser profissionais ou voluntários<strong> capacitados, confiáveis e alinhados à visão espiritual da congregação</strong>. É importante que elas trabalhem em harmonia com a liderança, mas que também tenham aptidão  para operar de forma relativamente independente.</p>
+<p>Ao recrutar integrantes para a tesouraria, a igreja deve procurar pessoas que já cuidaram das finanças de outros lugares antes. Lembre-se de que, além de <strong>coração ensinável e postura ética</strong>, os escolhidos precisam ter conhecimentos administrativos, financeiros e contábeis.</p>
+<h3 class="wp-block-heading"><strong>2. Centralize os recebíveis e gastos</strong></h3>
+<p>Para que a igreja funcione corretamente em sua forma administrativa, é preciso abrir uma conta corrente com o <strong>CNPJ</strong> do ministério. Assim, além de centralizar os recebíveis e gastos em um só lugar, a igreja poderá se beneficiar de um pequeno rendimento através de juros.</p>
+<h3 class="wp-block-heading"><strong>3. Desenvolva um plano de contas</strong></h3>
+<p>Após abrir sua conta bancária e centralizar os gastos e recebíveis, a igreja deve se organizar minimamente para gerir o dinheiro.Isso significa criar um <strong>plano de contas</strong>, ou seja, um <strong>documento que identifica as contas da organização por meio de códigos e classificações para todos os registros de entradas e saídas</strong>.</p>
+<p>Em outras palavras, o que a igreja precisa fazer é categorizar as despesas e receitas e definir centros de custo e recebimento para elas. Imagine, por exemplo, que foram gastos R$250 para decorar a igreja para o culto de casais. Neste caso, o centro de custo no qual a despesa será lançada é “Ministério de casais”. O mesmo vale para os centros de recebimento.</p>
+<h3 class="wp-block-heading"><strong>4. Determine um orçamento</strong></h3>
+<p>O orçamento anual ajuda a garantir que os recursos de que a igreja precisa para cumprir sua missão e investir na expansão do Reino de Deus não serão consumidos por demandas diárias e gastos emergenciais.</p>
+<p>Para determiná-lo, documente os custos fixos da igreja e estime o volume de receita ao longo dos 12 meses do ano. Você pode usar os períodos anteriores como referência, mas lembre-se de avaliar os objetivos da igreja para definir corte de gastos, revisar contratos de serviços e até mesmo estipular novos investimentos. Seu orçamento também deve incluir todas as categorias cadastradas no plano de contas.</p>
+<p>Esses dois itens, <strong>o plano de contas e o orçamento anual</strong>, fazem parte de algo maior: <strong>o planejamento financeiro</strong>. É a partir dele que a igreja determina metas e traça os caminhos (estratégias) necessários para o cumprimento delas.</p>
+<h3 class="wp-block-heading"><strong>5. Controle gastos e monitore o fluxo de caixa</strong></h3>
+<p>A tarefa agora é <strong>acompanhar constantemente a atividade financeira </strong>e ajustar os gastos sempre que houver imprevistos, como gastos emergenciais ou projeções orçamentárias de receita que acabaram não se cumprindo.</p>
+<p>Nesse sentido, as igrejas devem prestar atenção especial ao fluxo de caixa, ou seja, ao montante de dinheiro arrecadado e gasto durante determinado período de tempo.</p>
+<p>A análise constante do fluxo de caixa permite identificar  possíveis problemas de gestão e ajuda a igreja a tomar decisões em conformidade com o planejamento financeiro.</p>
+<h2 class="wp-block-heading"><strong>Como a plataforma inChurch pode apoiar a gestão financeira da sua igreja?</strong></h2>
+<p>As igrejas que querem gerir suas finanças com eficácia devem adotar um <strong>sistema de gestão</strong>. Além de facilitarem o controle das receitas e despesas a partir de recursos como emissão de DRE (Demonstração de Resultado do Exercício) e emissão de relatório de fluxo de caixa, softwares permitem cruzar dados de forma inteligente, o que facilita o processo de tomada de decisão</p>
+<p>A plataforma da inChurch possui um sistema de gestão financeira completo e integrado aos dispositivos de entrada da igreja (maquininha de cartão, totem de autoatendimento, site e aplicativo, por exemplo). Desta forma, é possível <strong>concentrar todas as fontes de receita</strong> (dízimos, ofertas, pagamento de ingressos de eventos, entre outras) em um só lugar e <strong>otimizar a administração dos recursos</strong>, distribuindo-os conforme os centros de custo correspondentes.</p>
+<p>Confira abaixo as principais seções do módulo de gestão financeira da plataforma inChurch.</p>
+<h4 class="wp-block-heading"><strong>Recebimentos</strong></h4>
+<p>Esta área concentra todos os recebimentos da igreja, o que inclui <strong>dízimos, ofertas, pagamentos referentes à compra de ingressos de eventos, compras na lojinha e cantina</strong>, entre outros tipos de arrecadações. É possível visualizar, em uma tabela intuitiva, informações como valor, categoria, descrição e data da contribuição, bem como o nome do contribuinte.</p>
+<p>A <a href="http://help.inchurch.com.br/pt-BR/articles/3418651-recebimentos">seção de recebimentos</a> é integrada ao aplicativo e ao site da igreja, ou seja, todos os pagamentos feitos por esses canais são acusados automaticamente na plataforma, facilitando a visualização e o controle. Também é possível cadastrar contribuições feitas fora da plataforma (em envelopes de dízimo, por exemplo).</p>
+<h4 class="wp-block-heading"><strong>Pagamentos</strong></h4>
+<p>Aqui são inseridas todas e quaisquer <strong>despesas fixas</strong> que a igreja venha a ter, como luz, água, impostos, salário de funcionários, aluguel etc. A <a href="http://help.inchurch.com.br/pt-BR/articles/3418753-pagamentos">área de pagamentos</a> também concentra as <strong>despesas variáveis</strong> da igreja, bem como <strong>gastos extras ou emergenciais</strong>.</p>
+<h4 class="wp-block-heading"><strong>Relatórios de DRE e Fluxo de Caixa</strong></h4>
+<p>Nesta área são gerados relatórios de demonstração de resultado do exercício (DRE) e fluxo de caixa, os quais ajudam a ter uma visão geral das finanças da igreja. Por trabalhar de forma automatizada, a plataforma reduz o tempo de execução das tarefas de rotina e possibilita uma <strong>melhor avaliação de resultados</strong>.</p>
+<h3 class="wp-block-heading"><strong>Cadastro de contas</strong></h3>
+<p><a href="http://help.inchurch.com.br/pt-BR/articles/3418759-contas">Esta área</a> permite que sejam cadastradas contas bancárias da igreja para <strong>controle de saldo</strong>. Assim, é possível monitorar e ter controle de quais contas saíram os pagamentos ou entraram recebimentos.</p>
+<p>Vale lembrar que a inserção das transações e o acesso ao saldo da igreja são única e exclusivamente para controle financeiro. Isso significa que a plataforma inChurch não tem poder de fazer movimentações; apenas realiza a contabilidade de valores baseada nos compromissos que deverão ser pagos e pagamentos que serão compensados. Ou seja, simula o valor que ficará em caixa após serem realizados os pagamentos pendentes e computados os recebimentos.</p>
+<h4 class="wp-block-heading"><strong>Cadastro de centros de custo</strong></h4>
+<p>Os centros de custo são <strong>unidades dentro da igreja (geralmente um departamento ou projeto) que agrupam despesas próprias</strong>. É como se cada ministério ou projeto fosse transformado em uma pequena organização, na qual as despesas são isoladas do restante dos departamentos ou projetos.</p>
+<p>Neste <a href="http://help.inchurch.com.br/pt-BR/articles/3418763-centros-de-custo">espaço da plataforma inChurch</a>, é possível criar diversos centros de custo, o que facilita a análise de dados e auxilia nas decisões gerenciais. Isso porque, a partir do momento em que você descobre os custos de cada setor, fica mais fácil planejar, cortar despesas desnecessárias ou aumentar o investimento em áreas específicas. Assim, os processos administrativos se tornam mais claros e melhor organizados.</p>
+<h4 class="wp-block-heading"><strong>Cadastro de fornecedores</strong></h4>
+<p>Nesta área é possível <strong>cadastrar todos os fornecedores e pagadores</strong> da igreja, sejam eles pessoa física ou pessoa jurídica. É possível, inclusive, associar o <a href="http://help.inchurch.com.br/pt-BR/articles/3418764-fornecedores">cadastro do fornecedor</a> a um cadastro de membro da igreja, no caso de membros que sejam prestadores de serviço. Essa integração também se aplica à conclusão de um pagamento ou recebimento, com a possibilidade de vincular transações ao cadastro.</p>
+<h3 class="wp-block-heading"><strong>Cadastro de categorias</strong></h3>
+<p>Neste espaço a igreja pode <strong><a href="http://help.inchurch.com.br/pt-BR/articles/3418762-categorias">criar uma categoria</a> (de receita ou despesa) específica </strong>e associá-la a uma seção do relatório de DRE. Por exemplo: é possível criar uma categoria chamada “Aluguel” e subordiná-la à seção de “Despesa Operacional”. O recurso facilita a organização das finanças e a análise do relatório.</p>
+<h3 class="wp-block-heading"><strong>Cadastro de unidades de negócio</strong></h3>
+<p>É <a href="http://help.inchurch.com.br/pt-BR/articles/5371183-conheca-as-duas-novas-funcionalidades-do-seu-painel-centros-de-custo-e-unidade-de-negocios">neste espaço </a>que são lançadas <strong>as atividades e setores da igreja que geram custo, mas que também geram receita (lucros)</strong>. Um bom exemplo é a livraria da igreja: ao mesmo tempo em que há custos para a compra de novas remessas de livros, há lucro com a venda das obras.</p>
+<h3 class="wp-block-heading"><strong>Anexos</strong></h3>
+<p><a href="http://help.inchurch.com.br/pt-BR/articles/3422981-para-que-serve-a-area-de-anexos-de-financeiro">Nesta área</a> a igreja tem a possibilidade de anexar notas fiscais, boletos, prints de transações bancárias, entre outros documentos, no módulo de gestão financeira da plataforma. Assim, os arquivos ficam concentrados no banco de dados e podem ser acessados sempre que necessário.</p>
+<h2 class="wp-block-heading"><strong>Meios de Pagamento inChurch</strong></h2>
+<p>A entrega de doações (dízimos e ofertas) é um princípio bíblico. Com elas, a membresia pode contribuir com o Reino de Deus, ajudando a igreja a se manter financeiramente saudável e contribuindo para sua missão: espalhar o Evangelho.</p>
+<p>Sabendo a importância de tornar essa ação mais acessível e automatizada, a inChurch desenvolveu meios de pagamentos integrados à plataforma de gestão financeira da igreja.</p>
+<p>Conheça abaixo os meios de pagamentos da inChurch.</p>
+<h3 class="wp-block-heading"><strong>Aplicativo e site</strong></h3>
+<p>Por meio do aplicativo ou site, o contribuinte – seja membro ou visitante da igreja –  pode fazer doações e efetuar pagamentos via cartão de crédito, boleto e Pix. Também é possível cadastrar os dados de cartão de crédito para doar dízimos e ofertas de forma recorrente, ou seja, todo mês o valor informado será debitado na data agendada.</p>
+<p>Se a sua igreja ainda não conta com uma plataforma que a permita fazer uma boa gestão financeira, <a href="https://inchurch.com.br/fale_especialista/">fale com um de nossos especialistas</a> e descubra em detalhes como a inChurch pode ajudar você.</p>
+<p>&nbsp;</p>
+<p>O post <a href="https://inchurch.com.br/real-estate-laws-on-the-move/">Como a plataforma inChurch pode apoiar a gestão financeira da sua igreja</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://inchurch.com.br/real-estate-laws-on-the-move/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Seis dicas para gerir bem a comunicação de sua igreja</title>
+		<link>https://inchurch.com.br/private-equity-firm-takes-control/</link>
+					<comments>https://inchurch.com.br/private-equity-firm-takes-control/#respond</comments>
+		
+		<dc:creator><![CDATA[Igor Ferreira]]></dc:creator>
+		<pubDate>Thu, 02 Jul 2015 19:58:15 +0000</pubDate>
+				<category><![CDATA[Finanças]]></category>
+		<category><![CDATA[Multimídia]]></category>
+		<category><![CDATA[Allegations]]></category>
+		<category><![CDATA[Litigation]]></category>
+		<category><![CDATA[Taxes]]></category>
+		<guid isPermaLink="false">https://avada.theme-fusion.com/law/?p=972</guid>
+
+					<description><![CDATA[<p>Peças para Facebook, Whatsapp, eventos, papelaria interna e mais e mais demandas surgem para o time de comunicação da igreja de hora em hora. Cada dia que passa esse cenário se instala nas igrejas e sem uma boa gestão disso tudo, a chance das demandas se confundirem é enorme. Hoje é impossível fazer a gestão [...]</p>
+<p>O post <a href="https://inchurch.com.br/private-equity-firm-takes-control/">Seis dicas para gerir bem a comunicação de sua igreja</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<p>Peças para Facebook, Whatsapp, eventos, papelaria interna e mais e mais demandas surgem para o time de comunicação da igreja de hora em hora. Cada dia que passa esse cenário se instala nas igrejas e sem uma boa gestão disso tudo, a chance das demandas se confundirem é enorme.</p>
+<p>Hoje é impossível fazer a gestão de comunicação de uma igreja sem ter metodologias assertivas, um bom planejamento, processos bem estabelecidos e ferramentas que te apoiem na rotina que, muitas vezes, é acelerada e com maior volume do que muita agência de publicidade e comunicação por aí. Para ter o impacto desejado, as igrejas estão produzindo volumes cada vez maiores de peças e campanhas e, sem apoio, a turma de comunicação não dá conta do recado.</p>
+<p>Então, vamos elencar aqui algumas dicas de ferramentas e processos que podem te ajudar muito na gestão, controle, comunicação e automatização dos processos. E, claro, vamos começar falando um pouco da plataforma da InChurch que você pode conhecer melhor clicando <strong><a href="https://inchurch.com.br/">aqui</a>.</strong></p>
+<ol>
+<li><strong>Plataforma InChurch<br />
+</strong>App, site, totem de autoatendimento, gestão de grupos, gestão de eventos, doações, transmissão ao vivo, multiplicador de sinal de transmissão tudo em um sistema apenas. Você pode gerir seus conteúdos e informações de membresia de forma única, inteligente e integrada. É isso que a <a href="https://inchurch.com.br/">solução da Inchurch</a> oferece para as igrejas, já tendo em sua carteira de clientes mais de 5000 igrejas pelo Brasil. Imagine-se não precisando criar e inserir múltiplos conteúdos e em múltiplas plataforma. Você, com certeza, gastará melhor seu tempo criando e pensando sua missão.</li>
+<li><strong>Trello.com<br />
+</strong>O Trello é uma ferramenta de gestão de atividades e comunicação de equipes muito eficiente para igrejas. Além de gratuito até um limite de atividade, ele auxilia na visibilidade de breias e projetos, integra toda sua equipe no processo de produção de uma atividade e, ainda, te ajuda a armazenar arquivos finais. Vale conferir em <a href="http://trello.com/"><strong>trello.com</strong></a>.</li>
+<li><strong>Creative Cloud</strong><br />
+Creative Cloud é a plataforma de gerenciamento de software online da Adobe. É nele que você encontrará a possibilidade de compra de pacotes e planos para acessar Photoshop, Illustrator, Premier, Lightroom, InDesign, Audition e muito mais. É a ferramenta mais poderoso e segura para uma equipe de produção e criação e um investimento que, para estar “legal”, sua igreja precisa fazer. Há muitas possibilidades de planos, valores e perfis de acesso e, atualmente, está muito mais acessível.</li>
+<li><strong>Slack<br />
+</strong>O Slack é um espaço de colaboração que pode substituir o e-mail, ajudando você e a sua equipe a trabalharem juntos. Ele foi desenvolvido para se adaptar ao trabalho em equipe, assim você pode colaborar com outras pessoas online de maneira tão eficiente quanto se estivessem todos no mesmo lugar. Você consegue, nele, organizar conversa, fazer ligações, pesquisar histórico de uma atividade e conectar aplicativos. Vale testar.</li>
+<li><strong>Ferramentas de gestão de redes sociais<br />
+</strong>Neste segmento, há uma série de ferramentas que auxiliam “content managers” na gestão de redes sociais. Sprout Social, Hootsuite, Buffer, Mlabs, Cyfe, HowSociaBle e muitas outras podem te oferecer serviços de programação de post, interação e resposta de mensagens, monitoramento de concorrência, relatórios e muito mais. A questão é buscar a que melhor te atenda, com melhor preço! Sobre ter ou não ter, não há duvida: você precisa de uma si</li>
+<li><strong>Storage de arquivos<br />
+</strong>Parece incrível, mas muitas igrejas ainda não tem um servidor ou um Storage virtual para guardar e compartilhar sua produção de conteúdos, fotos, vídeos e etc. Pois é, mas é verdade. Há uma série de boas opções no mercado e você precisa ir atrás de uma delas caso ainda não tenha o seu Storage na igreja. Dropbox, Google Drive e Amazon são boas opções e, talvez, as mais intuitivas para o uso do dia-a-dia e permitem o acesso de múltiplos usuários. Vale a pena.</li>
+</ol>
+<p>O post <a href="https://inchurch.com.br/private-equity-firm-takes-control/">Seis dicas para gerir bem a comunicação de sua igreja</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://inchurch.com.br/private-equity-firm-takes-control/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Tax litigation at your door</title>
+		<link>https://inchurch.com.br/tax-litigation-at-your-door/</link>
+					<comments>https://inchurch.com.br/tax-litigation-at-your-door/#respond</comments>
+		
+		<dc:creator><![CDATA[Igor Ferreira]]></dc:creator>
+		<pubDate>Thu, 02 Jul 2015 19:57:06 +0000</pubDate>
+				<category><![CDATA[Design]]></category>
+		<category><![CDATA[Finanças]]></category>
+		<category><![CDATA[Governments]]></category>
+		<category><![CDATA[International]]></category>
+		<category><![CDATA[Taxes]]></category>
+		<guid isPermaLink="false">https://avada.theme-fusion.com/law/?p=970</guid>
+
+					<description><![CDATA[<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into [...]</p>
+<p>O post <a href="https://inchurch.com.br/tax-litigation-at-your-door/">Tax litigation at your door</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<div class="fusion-fullwidth fullwidth-box fusion-builder-row-1 hundred-percent-fullwidth non-hundred-percent-height-scrolling" style="background-color: rgba(255,255,255,0);background-position: center center;background-repeat: no-repeat;padding-top:0px;padding-right:0px;padding-bottom:0px;padding-left:0px;margin-bottom: 0px;margin-top: 0px;border-width: 0px 0px 0px 0px;border-color:#eae9e9;border-style:solid;" ><div class="fusion-builder-row fusion-row"><div class="fusion-layout-column fusion_builder_column fusion-builder-column-0 fusion_builder_column_1_1 1_1 fusion-one-full fusion-column-first fusion-column-last fusion-column-no-min-height" style="margin-top:0px;margin-bottom:0px;"><div class="fusion-column-wrapper fusion-flex-column-wrapper-legacy" style="background-position:left top;background-repeat:no-repeat;-webkit-background-size:cover;-moz-background-size:cover;-o-background-size:cover;background-size:cover;padding: 0px 0px 0px 0px;"><span class="fusion-dropcap dropcap dropcap-boxed" style="border-radius:50%;">L</span>orem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&#8217;s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
+<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using &#8216;Content here, content here&#8217;, making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for &#8216;lorem ipsum&#8217; will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).</p>
+<blockquote><p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&#8217;s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. Contrary to popular belief, Lorem Ipsum is not simply random text.</p></blockquote>
+<p>It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.</p>
+<h3>Nemo enim ipsam voluptatem quia voluptas sit</h3>
+<p>Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of &#8220;de Finibus Bonorum et Malorum&#8221; (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, &#8220;Lorem ipsum dolor sit amet..&#8221;, comes from a line in section 1.10.32.</p>
+<p>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don&#8217;t look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn&#8217;t anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with a handful of model sentence structures, to generate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, or non-characteristic words.<div class="fusion-clearfix"></div></div></div></div><style type="text/css">.fusion-fullwidth.fusion-builder-row-1 { overflow:visible; }</style></div>
+<p>O post <a href="https://inchurch.com.br/tax-litigation-at-your-door/">Tax litigation at your door</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://inchurch.com.br/tax-litigation-at-your-door/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Intellectual property disputes</title>
+		<link>https://inchurch.com.br/intellectual-property-disputes/</link>
+					<comments>https://inchurch.com.br/intellectual-property-disputes/#respond</comments>
+		
+		<dc:creator><![CDATA[Igor Ferreira]]></dc:creator>
+		<pubDate>Thu, 02 Jul 2015 19:56:28 +0000</pubDate>
+				<category><![CDATA[Finanças]]></category>
+		<category><![CDATA[Gestão]]></category>
+		<category><![CDATA[Multimídia]]></category>
+		<category><![CDATA[Agreement]]></category>
+		<category><![CDATA[Allegations]]></category>
+		<category><![CDATA[Governments]]></category>
+		<guid isPermaLink="false">https://avada.theme-fusion.com/law/?p=968</guid>
+
+					<description><![CDATA[<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into [...]</p>
+<p>O post <a href="https://inchurch.com.br/intellectual-property-disputes/">Intellectual property disputes</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<div class="fusion-fullwidth fullwidth-box fusion-builder-row-2 hundred-percent-fullwidth non-hundred-percent-height-scrolling" style="background-color: rgba(255,255,255,0);background-position: center center;background-repeat: no-repeat;padding-top:0px;padding-right:0px;padding-bottom:0px;padding-left:0px;margin-bottom: 0px;margin-top: 0px;border-width: 0px 0px 0px 0px;border-color:#eae9e9;border-style:solid;" ><div class="fusion-builder-row fusion-row"><div class="fusion-layout-column fusion_builder_column fusion-builder-column-1 fusion_builder_column_1_1 1_1 fusion-one-full fusion-column-first fusion-column-last fusion-column-no-min-height" style="margin-top:0px;margin-bottom:0px;"><div class="fusion-column-wrapper fusion-flex-column-wrapper-legacy" style="background-position:left top;background-repeat:no-repeat;-webkit-background-size:cover;-moz-background-size:cover;-o-background-size:cover;background-size:cover;padding: 0px 0px 0px 0px;"><span class="fusion-dropcap dropcap dropcap-boxed" style="border-radius:50%;">L</span>orem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&#8217;s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
+<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using &#8216;Content here, content here&#8217;, making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for &#8216;lorem ipsum&#8217; will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).</p>
+<blockquote><p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&#8217;s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. Contrary to popular belief, Lorem Ipsum is not simply random text.</p></blockquote>
+<p>It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.</p>
+<h3>Nemo enim ipsam voluptatem quia voluptas sit</h3>
+<p>Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of &#8220;de Finibus Bonorum et Malorum&#8221; (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, &#8220;Lorem ipsum dolor sit amet..&#8221;, comes from a line in section 1.10.32.</p>
+<p>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don&#8217;t look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn&#8217;t anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with a handful of model sentence structures, to generate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, or non-characteristic words.<div class="fusion-clearfix"></div></div></div></div><style type="text/css">.fusion-fullwidth.fusion-builder-row-2 { overflow:visible; }</style></div>
+<p>O post <a href="https://inchurch.com.br/intellectual-property-disputes/">Intellectual property disputes</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://inchurch.com.br/intellectual-property-disputes/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Entertainment industry acquisitions</title>
+		<link>https://inchurch.com.br/entertainment-industry-acquisitions/</link>
+					<comments>https://inchurch.com.br/entertainment-industry-acquisitions/#respond</comments>
+		
+		<dc:creator><![CDATA[Igor Ferreira]]></dc:creator>
+		<pubDate>Thu, 02 Jul 2015 19:55:19 +0000</pubDate>
+				<category><![CDATA[Design]]></category>
+		<category><![CDATA[Finanças]]></category>
+		<category><![CDATA[Gestão]]></category>
+		<category><![CDATA[Multimídia]]></category>
+		<category><![CDATA[Financial]]></category>
+		<category><![CDATA[International]]></category>
+		<category><![CDATA[Taxes]]></category>
+		<guid isPermaLink="false">https://avada.theme-fusion.com/law/?p=966</guid>
+
+					<description><![CDATA[<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into [...]</p>
+<p>O post <a href="https://inchurch.com.br/entertainment-industry-acquisitions/">Entertainment industry acquisitions</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></description>
+										<content:encoded><![CDATA[<div class="fusion-fullwidth fullwidth-box fusion-builder-row-3 hundred-percent-fullwidth non-hundred-percent-height-scrolling" style="background-color: rgba(255,255,255,0);background-position: center center;background-repeat: no-repeat;padding-top:0px;padding-right:0px;padding-bottom:0px;padding-left:0px;margin-bottom: 0px;margin-top: 0px;border-width: 0px 0px 0px 0px;border-color:#eae9e9;border-style:solid;" ><div class="fusion-builder-row fusion-row"><div class="fusion-layout-column fusion_builder_column fusion-builder-column-2 fusion_builder_column_1_1 1_1 fusion-one-full fusion-column-first fusion-column-last fusion-column-no-min-height" style="margin-top:0px;margin-bottom:0px;"><div class="fusion-column-wrapper fusion-flex-column-wrapper-legacy" style="background-position:left top;background-repeat:no-repeat;-webkit-background-size:cover;-moz-background-size:cover;-o-background-size:cover;background-size:cover;padding: 0px 0px 0px 0px;"><span class="fusion-dropcap dropcap dropcap-boxed" style="border-radius:50%;">L</span>orem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&#8217;s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
+<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using &#8216;Content here, content here&#8217;, making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for &#8216;lorem ipsum&#8217; will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).</p>
+<blockquote><p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry&#8217;s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. Contrary to popular belief, Lorem Ipsum is not simply random text.</p></blockquote>
+<p>It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.</p>
+<h3>Nemo enim ipsam voluptatem quia voluptas sit</h3>
+<p>Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of &#8220;de Finibus Bonorum et Malorum&#8221; (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, &#8220;Lorem ipsum dolor sit amet..&#8221;, comes from a line in section 1.10.32.</p>
+<p>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don&#8217;t look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn&#8217;t anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with a handful of model sentence structures, to generate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, or non-characteristic words.<div class="fusion-clearfix"></div></div></div></div><style type="text/css">.fusion-fullwidth.fusion-builder-row-3 { overflow:visible; }</style></div>
+<p>O post <a href="https://inchurch.com.br/entertainment-industry-acquisitions/">Entertainment industry acquisitions</a> apareceu primeiro em <a href="https://inchurch.com.br">inChurch - Líder em Tecnologia para igrejas</a>.</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>https://inchurch.com.br/entertainment-industry-acquisitions/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+	</channel>
+</rss>

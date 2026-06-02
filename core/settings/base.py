@@ -57,7 +57,14 @@ TENANT_MODEL = 'tenants.Church'
 TENANT_DOMAIN_MODEL = 'tenants.Domain'
 DATABASE_ROUTERS = ('django_tenants.routers.TenantSyncRouter',)
 
+# django-tenants exige o middleware de tenant no TOPO da cadeia: ele resolve o
+# subdominio -> schema antes de qualquer outro middleware tocar o request
+# (TECH_SPEC §4.3 / TENANT-05). Em dev, tenants sao acessados via
+# `<slug>.localhost:8000` e a area publica/landing via `localhost:8000`
+# (resolvers modernos mapeiam *.localhost -> 127.0.0.1; ALLOWED_HOSTS ja cobre
+# `.localhost`).
 MIDDLEWARE = [
+    'apps.tenants.middleware.TenantMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

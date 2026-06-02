@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comunhão — Gestão para a sua igreja (protótipo Terracota &amp; Âmbar)</title>
+  <meta name="description" content="Protótipo de landing — direção visual Terracota & Âmbar. Nome 'Comunhão' é provisório." />
+
+  <!-- PROTÓTIPO: Tailwind via CDN só para preview. Em produção a decisão é build local (Tailwind CLI). -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Fraunces', 'Georgia', 'serif'],
+          },
+          colors: {
+            brand: {
+              primary: '#B4502E',     // terracota
+              primaryDark: '#8F3D22', // terracota profunda
+              accent: '#F2A93B',      // âmbar dourado
+              accentSoft: '#FBE6C0',  // âmbar claro
+              ink: '#2A1C14',         // texto principal
+              muted: '#7A6A5C',       // texto secundário
+              canvas: '#FBF6EF',      // creme (fundo)
+              surface: '#FFFFFF',     // cards
+              surfaceSoft: '#F6EEE3', // superfície quente
+              border: '#EADFD2',      // linhas
+              success: '#4D7C2F',
+              danger: '#C23A22',
+            },
+          },
+          boxShadow: {
+            soft: '0 10px 30px -12px rgba(42, 28, 20, 0.18)',
+            card: '0 1px 2px rgba(42,28,20,0.04), 0 12px 28px -16px rgba(42,28,20,0.22)',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background-color: #FBF6EF; }
+    .grain {
+      background-image: radial-gradient(circle at 20% 10%, rgba(242,169,59,0.12), transparent 40%),
+                        radial-gradient(circle at 90% 0%, rgba(180,80,46,0.10), transparent 45%);
+    }
+    .hero-mesh {
+      background:
+        radial-gradient(60% 80% at 80% 10%, rgba(242,169,59,0.18), transparent 60%),
+        radial-gradient(55% 70% at 10% 30%, rgba(180,80,46,0.14), transparent 60%);
+    }
+    .underline-accent {
+      background-image: linear-gradient(120deg, rgba(242,169,59,0.55), rgba(242,169,59,0.55));
+      background-repeat: no-repeat;
+      background-position: 0 88%;
+      background-size: 100% 0.32em;
+    }
+  </style>
+</head>
+
+<body class="font-sans text-brand-ink antialiased selection:bg-brand-accentSoft">
+
+  <!-- ============ HEADER ============ -->
+  <header class="sticky top-0 z-50 border-b border-brand-border/70 bg-brand-canvas/85 backdrop-blur">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
+      <a href="#" class="flex items-center gap-2.5">
+        <span class="grid h-9 w-9 place-items-center rounded-xl bg-brand-primary text-white shadow-soft">
+          <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 8.5c3-2 11-2 14 0M5 8.5c0 4 2 7 7 8.5 5-1.5 7-4.5 7-8.5"/></svg>
+        </span>
+        <span class="text-lg font-semibold tracking-tight">Comunhão</span>
+        <span class="hidden rounded-full bg-brand-surfaceSoft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-muted sm:inline">nome provisório</span>
+      </a>
+
+      <nav class="hidden items-center gap-7 text-sm font-medium text-brand-muted md:flex">
+        <a href="#recursos" class="transition hover:text-brand-ink">Recursos</a>
+        <a href="#seguranca" class="transition hover:text-brand-ink">Segurança</a>
+        <a href="#planos" class="transition hover:text-brand-ink">Planos</a>
+        <a href="#sobre" class="transition hover:text-brand-ink">Sobre</a>
+      </nav>
+
+      <div class="flex items-center gap-2.5">
+        <a href="#" class="hidden rounded-lg px-3.5 py-2 text-sm font-semibold text-brand-ink transition hover:bg-brand-surfaceSoft sm:inline-block">Entrar</a>
+        <a href="#cadastro" class="rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-primaryDark">Criar conta grátis</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero-mesh relative overflow-hidden">
+    <div class="mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 md:grid-cols-2 md:py-24">
+      <div>
+        <span class="inline-flex items-center gap-2 rounded-full border border-brand-border bg-brand-surface px-3 py-1 text-xs font-semibold text-brand-primary shadow-soft">
+          <span class="h-1.5 w-1.5 rounded-full bg-brand-accent"></span>
+          Feito no Brasil · 100% em português · LGPD desde o primeiro dia
+        </span>
+
+        <h1 class="mt-5 font-display text-4xl font-semibold leading-[1.08] tracking-tight md:text-5xl lg:text-[3.4rem]">
+          A sua igreja <span class="underline-accent">organizada</span>, sem perder o calor da comunidade.
+        </h1>
+
+        <p class="mt-5 max-w-md text-lg leading-relaxed text-brand-muted">
+          Pessoas, comunidades, ministérios, encontros, presença e escalas — tudo em um só lugar,
+          simples o bastante para o líder usar pelo celular no domingo.
+        </p>
+
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+          <a href="#cadastro" class="rounded-xl bg-brand-primary px-6 py-3.5 text-center text-sm font-semibold text-white shadow-card transition hover:bg-brand-primaryDark">
+            Comece grátis — até 50 pessoas
+          </a>
+          <a href="#recursos" class="rounded-xl border border-brand-border bg-brand-surface px-6 py-3.5 text-center text-sm font-semibold text-brand-ink transition hover:bg-brand-surfaceSoft">
+            Ver como funciona
+          </a>
+        </div>
+
+        <p class="mt-4 text-xs text-brand-muted">Sem cartão de crédito · Cancele quando quiser · Seus dados são seus</p>
+      </div>
+
+      <!-- Mock visual (sem imagem externa) -->
+      <div class="relative">
+        <div class="absolute -inset-4 rounded-[2rem] bg-gradient-to-tr from-brand-accent/20 to-brand-primary/10 blur-2xl"></div>
+        <div class="relative rounded-3xl border border-brand-border bg-brand-surface p-5 shadow-card">
+          <div class="flex items-center justify-between border-b border-brand-border pb-4">
+            <div class="flex items-center gap-2">
+              <span class="grid h-8 w-8 place-items-center rounded-lg bg-brand-primary/10 text-brand-primary font-display font-semibold">A</span>
+              <div>
+                <p class="text-sm font-semibold leading-none">Igreja Athos</p>
+                <p class="mt-1 text-[11px] text-brand-muted">athos.comunhao.app</p>
+              </div>
+            </div>
+            <span class="rounded-full bg-brand-success/10 px-2.5 py-1 text-[11px] font-semibold text-brand-success">Domingo · Culto</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-3 py-4">
+            <div class="rounded-xl bg-brand-surfaceSoft p-3">
+              <p class="text-2xl font-semibold leading-none text-brand-ink">248</p>
+              <p class="mt-1 text-[11px] text-brand-muted">Pessoas</p>
+            </div>
+            <div class="rounded-xl bg-brand-surfaceSoft p-3">
+              <p class="text-2xl font-semibold leading-none text-brand-ink">12</p>
+              <p class="mt-1 text-[11px] text-brand-muted">Comunidades</p>
+            </div>
+            <div class="rounded-xl bg-brand-surfaceSoft p-3">
+              <p class="text-2xl font-semibold leading-none text-brand-primary">87%</p>
+              <p class="mt-1 text-[11px] text-brand-muted">Presença</p>
+            </div>
+          </div>
+
+          <div class="space-y-2.5">
+            <p class="text-[11px] font-semibold uppercase tracking-wide text-brand-muted">Marcar presença</p>
+            <div class="flex items-center justify-between rounded-xl border border-brand-border px-3 py-2.5">
+              <span class="text-sm">Ana Beatriz</span>
+              <span class="grid h-6 w-6 place-items-center rounded-md bg-brand-success text-white"><svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            </div>
+            <div class="flex items-center justify-between rounded-xl border border-brand-border px-3 py-2.5">
+              <span class="text-sm">Carlos Henrique</span>
+              <span class="grid h-6 w-6 place-items-center rounded-md bg-brand-success text-white"><svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            </div>
+            <div class="flex items-center justify-between rounded-xl border border-dashed border-brand-border px-3 py-2.5 opacity-70">
+              <span class="text-sm">Daniel Souza</span>
+              <span class="h-6 w-6 rounded-md border border-brand-border"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAIXA DE VALOR ============ -->
+  <section class="border-y border-brand-border bg-brand-surface">
+    <div class="mx-auto grid max-w-6xl gap-6 px-5 py-10 sm:grid-cols-3">
+      <div class="flex items-start gap-3">
+        <span class="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand-accentSoft text-brand-primary"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span>
+        <div>
+          <p class="text-sm font-semibold">Simples para quem serve</p>
+          <p class="mt-1 text-sm text-brand-muted">Líder marca presença pelo celular em menos de 2 minutos.</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand-accentSoft text-brand-primary"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z"/></svg></span>
+        <div>
+          <p class="text-sm font-semibold">Privacidade levada a sério</p>
+          <p class="mt-1 text-sm text-brand-muted">Consentimento, anonimização e exportação prontos para a LGPD.</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-3">
+        <span class="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand-accentSoft text-brand-primary"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18M3 12h18M3 17h12"/></svg></span>
+        <div>
+          <p class="text-sm font-semibold">Cada igreja no seu espaço</p>
+          <p class="mt-1 text-sm text-brand-muted">Dados isolados por igreja. O que é da sua comunidade fica só com ela.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RECURSOS ============ -->
+  <section id="recursos" class="grain">
+    <div class="mx-auto max-w-6xl px-5 py-20">
+      <div class="mx-auto max-w-2xl text-center">
+        <p class="text-sm font-semibold uppercase tracking-wide text-brand-primary">Tudo em um só lugar</p>
+        <h2 class="mt-3 font-display text-3xl font-semibold tracking-tight md:text-4xl">Recursos pensados para o dia a dia da igreja</h2>
+        <p class="mt-4 text-brand-muted">Do cadastro de pessoas à escala do próximo culto, sem planilhas espalhadas.</p>
+      </div>
+
+      <div class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Pessoas -->
+        <article class="group rounded-2xl border border-brand-border bg-brand-surface p-6 shadow-card transition hover:-translate-y-0.5">
+          <span class="grid h-11 w-11 place-items-center rounded-xl bg-brand-primary/10 text-brand-primary"><svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg></span>
+          <h3 class="mt-4 text-lg font-semibold">Pessoas</h3>
+          <p class="mt-2 text-sm leading-relaxed text-brand-muted">Cadastro completo de membros, visitantes e congregados, com histórico e busca rápida.</p>
+        </article>
+        <!-- Comunidades -->
+        <article class="group rounded-2xl border border-brand-border bg-brand-surface p-6 shadow-card transition hover:-translate-y-0.5">
+          <span class="grid h-11 w-11 place-items-center rounded-xl bg-brand-primary/10 text-brand-primary"><svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></span>
+          <h3 class="mt-4 text-lg font-semibold">Comunidades &amp; células</h3>
+          <p class="mt-2 text-sm leading-relaxed text-brand-muted">Organize grupos, defina líderes e acompanhe a vida de cada comunidade.</p>
+        </article>
+        <!-- Ministérios -->
+        <article class="group rounded-2xl border border-brand-border bg-brand-surface p-6 shadow-card transition hover:-translate-y-0.5">
+          <span class="grid h-11 w-11 place-items-center rounded-xl bg-brand-primary/10 text-brand-primary"><svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21 8 14 2 9.4h7.6z"/></svg></span>
+          <h3 class="mt-4 text-lg font-semibold">Ministérios</h3>
+          <p class="mt-2 text-sm leading-relaxed text-brand-muted">Departamentos e equipes com coordenadores e voluntários no lugar certo.</p>
+        </article>
+        <!-- Encontros e presença -->
+        <article class="group rounded-2xl border border-brand-border bg-brand-surface p-6 shadow-card transition hover:-translate-y-0.5">
+          <span class="grid h-11 w-11 place-items-center rounded-xl bg-brand-primary/10 text-brand-primary"><svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4M16 2v4M3 10h18M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zM9 16l2 2 4-4"/></svg></span>
+          <h3 class="mt-4 text-lg font-semibold">Encontros &amp; presença</h3>
+          <p class="mt-2 text-sm leading-relaxed text-brand-muted">Cultos, reuniões e eventos com marcação de presença em lote, sem duplicação.</p>
+        </article>
+        <!-- Escalas -->
+        <article class="group rounded-2xl border border-brand-border bg-brand-surface p-6 shadow-card transition hover:-translate-y-0.5">
+          <span class="grid h-11 w-11 place-items-center rounded-xl bg-brand-primary/10 text-brand-primary"><svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+          <h3 class="mt-4 text-lg font-semibold">Escalas de voluntários</h3>
+          <p class="mt-2 text-sm leading-relaxed text-brand-muted">Monte escalas e o sistema avisa conflitos antes que virem dor de cabeça.</p>
+        </article>
+        <!-- Dashboard -->
+        <article class="group rounded-2xl border border-brand-border bg-brand-surface p-6 shadow-card transition hover:-translate-y-0.5">
+          <span class="grid h-11 w-11 place-items-center rounded-xl bg-brand-primary/10 text-brand-primary"><svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg></span>
+          <h3 class="mt-4 text-lg font-semibold">Painel &amp; relatórios</h3>
+          <p class="mt-2 text-sm leading-relaxed text-brand-muted">Números de frequência, crescimento e engajamento — claros para a liderança.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SEGURANÇA / LGPD ============ -->
+  <section id="seguranca" class="bg-brand-ink text-brand-canvas">
+    <div class="mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 md:grid-cols-2">
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-wide text-brand-accent">Confiança &amp; privacidade</p>
+        <h2 class="mt-3 font-display text-3xl font-semibold tracking-tight md:text-4xl">Os dados da sua igreja merecem cuidado de verdade</h2>
+        <p class="mt-4 max-w-md leading-relaxed text-brand-canvas/70">
+          Construído desde o início com a LGPD em mente — e não como um remendo depois.
+        </p>
+
+        <ul class="mt-7 space-y-4">
+          <li class="flex items-start gap-3">
+            <span class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md bg-brand-accent/20 text-brand-accent"><svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <p class="text-sm text-brand-canvas/85"><span class="font-semibold text-brand-canvas">Isolamento por igreja:</span> os dados de uma comunidade nunca se misturam com os de outra.</p>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md bg-brand-accent/20 text-brand-accent"><svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <p class="text-sm text-brand-canvas/85"><span class="font-semibold text-brand-canvas">Consentimento e exportação:</span> registre o consentimento e exporte os dados de uma pessoa quando ela pedir.</p>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md bg-brand-accent/20 text-brand-accent"><svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <p class="text-sm text-brand-canvas/85"><span class="font-semibold text-brand-canvas">Auditoria:</span> ações sensíveis ficam registradas, com controle de quem acessa o quê.</p>
+          </li>
+        </ul>
+      </div>
+
+      <div class="rounded-3xl border border-white/10 bg-white/5 p-8">
+        <div class="flex items-center gap-3 border-b border-white/10 pb-5">
+          <span class="grid h-12 w-12 place-items-center rounded-2xl bg-brand-accent text-brand-ink"><svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z"/></svg></span>
+          <div>
+            <p class="font-display text-lg font-semibold text-brand-canvas">Privacidade por padrão</p>
+            <p class="text-sm text-brand-canvas/60">não como opcional</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4 pt-6">
+          <div class="rounded-xl bg-white/5 p-4"><p class="font-display text-3xl font-semibold text-brand-accent">100%</p><p class="mt-1 text-xs text-brand-canvas/60">em português</p></div>
+          <div class="rounded-xl bg-white/5 p-4"><p class="font-display text-3xl font-semibold text-brand-accent">LGPD</p><p class="mt-1 text-xs text-brand-canvas/60">desde o dia 1</p></div>
+          <div class="rounded-xl bg-white/5 p-4"><p class="font-display text-3xl font-semibold text-brand-accent">1 igreja</p><p class="mt-1 text-xs text-brand-canvas/60">= 1 espaço isolado</p></div>
+          <div class="rounded-xl bg-white/5 p-4"><p class="font-display text-3xl font-semibold text-brand-accent">Mobile</p><p class="mt-1 text-xs text-brand-canvas/60">feito pro celular</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PLANOS ============ -->
+  <section id="planos" class="grain">
+    <div class="mx-auto max-w-6xl px-5 py-20">
+      <div class="mx-auto max-w-2xl text-center">
+        <p class="text-sm font-semibold uppercase tracking-wide text-brand-primary">Planos</p>
+        <h2 class="mt-3 font-display text-3xl font-semibold tracking-tight md:text-4xl">Comece de graça. Cresça quando precisar.</h2>
+        <p class="mt-4 text-brand-muted">Sem surpresa: os limites são por número de pessoas cadastradas.</p>
+      </div>
+
+      <div class="mt-12 grid items-stretch gap-6 lg:grid-cols-3">
+        <!-- Free -->
+        <div class="flex flex-col rounded-2xl border border-brand-border bg-brand-surface p-7 shadow-card">
+          <p class="text-sm font-semibold uppercase tracking-wide text-brand-muted">Grátis</p>
+          <p class="mt-3 font-display text-4xl font-semibold">R$ 0<span class="text-base font-normal text-brand-muted">/mês</span></p>
+          <p class="mt-2 text-sm text-brand-muted">Para começar a organizar sua igreja hoje.</p>
+          <ul class="mt-6 space-y-3 text-sm">
+            <li class="flex items-center gap-2"><span class="text-brand-success">✓</span> Até 50 pessoas</li>
+            <li class="flex items-center gap-2"><span class="text-brand-success">✓</span> Comunidades e ministérios</li>
+            <li class="flex items-center gap-2"><span class="text-brand-success">✓</span> Encontros e presença</li>
+            <li class="flex items-center gap-2"><span class="text-brand-success">✓</span> LGPD e auditoria</li>
+          </ul>
+          <a href="#cadastro" class="mt-7 rounded-xl border border-brand-border px-5 py-3 text-center text-sm font-semibold transition hover:bg-brand-surfaceSoft">Criar conta grátis</a>
+        </div>
+
+        <!-- Básico (destaque) -->
+        <div class="relative flex flex-col rounded-2xl border-2 border-brand-primary bg-brand-surface p-7 shadow-card">
+          <span class="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-primary px-3 py-1 text-xs font-semibold text-white">Mais escolhido</span>
+          <p class="text-sm font-semibold uppercase tracking-wide text-brand-primary">Básico</p>
+          <p class="mt-3 font-display text-4xl font-semibold">R$ —<span class="text-base font-normal text-brand-muted">/mês</span></p>
+          <p class="mt-2 text-sm text-brand-muted">Para igrejas em crescimento. <span class="italic">(preço a definir)</span></p>
+          <ul class="mt-6 space-y-3 text-sm">
+            <li class="flex items-center gap-2"><span class="text-brand-success">✓</span> Até 200 pessoas</li>
+            <li class="flex items-center gap-2"><span class="text-brand-success">✓</span> Tudo do Grátis</li>
+            <li class="flex items-center gap-2"><span class="text-brand-success">✓</span> Escalas com aviso de conflito</li>
+            <li class="flex items-center gap-2"><span class="text-brand-success">✓</span> Relatórios do painel</li>
+          </ul>
+          <a href="#cadastro" class="mt-7 rounded-xl bg-brand-primary px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-brand-primaryDark">Escolher Básico</a>
+        </div>
+
+        <!-- Pro -->
+        <div class="flex flex-col rounded-2xl border border-brand-border bg-brand-surface p-7 shadow-card">
+          <p class="text-sm font-semibold uppercase tracking-wide text-brand-muted">Profissional</p>
+          <p class="mt-3 font-display text-4xl font-semibold">R$ —<span class="text-base font-normal text-brand-muted">/mês</span></p>
+          <p class="mt-2 text-sm text-brand-muted">Para igrejas grandes e múltiplas comunidades.</p>
+          <ul class="mt-6 space-y-3 text-sm">
+            <li class="flex items-center gap-2"><span class="text-brand-success">✓</span> Pessoas ilimitadas</li>
+            <li class="flex items-center gap-2"><span class="text-brand-success">✓</span> Tudo do Básico</li>
+            <li class="flex items-center gap-2"><span class="text-brand-success">✓</span> Arquivos e mídia</li>
+            <li class="flex items-center gap-2"><span class="text-brand-success">✓</span> Suporte prioritário</li>
+          </ul>
+          <a href="#cadastro" class="mt-7 rounded-xl border border-brand-border px-5 py-3 text-center text-sm font-semibold transition hover:bg-brand-surfaceSoft">Falar com a gente</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA FINAL ============ -->
+  <section id="cadastro" class="bg-brand-surface">
+    <div class="mx-auto max-w-6xl px-5 py-20">
+      <div class="overflow-hidden rounded-3xl bg-brand-primary px-8 py-14 text-center shadow-card md:px-16">
+        <h2 class="mx-auto max-w-2xl font-display text-3xl font-semibold tracking-tight text-white md:text-4xl">
+          Pronto para cuidar melhor da sua comunidade?
+        </h2>
+        <p class="mx-auto mt-4 max-w-xl text-white/80">
+          Crie a conta da sua igreja em minutos. Grátis para começar, simples para usar.
+        </p>
+        <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <a href="#" class="rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-brand-primary shadow-soft transition hover:bg-brand-accentSoft">Criar conta da igreja</a>
+          <a href="#recursos" class="rounded-xl border border-white/30 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10">Ver recursos</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer id="sobre" class="border-t border-brand-border bg-brand-canvas">
+    <div class="mx-auto max-w-6xl px-5 py-12">
+      <div class="grid gap-8 md:grid-cols-4">
+        <div class="md:col-span-1">
+          <div class="flex items-center gap-2.5">
+            <span class="grid h-9 w-9 place-items-center rounded-xl bg-brand-primary text-white"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 8.5c3-2 11-2 14 0M5 8.5c0 4 2 7 7 8.5 5-1.5 7-4.5 7-8.5"/></svg></span>
+            <span class="text-lg font-semibold">Comunhão</span>
+          </div>
+          <p class="mt-4 max-w-xs text-sm text-brand-muted">Gestão simples e segura para a sua igreja. Feito no Brasil, em português.</p>
+        </div>
+        <div>
+          <p class="text-sm font-semibold">Produto</p>
+          <ul class="mt-4 space-y-2 text-sm text-brand-muted">
+            <li><a href="#recursos" class="hover:text-brand-ink">Recursos</a></li>
+            <li><a href="#planos" class="hover:text-brand-ink">Planos</a></li>
+            <li><a href="#seguranca" class="hover:text-brand-ink">Segurança</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-sm font-semibold">Empresa</p>
+          <ul class="mt-4 space-y-2 text-sm text-brand-muted">
+            <li><a href="#" class="hover:text-brand-ink">Sobre</a></li>
+            <li><a href="#" class="hover:text-brand-ink">Contato</a></li>
+            <li><a href="#" class="hover:text-brand-ink">Blog</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="text-sm font-semibold">Legal</p>
+          <ul class="mt-4 space-y-2 text-sm text-brand-muted">
+            <li><a href="#" class="hover:text-brand-ink">Privacidade</a></li>
+            <li><a href="#" class="hover:text-brand-ink">Termos</a></li>
+            <li><a href="#" class="hover:text-brand-ink">LGPD</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-10 flex flex-col items-center justify-between gap-3 border-t border-brand-border pt-6 text-xs text-brand-muted sm:flex-row">
+        <p>© 2026 Comunhão (nome provisório). Protótipo de direção visual — Terracota &amp; Âmbar.</p>
+        <p>Feito com cuidado para a Igreja.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

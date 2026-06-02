@@ -114,10 +114,10 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### Multi-tenancy
 
-- [ ] (P0) Criar `apps/tenants/middleware.py` com `TenantMiddleware` (resolve subdomain → schema)
-- [ ] (P0) Configurar wildcard subdomain em hosts locais (`*.localhost`) ou usar `django-hosts`
-- [ ] (P0) Criar management command `create_church` para provisionar tenant em dev
-- [ ] (P0) Criar `apps/core/mixins.py` com `TenantRequiredMixin` (re-export do django-tenants)
+- [x] (P0) Criar `apps/tenants/middleware.py` com `TenantMiddleware` (resolve subdomain → schema)
+- [x] (P0) Configurar wildcard subdomain em hosts locais (`*.localhost`) ou usar `django-hosts`
+- [x] (P0) Criar management command `create_church` para provisionar tenant em dev
+- [x] (P0) Criar `apps/core/mixins.py` com `TenantRequiredMixin` (re-export do django-tenants)
 
 #### Landing pública
 
@@ -128,9 +128,9 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### Observabilidade
 
-- [ ] (P0) Criar endpoints `/health/` (liveness, sempre 200) e `/ready/` (readiness: Postgres + Redis, 200/503) em `apps/core/views.py`
-- [ ] (P0) Registrar rotas no schema `public` (sem subdomínio de tenant)
-- [ ] (P0) Configurar EasyPanel/Cloudflare para monitorar `/ready/`
+- [x] (P0) Criar endpoints `/health/` (liveness, sempre 200) e `/ready/` (readiness: Postgres + Redis, 200/503) em `apps/core/views.py`
+- [x] (P0) Registrar rotas no schema `public` (sem subdomínio de tenant) → `core/urls.py` + bypass no `TenantMiddleware` (liveness não depende do banco)
+- [x] (P0) Configurar EasyPanel/Cloudflare para monitorar `/ready/` → healthcheck do container no `docker-compose.yml` + runbook em `docs/MONITORING.md`; **config real do EasyPanel/Cloudflare é Sprint 7 (deploy)**
 
 #### Performance baseline
 
