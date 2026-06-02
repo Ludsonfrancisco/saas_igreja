@@ -30,6 +30,7 @@ dependencies = [
     "celery>=5.4",
     "python-decouple>=3.8",
     "weasyprint>=62.0",
+    "django-anymail[brevo]>=15.0",
 ]
 
 # Dependencias de desenvolvimento/CI (formato uv: PEP 735 dependency-groups).

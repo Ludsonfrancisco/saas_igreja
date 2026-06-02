@@ -189,11 +189,11 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### Convites
 
-- [ ] (P0) Criar `apps/accounts/services.py` com `create_invite` (aceita lista de `roles`), `accept_invite`, `resend_invite`, `cancel_invite`
-- [ ] (P0) Criar views e templates para envio e aceite de convite (UI permite selecionar múltiplas roles)
-- [ ] (P0) Garantir `unique_together=('church', 'email')` em `Invite`
-- [ ] (P0) Implementar expiração de 7 dias e token UUID
-- [ ] (P0) Configurar envio de email via **Brevo free tier** + `django-anymail[brevo]` (OD-012). DKIM/SPF configurados no DNS Cloudflare
+- [x] (P0) Criar `apps/accounts/services.py` com `create_invite` (aceita lista de `roles`), `accept_invite`, `resend_invite`, `cancel_invite` → token nunca em log (só no email, RISK §170); `cancel_invite` é hard delete (model sem campo status); `resend_invite` regenera token (mata link antigo)
+- [x] (P0) Criar views e templates para envio e aceite de convite (UI permite selecionar múltiplas roles) → `InviteCreate/List/Resend/Cancel` (TenantRequiredMixin+PastorRequiredMixin) sob `configuracoes/`; `InviteAcceptView` **pública** sob `contas/convite/<uuid:token>/` (sem login; barreira cross-tenant via `expected_church` + 404 no public); `InviteForm`/`AcceptInviteForm` explícitos (sem ModelForm `__all__`); styling Athos adiado
+- [x] (P0) Garantir `unique_together=('church', 'email')` em `Invite` → colisão de `IntegrityError` traduzida p/ `ValidationError` amigável
+- [x] (P0) Implementar expiração de 7 dias e token UUID → `_INVITE_TTL=7d`; single-use via `accepted_at`
+- [x] (P0) Configurar envio de email via **Brevo free tier** + `django-anymail[brevo]` (OD-012). DKIM/SPF configurados no DNS Cloudflare → dep `django-anymail[brevo]` add; `prod.py` com backend Brevo + `ANYMAIL['BREVO_API_KEY']` via env; dev mantém console backend. **Chave real + DKIM/SPF no Cloudflare = Sprint 7**
 
 #### Autorização (multi-role)
 
@@ -239,11 +239,11 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [x] (P0) `test_password_cannot_be_email_or_name`
 - [x] (P0) `test_session_cookies_secure_httponly_samesite`
 - [x] (P0) `test_security_headers_present_in_prod`
-- [ ] (P0) `test_invite_unique_per_church`
-- [ ] (P0) `test_accept_invite_creates_user_and_marks_accepted_at`
-- [ ] (P0) `test_invite_expires_after_7_days`
-- [ ] (P0) `test_invite_token_single_use`
-- [ ] (P0) `test_resend_invite_renews_expiration`
+- [x] (P0) `test_invite_unique_per_church`
+- [x] (P0) `test_accept_invite_creates_user_and_marks_accepted_at`
+- [x] (P0) `test_invite_expires_after_7_days`
+- [x] (P0) `test_invite_token_single_use`
+- [x] (P0) `test_resend_invite_renews_expiration`
 - [x] (P0) `test_role_change_audited_and_security_logged`
 - [x] (P0) `test_user_multi_role_union_of_permissions` (treasurer+leader tem ambos)
 - [x] (P0) `test_has_any_role_and_has_all_roles`

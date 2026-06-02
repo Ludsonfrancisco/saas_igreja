@@ -98,6 +98,10 @@ class Invite(BaseModel):
     class Meta:
         unique_together = ('church', 'email')
 
+    def __str__(self):
+        # NUNCA expor o token aqui: este repr alimenta object_repr no AuditLog.
+        return f'Convite {self.email}'
+
 
 class PlatformAdmin(BaseModel):
     """Operador da plataforma. Separado de User comum. MFA obrigatorio."""

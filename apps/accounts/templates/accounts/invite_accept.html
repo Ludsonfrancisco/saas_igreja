@@ -1,0 +1,21 @@
+{% comment %}
+Aceite de convite: definicao de senha (Frente 4). Pagina PUBLICA. Markup minimo
+pt-BR; styling Athos fica para a frente de frontend.
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Aceitar convite</title>
+</head>
+<body>
+  <h1>Bem-vindo ao SaaS Igreja</h1>
+  <p>Defina sua senha para criar a conta de <strong>{{ invite.email }}</strong>.</p>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Criar conta</button>
+  </form>
+</body>
+</html>

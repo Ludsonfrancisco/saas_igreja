@@ -5,11 +5,18 @@ metadata:
   type: feedback
 ---
 
-Tests run under `core.settings.dev` (matches CI), which installs django-debug-toolbar with `DEBUG_TOOLBAR_CONFIG['SHOW_TOOLBAR_CALLBACK'] = lambda request: DEBUG`. That lambda closes over the module-level `DEBUG=True`, ignoring Django's test-time `settings.DEBUG=False`. So the toolbar tries to render on any test-client response and crashes with `NoReverseMatch('djdt')` because `__debug__/` URLs only exist under real DEBUG.
+**RESOLVED as of Sprint 2 (verified 2026-06-02).** `core/settings/dev.py` now sets
+`DEBUG_TOOLBAR_CONFIG = {'SHOW_TOOLBAR_CALLBACK': lambda request: django_settings.DEBUG}`,
+reading `django_settings.DEBUG` at request time. Django forces `settings.DEBUG=False` during
+tests, so the toolbar is inert. View tests using the test client (`test_user_list_view.py`,
+`test_invite_views.py`) pass clean with NO `_disable_debug_toolbar` fixture — there is none in
+conftest anymore, and none is needed.
 
-**Why:** the dev settings comment claims the toolbar "fica inerte automaticamente" in tests — it does not, due to the closure bug.
+**Why this note remains:** the original closure bug (lambda closing over module-level `DEBUG=True`)
+was real on an earlier revision and caused `NoReverseMatch('djdt')` on any test-client response. If
+someone reverts the callback to a captured constant, the crash returns. The signature to watch for is
+`NoReverseMatch('djdt')` on otherwise-correct view tests.
 
-**How to apply:**
-- Root conftest has an `autouse` fixture `_disable_debug_toolbar(settings)` that sets `settings.DEBUG_TOOLBAR_CONFIG = {'SHOW_TOOLBAR_CALLBACK': lambda request: False}`. Keep it; any test using `client` (health, future view/permission/isolation tests) depends on it.
-- The real fix is in `core/settings/dev.py` (callback should read `settings.DEBUG` or check a test flag), but that's a settings change — out of scope unless the owner authorizes. Flag it if touching settings.
-- This will matter a lot from Sprint 2+ when permission/isolation tests hammer the test client. See [[django-tenants-test-db]].
+**How to apply:** do NOT add a debug-toolbar-neutralizing fixture preemptively — current settings
+handle it. Only revisit if test-client view tests start failing with `djdt` reverse errors. See
+[[django-tenants-test-db]].

@@ -14,14 +14,18 @@ from apps.core.views import health, ready
 urlpatterns: list[path] = [
     path('health/', health, name='health'),
     path('ready/', ready, name='ready'),
+    # App accounts: UM unico include na raiz, com namespace unico 'accounts'.
+    # O proprio urlconf da app carrega os prefixos (`configuracoes/...` para as
+    # rotas tenant-scoped; `contas/convite/<token>/` para o aceite PUBLICO de
+    # convite). Montar um SO include preserva o reverse de todas as rotas do
+    # namespace (incluir o mesmo namespace em dois includes quebraria o reverse).
+    # Precede o allauth para que `contas/convite/<token>/` nao colida com as
+    # rotas do allauth sob o mesmo prefixo `contas/`.
+    path('', include('apps.accounts.urls')),
     # Fluxos de autenticacao do allauth (login, logout, reset/confirm de senha)
     # sob prefixo pt-BR. O cadastro publico esta fechado (AccountAdapter), mas a
     # rota de signup ainda e incluida pelo allauth — ela responde fechada.
     path('contas/', include('allauth.urls')),
-    # Configuracoes tenant-scoped (Frente 3): listagem de usuarios da igreja.
-    # As views aplicam TenantRequiredMixin, entao so respondem em contexto de
-    # tenant (no public, o mixin devolve 404).
-    path('configuracoes/', include('apps.accounts.urls')),
 ]
 
 # django-debug-toolbar so existe em dev: o import fica DENTRO do guard de DEBUG

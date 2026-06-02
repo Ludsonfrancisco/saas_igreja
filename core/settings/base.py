@@ -195,6 +195,11 @@ LOGIN_URL = 'account_login'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = 'account_login'
 
+# Remetente padrao dos emails transacionais (convites, reset de senha). Em dev
+# vai para o console; em prod, via Brevo/anymail (ver prod.py). Fallback aqui
+# garante um remetente valido mesmo sem env var configurada (Frente 4 / OD-012).
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='nao-responda@saasigreja.com')
+
 # --- django-axes (SEC-02): 5 falhas -> lockout 15 min ---
 AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = timedelta(minutes=15)

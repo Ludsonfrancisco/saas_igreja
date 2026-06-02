@@ -1,0 +1,22 @@
+{% comment %}
+Formulario de criacao de convite (Frente 4). Markup minimo pt-BR; styling Athos
+fica para a frente de frontend.
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Novo convite</title>
+</head>
+<body>
+  <h1>Novo convite</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Enviar convite</button>
+  </form>
+
+  <p><a href="{% url 'accounts:invite_list' %}">Voltar para convites</a></p>
+</body>
+</html>
