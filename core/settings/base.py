@@ -70,6 +70,11 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # AuditContextMiddleware precisa de request.user (depois de
+    # AuthenticationMiddleware) e do schema ja resolvido (depois de
+    # TenantMiddleware, mantido no topo). Carrega user_id+IP no thread-local
+    # lido pelos signals de auditoria (TECH_SPEC §2 / §5.9).
+    'apps.core.middleware.AuditContextMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -145,3 +150,22 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# --- Sentry (observabilidade) — TENANT-07 / TECH_SPEC §12.3 ---
+# Init GUARDADO por SENTRY_DSN: em dev (DSN vazio) NAO inicializa, evitando
+# qualquer envio acidental e mantendo a suite/check sem rede externa.
+# `before_send` mascara email/telefone (PII) e send_default_pii=False barra o
+# resto. A tag por tenant_id em cada evento e escopo da Sprint 7 — nao aqui.
+SENTRY_DSN = config('SENTRY_DSN', default='')
+if SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    from apps.core.sentry import before_send as _sentry_before_send
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        send_default_pii=False,
+        before_send=_sentry_before_send,
+    )

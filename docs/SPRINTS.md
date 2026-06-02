@@ -216,11 +216,11 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### Auditoria e SecurityLog
 
-- [ ] (P0) Criar `apps/core/models.py` com `AuditLog` (tenant_id CharField, user_id IntegerField, sem FK cross-schema)
-- [ ] (P0) Criar `apps/core/models.py` com `SecurityLog` (event_type, payload JSON, ip_address)
-- [ ] (P0) Implementar `AuditLogMixin` para signals automáticos em `post_save`/`post_delete`
-- [ ] (P0) Disparar `SecurityLog` em: login success/failure, lockout, password reset, role change, user deactivated/reactivated, mfa_enabled, mfa_disabled, support_access_granted, support_access_revoked, platform_admin_access
-- [ ] (P0) Configurar Sentry com `before_send` que sanitiza PII
+- [x] (P0) Criar `apps/core/models.py` com `AuditLog` (tenant_id CharField, user_id IntegerField, sem FK cross-schema) → migrado só p/ schemas de tenant (§5.9.1; ausente do public)
+- [x] (P0) Criar `apps/core/models.py` com `SecurityLog` (event_type, payload JSON, ip_address)
+- [x] (P0) Implementar `AuditLogMixin` para signals automáticos em `post_save`/`post_delete` → mixin abstrato + `signals.py` (ready()) + `AuditContextMiddleware` (thread-local user/IP) + helpers `record_audit`/`log_security_event` em `apps/core/audit.py`
+- [ ] (P0) Disparar `SecurityLog` em: login success/failure, lockout, password reset, role change, user deactivated/reactivated, mfa_enabled, mfa_disabled, support_access_granted, support_access_revoked, platform_admin_access → helper `log_security_event` pronto; **disparo dos eventos nas Frentes 2 (auth/lockout/reset/role), 5 (support_access/platform_admin) e 6 (mfa)**
+- [x] (P0) Configurar Sentry com `before_send` que sanitiza PII → `apps/core/sentry.py` + init guardado por `SENTRY_DSN` em `base.py` (`send_default_pii=False`)
 
 #### TenantAdminMixin
 
@@ -256,8 +256,8 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [ ] (P0) `test_revoke_support_access_blocks_immediately`
 - [ ] (P0) `test_deactivate_blocks_login`
 - [ ] (P0) `test_list_users_scoped_by_church`
-- [ ] (P0) `test_auditlog_no_cross_schema_fk`
-- [ ] (P0) `test_auditlog_scoped_by_tenant_id`
+- [x] (P0) `test_auditlog_no_cross_schema_fk`
+- [x] (P0) `test_auditlog_scoped_by_tenant_id`
 - [ ] (P0) `test_tenant_isolation_matrix` (versão inicial nas views já existentes)
 - [ ] (P0) `test_permissions_matrix` (versão inicial para Pastor vs Leader vs Member)
 
