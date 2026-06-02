@@ -151,14 +151,14 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 ### Critério de conclusão da Sprint 1
 
-- [ ] Projeto roda localmente via `docker-compose up`
-- [ ] Criar 2 tenants em ambiente local funciona via management command
-- [ ] Acessar cada subdomínio retorna dados isolados
-- [ ] Deploy do esqueleto no VPS beta com Cloudflare wildcard SSL
-- [ ] `/health/` e `/ready/` respondendo corretamente em prod
-- [ ] CI rodando no GitHub Actions (Ruff, Black, pytest, pip-audit) e bloqueando merge se falhar
-- [ ] `nplusone` ligado em dev — qualquer N+1 quebra o teste
-- [ ] `THREAT_MODEL.md` v1 publicado
+- [x] Projeto roda localmente via `docker-compose up` → db+redis via compose; app via `runserver`; `/health/` e `/ready/` respondendo em HTTP real
+- [x] Criar 2 tenants em ambiente local funciona via management command → `create_church athos` + `bethel` (schemas isolados; idempotente)
+- [x] Acessar cada subdomínio retorna dados isolados → mecanismo verificado (schemas distintos + `TenantMiddleware` resolve subdomínio→schema); isolamento em **nível de linha** será validado na Sprint 3 (com views/models) via `test_tenant_isolation_matrix`
+- [ ] Deploy do esqueleto no VPS beta com Cloudflare wildcard SSL → **Sprint 7 (deploy)**
+- [ ] `/health/` e `/ready/` respondendo corretamente em prod → **Sprint 7 (deploy)**; em dev/local OK ✓
+- [ ] CI rodando no GitHub Actions (Ruff, Black, pytest, pip-audit) e bloqueando merge se falhar → pipeline **verde localmente** (ruff/black/pip-audit/safety + 18 testes, cobertura 92,58% ≥ 80%); falta apenas o **push do dono pro GitHub** para o CI executar lá (G-03)
+- [x] `nplusone` ligado em dev — qualquer N+1 quebra o teste → provado (levanta `NPlusOneError`)
+- [x] `THREAT_MODEL.md` v1 publicado → `docs/THREAT_MODEL.md` (Sprint 0)
 
 ---
 
