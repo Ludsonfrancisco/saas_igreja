@@ -134,9 +134,9 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### Performance baseline
 
-- [ ] (P0) Adicionar `nplusone` em `requirements-dev.txt` e configurar `raise_in_dev=True` no `settings/dev.py`
-- [ ] (P0) Adicionar `django-debug-toolbar` em dev (sem afetar prod)
-- [ ] (P0) Documentar princípio P-ARQ-09 (N+1) em `docs/TECH_SPEC.md` (já registrado)
+- [x] (P0) Adicionar `nplusone` em `requirements-dev.txt` e configurar `raise_in_dev=True` no `settings/dev.py` → `pyproject.toml [dependency-groups] dev` (uv) + `NPLUSONE_RAISE=True` no `dev.py`; provado levantando `NPlusOneError` em N+1 real
+- [x] (P0) Adicionar `django-debug-toolbar` em dev (sem afetar prod) → só em `dev.py` (INSTALLED_APPS/MIDDLEWARE/urls sob guard `DEBUG`); prod verificado limpo
+- [x] (P0) Documentar princípio P-ARQ-09 (N+1) em `docs/TECH_SPEC.md` (já registrado) → TECH_SPEC §3 (P-ARQ-09) + §1 tabela stack + A6
 
 ### Testes mínimos da Sprint 1
 

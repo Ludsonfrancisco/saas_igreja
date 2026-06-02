@@ -38,8 +38,10 @@ dependencies = [
 #   - pytest, pytest-django,
 #     pytest-cov                  : test suite + cobertura (gate --cov-fail-under=80 no CI).
 #   - pip-audit, safety           : auditoria de CVEs (SEC-07).
-# NOTA: nplusone e django-debug-toolbar pertencem ao bloco "Performance baseline"
-# da Sprint 1, FORA do escopo deste scaffold; serao adicionados naquela onda.
+#   - nplusone                    : levanta erro em queries N+1 (P-ARQ-09 / RNF-024).
+#                                   Configurado so em dev (NPLUSONE_RAISE=True).
+#   - django-debug-toolbar        : inspecao de queries/perf em dev (Performance
+#                                   baseline da Sprint 1). Dev-only; nunca em prod.
 [dependency-groups]
 dev = [
     "ruff>=0.6",
@@ -49,6 +51,8 @@ dev = [
     "pytest-cov>=5.0",
     "pip-audit>=2.7",
     "safety>=3.2",
+    "nplusone>=1.0",
+    "django-debug-toolbar>=4.4",
 ]
 
 # ----------------------------------------------------------------------------
