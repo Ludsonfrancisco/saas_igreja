@@ -140,14 +140,14 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 ### Testes mínimos da Sprint 1
 
-- [ ] (P0) `test_two_churches_distinct_schemas` (cria 2 tenants, verifica schemas distintos)
-- [ ] (P0) `test_tenant_middleware_resolves_by_subdomain`
-- [ ] (P0) `test_user_email_unique`
-- [ ] (P0) `test_baseModel_created_updated_at`
-- [ ] (P0) `test_health_endpoint_returns_200`
-- [ ] (P0) `test_ready_endpoint_returns_200_when_pg_and_redis_ok`
-- [ ] (P0) `test_ready_endpoint_returns_503_when_pg_down`
-- [ ] (P0) `test_ready_endpoint_returns_503_when_redis_down`
+- [x] (P0) `test_two_churches_distinct_schemas` (cria 2 tenants, verifica schemas distintos)
+- [x] (P0) `test_tenant_middleware_resolves_by_subdomain`
+- [x] (P0) `test_user_email_unique`
+- [x] (P0) `test_baseModel_created_updated_at`
+- [x] (P0) `test_health_endpoint_returns_200`
+- [x] (P0) `test_ready_endpoint_returns_200_when_pg_and_redis_ok`
+- [x] (P0) `test_ready_endpoint_returns_503_when_pg_down`
+- [x] (P0) `test_ready_endpoint_returns_503_when_redis_down`
 
 ### Critério de conclusão da Sprint 1
 

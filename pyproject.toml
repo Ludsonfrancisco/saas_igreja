@@ -88,3 +88,17 @@ quote-style = "single"
 
 [tool.ruff.lint.isort]
 known-first-party = ["apps", "core"]
+
+# ----------------------------------------------------------------------------
+# pytest — runner do projeto. DJANGO_SETTINGS_MODULE casa com o CI
+# (core.settings.dev: NPLUSONE_RAISE=True, Postgres via django_tenants backend).
+# Sem --cov-fail-under aqui: o gate de cobertura e aplicado no fim da sprint
+# (TEST_STRATEGY §3/§8), nao a cada execucao local — manter a suite rodavel.
+# ----------------------------------------------------------------------------
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = 'core.settings.dev'
+python_files = 'test_*.py'
+python_classes = 'Test*'
+python_functions = 'test_*'
+testpaths = ['apps']
+addopts = '-ra'

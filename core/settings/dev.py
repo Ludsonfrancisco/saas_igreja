@@ -9,6 +9,8 @@ base.py nem prod.py:
   - django-debug-toolbar: inspeciona queries/perf no navegador (dev-only).
 """
 
+from django.conf import settings as django_settings
+
 from .base import *  # noqa: F401,F403
 from .base import INSTALLED_APPS, MIDDLEWARE
 
@@ -48,6 +50,8 @@ NPLUSONE_RAISE = True
 INTERNAL_IPS = ['127.0.0.1', 'localhost']
 
 # Sob Docker / IPs variados em dev, INTERNAL_IPS pode nao casar; o callback
-# libera a toolbar sempre que DEBUG estiver ligado. Em testes o Django forca
-# DEBUG=False, entao a toolbar fica inerte automaticamente.
-DEBUG_TOOLBAR_CONFIG = {'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG}
+# libera a toolbar sempre que DEBUG estiver ligado. CRITICO: ler
+# `django_settings.DEBUG` em tempo de request (nao a global `DEBUG` do modulo)
+# — assim, sob o test runner (que forca settings.DEBUG=False) o callback
+# devolve False e a toolbar fica realmente inerte, sem estourar NoReverseMatch.
+DEBUG_TOOLBAR_CONFIG = {'SHOW_TOOLBAR_CALLBACK': lambda request: django_settings.DEBUG}
