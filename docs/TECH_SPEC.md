@@ -636,6 +636,23 @@ SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 X_FRAME_OPTIONS = 'DENY'
 ```
 
+#### Redirect de autenticação (`core/settings/base.py`)
+
+`LoginRequiredMixin`/`TenantRequiredMixin` redirecionam o não-autenticado para
+`LOGIN_URL`. O default do Django (`/accounts/login/`) **não existe** neste
+projeto — as rotas de auth do allauth vivem sob o prefixo `contas/`. Por isso
+`LOGIN_URL` aponta para a rota **nomeada** do allauth (resolvida via `reverse()`),
+robusta a mudança de prefixo:
+
+```python
+LOGIN_URL = 'account_login'      # -> /contas/login/
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = 'account_login'
+```
+
+Regressão coberta por `test_list_users_requires_login` e
+`test_login_url_resolves_to_allauth_named_route`.
+
 ---
 
 ## 8. Operacional

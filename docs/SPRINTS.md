@@ -173,7 +173,7 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### Autenticação
 
-- [x] (P0) Configurar `django-allauth` para login por email (sem username) → allauth 65 (`ACCOUNT_LOGIN_METHODS={'email'}`); allauth/account/axes/sites em **SHARED_APPS** (TENANT-04); signup fechado (entra via Invite); URLs em `contas/`
+- [x] (P0) Configurar `django-allauth` para login por email (sem username) → allauth 65 (`ACCOUNT_LOGIN_METHODS={'email'}`); allauth/account/axes/sites em **SHARED_APPS** (TENANT-04); signup fechado (entra via Invite); URLs em `contas/`; `LOGIN_URL='account_login'` (corrige redirect que ia para `/accounts/login/` inexistente — ver TECH_SPEC §7.1)
 - [x] (P0) Criar `apps/accounts/validators.py` com `PasswordPolicyValidator` (8+ chars, 1 número, 1 especial, diferente do email/nome) → registrado em `AUTH_PASSWORD_VALIDATORS`
 - [x] (P0) Configurar `django-axes` (5 tentativas → lockout 15 min) → `AXES_FAILURE_LIMIT=5`, cooloff 15min, `AxesStandaloneBackend` 1º em backends; lockout por usuário+IP via `AXES_USERNAME_CALLABLE`
 - [x] (P0) Implementar fluxo de recuperação de senha sem enumeração (mensagem e tempo idênticos) → allauth default + `PASSWORD_RESET_TIMEOUT=86400` (24h)
@@ -197,12 +197,12 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### Autorização (multi-role)
 
-- [ ] (P0) Implementar `RoleRequiredMixin` base em `apps/core/mixins.py`
-- [ ] (P0) Implementar `PastorRequiredMixin`, `LeaderOrPastorMixin`, `TreasurerOrPastorMixin` herdando de `RoleRequiredMixin`
-- [ ] (P0) Implementar `ScopedToCommunityMixin`, `ScopedToMinistryMixin` usando `has_any_role('pastor')` para curto-circuitar
-- [ ] (P0) Criar service `change_roles` (plural) com validação de "último Pastor" — rejeita se remoção deixaria igreja sem nenhum user com `'pastor' in roles` (RN-004)
-- [ ] (P0) Criar service `deactivate_user` e `reactivate_user`
-- [ ] (P0) View de listagem de usuários e acessos (`/configuracoes/usuarios/`) exibe roles como chips
+- [x] (P0) Implementar `RoleRequiredMixin` base em `apps/core/mixins.py`
+- [x] (P0) Implementar `PastorRequiredMixin`, `LeaderOrPastorMixin`, `TreasurerOrPastorMixin` herdando de `RoleRequiredMixin`
+- [x] (P0) Implementar `ScopedToCommunityMixin`, `ScopedToMinistryMixin` usando `has_any_role('pastor')` para curto-circuitar → model-agnósticos (filtro por lookup string; não importam Community/Ministry, que são Sprint 3)
+- [x] (P0) Criar service `change_roles` (plural) com validação de "último Pastor" — rejeita se remoção deixaria igreja sem nenhum user com `'pastor' in roles` (RN-004) → `apps/accounts/services.py`; guarda também aplicada a `deactivate_user` (decisão conservadora)
+- [x] (P0) Criar service `deactivate_user` e `reactivate_user`
+- [x] (P0) View de listagem de usuários e acessos (`/configuracoes/usuarios/`) exibe roles como chips → `UserListView` (TenantRequiredMixin+PastorRequiredMixin), escopo `church=request.tenant`; template pt-BR mínimo (styling Athos adiado)
 
 #### Platform Admin e SupportAccess (RISK-009)
 
@@ -244,18 +244,18 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [ ] (P0) `test_invite_expires_after_7_days`
 - [ ] (P0) `test_invite_token_single_use`
 - [ ] (P0) `test_resend_invite_renews_expiration`
-- [ ] (P0) `test_role_change_audited_and_security_logged`
-- [ ] (P0) `test_user_multi_role_union_of_permissions` (treasurer+leader tem ambos)
-- [ ] (P0) `test_has_any_role_and_has_all_roles`
-- [ ] (P0) `test_cannot_remove_last_pastor` (validação considera multi-role)
+- [x] (P0) `test_role_change_audited_and_security_logged`
+- [x] (P0) `test_user_multi_role_union_of_permissions` (treasurer+leader tem ambos)
+- [x] (P0) `test_has_any_role_and_has_all_roles`
+- [x] (P0) `test_cannot_remove_last_pastor` (validação considera multi-role)
 - [ ] (P0) `test_mfa_totp_opt_in_setup_and_login`
 - [ ] (P0) `test_mfa_backup_codes_single_use`
 - [ ] (P0) `test_platform_admin_blocked_without_support_access`
 - [ ] (P0) `test_grant_support_access_creates_4h_window_and_security_log`
 - [ ] (P0) `test_support_access_expired_auto_blocks`
 - [ ] (P0) `test_revoke_support_access_blocks_immediately`
-- [ ] (P0) `test_deactivate_blocks_login`
-- [ ] (P0) `test_list_users_scoped_by_church`
+- [x] (P0) `test_deactivate_blocks_login`
+- [x] (P0) `test_list_users_scoped_by_church`
 - [x] (P0) `test_auditlog_no_cross_schema_fk`
 - [x] (P0) `test_auditlog_scoped_by_tenant_id`
 - [ ] (P0) `test_tenant_isolation_matrix` (versão inicial nas views já existentes)

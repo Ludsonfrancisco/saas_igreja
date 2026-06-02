@@ -186,6 +186,15 @@ ACCOUNT_ADAPTER = 'apps.accounts.adapter.AccountAdapter'
 # allauth para preserva-lo na cadeia de rate limiting/erros.
 ACCOUNT_LOGIN_ON_PASSWORD_RESET = False
 
+# Destino de redirect para nao-autenticado (usado por LoginRequiredMixin /
+# TenantRequiredMixin) e pos-login/logout. Aponta para a rota NOMEADA do allauth
+# (`account_login`, sob o prefixo `contas/`) resolvida via reverse() — em vez do
+# default do Django (`/accounts/login/`, rota inexistente neste projeto). Usar o
+# nome (e nao o caminho cravado) mantem isto correto se o prefixo `contas/` mudar.
+LOGIN_URL = 'account_login'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = 'account_login'
+
 # --- django-axes (SEC-02): 5 falhas -> lockout 15 min ---
 AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = timedelta(minutes=15)

@@ -1,0 +1,27 @@
+{% comment %}
+Listagem de usuarios da igreja (Frente 3). Markup minimo pt-BR; styling Athos
+fica para a frente de frontend. Papeis exibidos como chips.
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Usuarios</title>
+</head>
+<body>
+  <h1>Usuarios da igreja</h1>
+  <ul>
+    {% for u in users %}
+      <li>
+        <span>{{ u.email }}</span>
+        {% if not u.is_active %}<span>(inativo)</span>{% endif %}
+        {% for role in u.roles %}
+          <span class="chip">{{ role }}</span>
+        {% endfor %}
+      </li>
+    {% empty %}
+      <li>Nenhum usuario cadastrado.</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>

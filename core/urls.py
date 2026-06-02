@@ -18,6 +18,10 @@ urlpatterns: list[path] = [
     # sob prefixo pt-BR. O cadastro publico esta fechado (AccountAdapter), mas a
     # rota de signup ainda e incluida pelo allauth — ela responde fechada.
     path('contas/', include('allauth.urls')),
+    # Configuracoes tenant-scoped (Frente 3): listagem de usuarios da igreja.
+    # As views aplicam TenantRequiredMixin, entao so respondem em contexto de
+    # tenant (no public, o mixin devolve 404).
+    path('configuracoes/', include('apps.accounts.urls')),
 ]
 
 # django-debug-toolbar so existe em dev: o import fica DENTRO do guard de DEBUG
