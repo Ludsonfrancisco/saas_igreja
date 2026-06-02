@@ -14,6 +14,10 @@ from apps.core.views import health, ready
 urlpatterns: list[path] = [
     path('health/', health, name='health'),
     path('ready/', ready, name='ready'),
+    # Fluxos de autenticacao do allauth (login, logout, reset/confirm de senha)
+    # sob prefixo pt-BR. O cadastro publico esta fechado (AccountAdapter), mas a
+    # rota de signup ainda e incluida pelo allauth — ela responde fechada.
+    path('contas/', include('allauth.urls')),
 ]
 
 # django-debug-toolbar so existe em dev: o import fica DENTRO do guard de DEBUG

@@ -173,12 +173,12 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### Autenticação
 
-- [ ] (P0) Configurar `django-allauth` para login por email (sem username)
-- [ ] (P0) Criar `apps/accounts/validators.py` com `PasswordPolicyValidator` (8+ chars, 1 número, 1 especial, diferente do email/nome)
-- [ ] (P0) Configurar `django-axes` (5 tentativas → lockout 15 min)
-- [ ] (P0) Implementar fluxo de recuperação de senha sem enumeração (mensagem e tempo idênticos)
-- [ ] (P0) Configurar cookies seguros em `prod.py` (`SECURE_*`, `SESSION_COOKIE_*`, `CSRF_COOKIE_*`)
-- [ ] (P0) Configurar headers de segurança (HSTS, X-Frame-Options, CSP, referrer-policy)
+- [x] (P0) Configurar `django-allauth` para login por email (sem username) → allauth 65 (`ACCOUNT_LOGIN_METHODS={'email'}`); allauth/account/axes/sites em **SHARED_APPS** (TENANT-04); signup fechado (entra via Invite); URLs em `contas/`
+- [x] (P0) Criar `apps/accounts/validators.py` com `PasswordPolicyValidator` (8+ chars, 1 número, 1 especial, diferente do email/nome) → registrado em `AUTH_PASSWORD_VALIDATORS`
+- [x] (P0) Configurar `django-axes` (5 tentativas → lockout 15 min) → `AXES_FAILURE_LIMIT=5`, cooloff 15min, `AxesStandaloneBackend` 1º em backends; lockout por usuário+IP via `AXES_USERNAME_CALLABLE`
+- [x] (P0) Implementar fluxo de recuperação de senha sem enumeração (mensagem e tempo idênticos) → allauth default + `PASSWORD_RESET_TIMEOUT=86400` (24h)
+- [x] (P0) Configurar cookies seguros em `prod.py` (`SECURE_*`, `SESSION_COOKIE_*`, `CSRF_COOKIE_*`) → já em `prod.py` (Sprint 1); agora coberto por teste
+- [x] (P0) Configurar headers de segurança (HSTS, X-Frame-Options, CSP, referrer-policy) → já em `prod.py`; coberto por teste (CSP é via header de template — Sprint 7/frontend)
 
 #### MFA opt-in (decisão OD-002)
 
@@ -229,16 +229,16 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 ### Testes mínimos da Sprint 2
 
-- [ ] (P0) `test_login_email_only`
-- [ ] (P0) `test_login_wrong_password_does_not_leak_user_existence`
-- [ ] (P0) `test_password_reset_no_enumeration`
-- [ ] (P0) `test_password_reset_token_expires_24h`
-- [ ] (P0) `test_axes_lockout_after_5_failures`
-- [ ] (P0) `test_axes_lockout_logged_in_security_log`
-- [ ] (P0) `test_password_policy_min_8_chars`
-- [ ] (P0) `test_password_cannot_be_email_or_name`
-- [ ] (P0) `test_session_cookies_secure_httponly_samesite`
-- [ ] (P0) `test_security_headers_present_in_prod`
+- [x] (P0) `test_login_email_only`
+- [x] (P0) `test_login_wrong_password_does_not_leak_user_existence`
+- [x] (P0) `test_password_reset_no_enumeration`
+- [x] (P0) `test_password_reset_token_expires_24h`
+- [x] (P0) `test_axes_lockout_after_5_failures`
+- [x] (P0) `test_axes_lockout_logged_in_security_log`
+- [x] (P0) `test_password_policy_min_8_chars`
+- [x] (P0) `test_password_cannot_be_email_or_name`
+- [x] (P0) `test_session_cookies_secure_httponly_samesite`
+- [x] (P0) `test_security_headers_present_in_prod`
 - [ ] (P0) `test_invite_unique_per_church`
 - [ ] (P0) `test_accept_invite_creates_user_and_marks_accepted_at`
 - [ ] (P0) `test_invite_expires_after_7_days`

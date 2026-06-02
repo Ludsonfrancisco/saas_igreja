@@ -5,6 +5,7 @@ python-decouple (SEC-06 / AP-12). Nenhum secret hardcoded.
 Banco e sempre PostgreSQL (AP-13 — SQLite proibido com django-tenants).
 """
 
+from datetime import timedelta
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -33,6 +34,20 @@ SHARED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # django.contrib.sites: exigido pelo allauth (FK SocialApp -> Site e
+    # resolucao de dominio nos emails). SITE_ID=1 abaixo. Vive no public porque
+    # Site/SocialApp sao globais da plataforma, nao por-tenant.
+    'django.contrib.sites',
+    # allauth: login por email (SEC-02 / P-ARQ-03). Os models do allauth
+    # (EmailAddress, EmailConfirmation, etc.) referenciam User, que e PUBLICO
+    # (TENANT-04) -> allauth fica em SHARED_APPS (schema public), NUNCA em
+    # TENANT_APPS. allauth.account.middleware.AccountMiddleware abaixo.
+    'allauth',
+    'allauth.account',
+    # axes: account lockout / brute force (SEC-02). O lockout e contra o User
+    # publico (login por email), entao seus models (AccessAttempt/AccessLog)
+    # tambem vivem no public -> SHARED_APPS.
+    'axes',
     'apps.accounts',
 ]
 
@@ -70,6 +85,10 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # AccountMiddleware do allauth 65+ e OBRIGATORIO e deve vir DEPOIS de
+    # AuthenticationMiddleware (precisa de request.user). Mantem invariantes de
+    # sessao/redirect do allauth.
+    'allauth.account.middleware.AccountMiddleware',
     # AuditContextMiddleware precisa de request.user (depois de
     # AuthenticationMiddleware) e do schema ja resolvido (depois de
     # TenantMiddleware, mantido no topo). Carrega user_id+IP no thread-local
@@ -77,6 +96,10 @@ MIDDLEWARE = [
     'apps.core.middleware.AuditContextMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # AxesMiddleware deve vir DEPOIS de AuthenticationMiddleware: intercepta o
+    # request quando o usuario/IP esta bloqueado e dispara o handler de lockout.
+    # Fica por ultimo na cadeia (recomendacao do axes).
+    'axes.middleware.AxesMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -121,12 +144,64 @@ CELERY_RESULT_BACKEND = REDIS_URL
 # --- Auth ---
 AUTH_USER_MODEL = 'accounts.User'
 
-# EmailBackend primeiro (login por email); ModelBackend como fallback para
-# admin/superuser (P-ARQ-03 / SEC-02).
+# Ordem dos backends (SEC-02). CRITICO:
+#   1. AxesStandaloneBackend PRIMEIRO: barra a tentativa ANTES de qualquer
+#      backend de credencial quando o usuario/IP esta bloqueado (axes 7+/8
+#      exige o StandaloneBackend no topo quando ja se usam backends proprios).
+#   2. EmailBackend: nosso login por email case-insensitive (mitiga timing).
+#   3. allauth.account.auth_backends.AuthenticationBackend: necessario para os
+#      fluxos do allauth (reset/confirm). Como nosso USERNAME_FIELD ja e email,
+#      EmailBackend resolve o login normal; o allauth backend cobre os fluxos
+#      proprios sem quebrar o login existente.
+#   4. ModelBackend: fallback para admin/superuser.
+# axes encadeia os backends seguintes: se nao estiver bloqueado, o proximo
+# backend autentica normalmente.
 AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesStandaloneBackend',
     'apps.accounts.backends.EmailBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+# --- django.contrib.sites / allauth (SEC-02 / PRD §15.1) ---
+SITE_ID = 1
+
+# Login por email apenas (sem username). Nomenclatura ATUAL do allauth 65+:
+# LOGIN_METHODS / SIGNUP_FIELDS substituem ACCOUNT_AUTHENTICATION_METHOD /
+# ACCOUNT_EMAIL_REQUIRED / ACCOUNT_USERNAME_REQUIRED (deprecados).
+ACCOUNT_LOGIN_METHODS = {'email'}
+# email obrigatorio; sem campo username; senha + confirmacao no formulario.
+# (O cadastro publico esta FECHADO via AccountAdapter.is_open_for_signup -> False;
+#  SIGNUP_FIELDS so descreve o shape do form caso o signup fosse aberto, alem de
+#  ser usado pelo fluxo de aceite de convite na Frente 4.)
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_UNIQUE_EMAIL = True
+# Sem verificacao de email no MVP: usuarios entram por convite (email ja
+# confiavel). Evita travar login atras de confirmacao (OD-004/Frente 4).
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+# Adapter customizado: fecha o signup e audita o pedido de reset de senha.
+ACCOUNT_ADAPTER = 'apps.accounts.adapter.AccountAdapter'
+# Mantemos o EmailBackend customizado como caminho de login; informamos ao
+# allauth para preserva-lo na cadeia de rate limiting/erros.
+ACCOUNT_LOGIN_ON_PASSWORD_RESET = False
+
+# --- django-axes (SEC-02): 5 falhas -> lockout 15 min ---
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = timedelta(minutes=15)
+# Bloqueia pela combinacao usuario+IP: evita que um atacante em um IP bloqueie a
+# conta de outra pessoa globalmente, e ao mesmo tempo limita brute force por IP.
+AXES_LOCKOUT_PARAMETERS = [['username', 'ip_address']]
+# Resetar contador de falhas apos um login bem-sucedido.
+AXES_RESET_ON_SUCCESS = True
+# axes precisa saber o nome do campo de credencial (email, nao username). O
+# formulario do allauth posta como `login`; mantemos por consistencia.
+AXES_USERNAME_FORM_FIELD = 'login'
+# Callable que resolve o username a partir de credentials OU request.POST,
+# cobrindo a divergencia de chaves entre o form do allauth (`login`) e os
+# `credentials` do signal user_login_failed (`email`/`username`). Sem isso o
+# axes registra username=None e o lockout degrada para somente-IP.
+AXES_USERNAME_CALLABLE = 'apps.accounts.axes_helpers.get_username'
 
 _PASSWORD_VALIDATION = 'django.contrib.auth.password_validation'
 AUTH_PASSWORD_VALIDATORS = [
@@ -134,7 +209,17 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': f'{_PASSWORD_VALIDATION}.MinimumLengthValidator'},
     {'NAME': f'{_PASSWORD_VALIDATION}.CommonPasswordValidator'},
     {'NAME': f'{_PASSWORD_VALIDATION}.NumericPasswordValidator'},
+    # Politica do projeto (SEC-02 / PRD §15.1): 8+ chars, 1 numero, 1 especial,
+    # e diferente/sem conter email ou nome. Mensagens em pt-BR.
+    {
+        'NAME': 'apps.accounts.validators.PasswordPolicyValidator',
+        'OPTIONS': {'min_length': 8},
+    },
 ]
+
+# Token de reset de senha expira em 24h (PRD §15.1). Valor em SEGUNDOS; aplica-se
+# ao token de reset do Django/allauth (default Django e 3 dias).
+PASSWORD_RESET_TIMEOUT = 86400
 
 # --- Internacionalizacao (interface 100% pt-BR) ---
 LANGUAGE_CODE = 'pt-br'
