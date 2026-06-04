@@ -9,6 +9,7 @@ from datetime import timedelta
 from pathlib import Path
 from urllib.parse import urlparse
 
+from celery.schedules import crontab
 from decouple import Csv, config
 
 # core/settings/base.py -> sobe 3 niveis ate a raiz do projeto.
@@ -151,6 +152,17 @@ DATABASES = {
 REDIS_URL = config('REDIS_URL', default='redis://localhost:6379/0')
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
+# Casa com TIME_ZONE (definido adiante); literal para evitar forward-reference.
+CELERY_TIMEZONE = 'America/Sao_Paulo'
+
+# Celery Beat (schedule estático — sem django-celery-beat/DB). RN-006: purge físico
+# semanal do soft delete LGPD. Segunda-feira 04:00 (horário de baixa carga).
+CELERY_BEAT_SCHEDULE = {
+    'purge-anonymized-persons-weekly': {
+        'task': 'apps.people.tasks.purge_anonymized_persons',
+        'schedule': crontab(hour=4, minute=0, day_of_week='monday'),
+    },
+}
 
 # --- Auth ---
 AUTH_USER_MODEL = 'accounts.User'

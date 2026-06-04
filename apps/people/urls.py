@@ -7,8 +7,10 @@ respondem apenas em contexto de tenant (no schema public, 404).
 from django.urls import path
 
 from apps.people.views import (
+    PersonAnonymizeView,
     PersonCreateView,
     PersonDetailView,
+    PersonExportView,
     PersonListView,
     PersonUpdateView,
 )
@@ -20,4 +22,10 @@ urlpatterns = [
     path('pessoas/nova/', PersonCreateView.as_view(), name='create'),
     path('pessoas/<int:pk>/', PersonDetailView.as_view(), name='detail'),
     path('pessoas/<int:pk>/editar/', PersonUpdateView.as_view(), name='update'),
+    path(
+        'pessoas/<int:pk>/anonimizar/',
+        PersonAnonymizeView.as_view(),
+        name='anonymize',
+    ),
+    path('pessoas/<int:pk>/exportar/', PersonExportView.as_view(), name='export'),
 ]

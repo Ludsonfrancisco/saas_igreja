@@ -13,9 +13,11 @@ A view só traduz o checkbox `consent_given` em `consent_given_at`.
 
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from django.shortcuts import redirect
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.views import View
 from django.views.generic import DetailView, FormView, ListView, UpdateView
 
 from apps.communities.models import Community
@@ -137,3 +139,50 @@ class PersonUpdateView(TenantRequiredMixin, PastorRequiredMixin, UpdateView):
         messages.success(self.request, 'Pessoa atualizada com sucesso.')
         # NÃO chamamos super().form_valid (faria form.save(), pulando o service).
         return redirect(self.get_success_url())
+
+
+class PersonAnonymizeView(TenantRequiredMixin, PastorRequiredMixin, View):
+    """Anonimização LGPD com DUPLA confirmação (OD-014). POST-only no efeito.
+
+    Ação IRREVERSÍVEL (soft delete + purge físico em 30 dias). A barreira escolhida
+    (OD-014, opção b): o Pastor precisa DIGITAR o nome exato da pessoa para
+    confirmar. GET mostra o formulário de confirmação; POST só anonimiza se o nome
+    digitado bate com `person.name`. Apenas Pastor (ACCESS_MATRIX §3.3).
+    """
+
+    def get(self, request, pk):
+        person = get_object_or_404(Person, pk=pk, anonymized_at__isnull=True)
+        return render(request, 'people/person_anonymize.html', {'person': person})
+
+    def post(self, request, pk):
+        person = get_object_or_404(Person, pk=pk, anonymized_at__isnull=True)
+        typed = request.POST.get('confirm_name', '').strip()
+        if typed != person.name:
+            messages.error(
+                request,
+                'O nome digitado nao confere. Anonimizacao cancelada.',
+            )
+            return redirect('people:anonymize', pk=person.pk)
+        services.anonymize_person(person=person)
+        messages.success(request, 'Pessoa anonimizada (LGPD).')
+        return redirect('people:list')
+
+
+class PersonExportView(TenantRequiredMixin, PastorRequiredMixin, View):
+    """Exporta os dados de uma pessoa como download (JSON ou CSV). Apenas Pastor.
+
+    `?format=csv` baixa CSV; qualquer outro valor baixa JSON. O service registra
+    AuditLog('export') + SecurityLog `person_exported` (RN-005).
+    """
+
+    def get(self, request, pk):
+        person = get_object_or_404(Person, pk=pk)
+        result = services.export_person_data(person=person)
+        if request.GET.get('format') == 'csv':
+            response = HttpResponse(result['csv'], content_type='text/csv')
+            filename = f'pessoa_{person.pk}.csv'
+        else:
+            response = HttpResponse(result['json'], content_type='application/json')
+            filename = f'pessoa_{person.pk}.json'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response

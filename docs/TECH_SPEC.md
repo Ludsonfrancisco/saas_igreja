@@ -378,7 +378,7 @@ class Plan(models.Model):
 
 ```python
 # apps/people/models.py
-class Person(BaseModel):
+class Person(BaseModel, AuditLogMixin):  # Sprint 3: + AuditLogMixin (audit auto)
     """Pessoa vinculada à igreja. LGPD-aware."""
     class Status(models.TextChoices):
         VISITOR = 'visitor', 'Visitante'
@@ -409,6 +409,9 @@ class Person(BaseModel):
         blank=True,
         help_text='Obrigatorio quando email ou telefone esta preenchido (LGPD)',
     )
+    # Sprint 3: instante da anonimização (soft delete). Alimenta o purge físico
+    # semanal após 30 dias (RN-006). NULL = pessoa ativa.
+    anonymized_at = models.DateTimeField(null=True, blank=True, db_index=True)
     notes = models.TextField(blank=True, default='')
 ```
 

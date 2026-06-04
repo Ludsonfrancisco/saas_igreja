@@ -34,6 +34,9 @@ Detalhe de Pessoa (Frente 2 / Bloco 2). Markup mínimo pt-BR. As ações LGPD
 
   <p>
     <a href="{% url 'people:update' pk=person.pk %}">Editar</a> ·
+    <a href="{% url 'people:export' pk=person.pk %}?format=json">Exportar JSON</a> ·
+    <a href="{% url 'people:export' pk=person.pk %}?format=csv">Exportar CSV</a> ·
+    <a href="{% url 'people:anonymize' pk=person.pk %}">Anonimizar (LGPD)</a> ·
     <a href="{% url 'people:list' %}">Voltar</a>
   </p>
 </body>

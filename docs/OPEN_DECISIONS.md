@@ -300,17 +300,16 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 
 | Campo | Valor |
 |---|---|
-| Status | 🟢 Aberta |
+| Status | ✅ Fechada (2026-06-04) |
 | Impacto | Médio (UX vs segurança) |
 | Owner | Produto + Segurança |
-| Prazo | Sprint 3 |
-| Bloqueia | — |
+| Decisão | **(b) Confirmação dupla — o Pastor digita o nome exato da pessoa para confirmar** |
 
 **Contexto:** anonimização é irreversível (soft delete imediato + purge físico em 30 dias). Confirmação simples pode causar perda acidental.
 
 **Opções:** (a) confirmação simples no modal; (b) confirmação dupla (modal + digitar nome da pessoa); (c) confirmação por email do Pastor.
 
-**Recomendação atual:** (b). Digitar nome da pessoa antes de confirmar.
+**Decisão (dono, 2026-06-04):** opção **(b)**. Implementada em `PersonAnonymizeView` (Sprint 3 / Frente 2 / Bloco 3): GET mostra o aviso de irreversibilidade + campo de confirmação; POST só anonimiza se o nome digitado bate exatamente com `person.name`, senão cancela. Validado por `test_anonymize_view_requires_exact_name`.
 
 ---
 

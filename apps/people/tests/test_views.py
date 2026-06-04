@@ -213,3 +213,101 @@ def test_edit_form_prechecks_consent_for_person_with_consent(tenant_client, chur
 
     resp = tenant_client.get(f'/pessoas/{person.pk}/editar/')
     assert resp.context['form'].fields['consent_given'].initial is True
+
+
+# --- Anonimização (OD-014, dupla confirmação) -------------------------------
+
+
+@pytest.mark.django_db(transaction=True)
+def test_anonymize_view_requires_exact_name(tenant_client, church_a):
+    """Nome errado NÃO anonimiza; nome exato anonimiza (OD-014)."""
+    pastor = _make_user(church_a, 'pastor@a.com', ['pastor'])
+    person = _make_person(church_a, 'Joao Silva', email='j@a.com')
+    tenant_client.force_login(pastor)
+    url = f'/pessoas/{person.pk}/anonimizar/'
+
+    # Nome errado -> redireciona de volta, nada muda.
+    resp = tenant_client.post(url, {'confirm_name': 'Joao'})
+    assert resp.status_code == 302
+    with schema_context(church_a.schema_name):
+        person.refresh_from_db()
+    assert person.anonymized_at is None
+
+    # Nome exato -> anonimiza.
+    resp = tenant_client.post(url, {'confirm_name': 'Joao Silva'})
+    assert resp.status_code == 302
+    assert resp.url == LIST_URL
+    with schema_context(church_a.schema_name):
+        person.refresh_from_db()
+    assert person.anonymized_at is not None
+    assert person.email is None
+
+
+@pytest.mark.django_db(transaction=True)
+def test_anonymize_view_get_shows_confirmation(tenant_client, church_a):
+    pastor = _make_user(church_a, 'pastor@a.com', ['pastor'])
+    person = _make_person(church_a, 'Alvo Silva')
+    tenant_client.force_login(pastor)
+
+    resp = tenant_client.get(f'/pessoas/{person.pk}/anonimizar/')
+    assert resp.status_code == 200
+    assert b'Alvo Silva' in resp.content
+
+
+@pytest.mark.django_db(transaction=True)
+def test_update_person_can_add_contact_with_consent(tenant_client, church_a):
+    pastor = _make_user(church_a, 'pastor@a.com', ['pastor'])
+    person = _make_person(church_a, 'Sem Contato')
+    tenant_client.force_login(pastor)
+
+    resp = tenant_client.post(
+        f'/pessoas/{person.pk}/editar/',
+        {
+            'name': 'Sem Contato',
+            'status': 'visitor',
+            'email': 'novo@a.com',
+            'consent_given': 'on',
+        },
+    )
+    assert resp.status_code == 302
+    with schema_context(church_a.schema_name):
+        person.refresh_from_db()
+    assert person.email == 'novo@a.com'
+    assert person.consent_given_at is not None
+
+
+@pytest.mark.django_db(transaction=True)
+def test_anonymize_view_member_forbidden(tenant_client, church_a):
+    member = _make_user(church_a, 'membro@a.com', ['member'])
+    person = _make_person(church_a, 'Alvo')
+    tenant_client.force_login(member)
+    resp = tenant_client.get(f'/pessoas/{person.pk}/anonimizar/')
+    assert resp.status_code == 403
+
+
+# --- Exportação (download JSON/CSV) -----------------------------------------
+
+
+@pytest.mark.django_db(transaction=True)
+def test_export_view_json_and_csv(tenant_client, church_a):
+    pastor = _make_user(church_a, 'pastor@a.com', ['pastor'])
+    person = _make_person(church_a, 'Bia')
+    tenant_client.force_login(pastor)
+
+    as_json = tenant_client.get(f'/pessoas/{person.pk}/exportar/?format=json')
+    assert as_json['Content-Type'] == 'application/json'
+    assert 'attachment' in as_json['Content-Disposition']
+    assert b'Bia' in as_json.content
+
+    as_csv = tenant_client.get(f'/pessoas/{person.pk}/exportar/?format=csv')
+    assert as_csv['Content-Type'] == 'text/csv'
+    assert b'Bia' in as_csv.content
+
+
+@pytest.mark.django_db(transaction=True)
+def test_export_view_member_forbidden(tenant_client, church_a):
+    member = _make_user(church_a, 'membro@a.com', ['member'])
+    person = _make_person(church_a, 'Alvo')
+    tenant_client.force_login(member)
+    resp = tenant_client.get(f'/pessoas/{person.pk}/exportar/')
+    assert resp.status_code == 403

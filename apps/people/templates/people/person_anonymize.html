@@ -1,0 +1,37 @@
+{% comment %}
+Confirmação de anonimização LGPD (OD-014, dupla confirmação digitando o nome).
+Ação IRREVERSÍVEL. Markup mínimo pt-BR. CSRF obrigatório.
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Anonimizar pessoa</title>
+</head>
+<body>
+  <h1>Anonimizar {{ person.name }}</h1>
+
+  {% if messages %}
+    <ul>
+      {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+
+  <p>
+    <strong>Atenção:</strong> esta ação é <strong>irreversível</strong>. Os dados
+    pessoais serão substituídos imediatamente e o registro será removido
+    fisicamente após 30 dias (LGPD). A trilha de auditoria e a presença histórica
+    são preservadas.
+  </p>
+
+  <p>Para confirmar, digite o nome exato da pessoa: <strong>{{ person.name }}</strong></p>
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="text" name="confirm_name" placeholder="Digite o nome completo" autocomplete="off">
+    <button type="submit">Anonimizar definitivamente</button>
+  </form>
+
+  <p><a href="{% url 'people:detail' pk=person.pk %}">Cancelar</a></p>
+</body>
+</html>

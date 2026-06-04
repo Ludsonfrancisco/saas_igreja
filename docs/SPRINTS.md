@@ -290,14 +290,14 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [x] (P0) Criar `apps/people/services.py` com `update_person`, `change_status` → Frente 2 Bloco 1 (update revalida consent; whitelist de campos)
 - [x] (P0) Criar `apps/people/services.py` com `anonymize_person` (soft delete + substitui PII) → Frente 2 Bloco 1: idempotente, marca `anonymized_at`, desvincula comunidade/ministérios, SecurityLog `person_anonymized` sem PII
 - [x] (P0) Criar `apps/people/services.py` com `export_person_data` (JSON + CSV) → Frente 2 Bloco 1: AuditLog `export` + SecurityLog `person_exported`
-- [ ] (P0) Criar Celery Beat job semanal `purge_anonymized_persons` (purge físico após 30 dias)
+- [x] (P0) Criar Celery Beat job semanal `purge_anonymized_persons` (purge físico após 30 dias) → Frente 2 Bloco 3: `apps/people/tasks.py` itera todos os tenants (schema_context), deleta anonimizadas > 30d (delete dispara AuditLog + SET_NULL); `CELERY_BEAT_SCHEDULE` estático (segunda 04:00, sem django-celery-beat)
 - [x] (P0) Criar `apps/people/signals.py` com `AuditLog` em create/update/delete/export/anonymize → Frente 2 Bloco 1: **decisão** — em vez de signals.py por app, Person/Community/Ministry herdam `AuditLogMixin` (signals centralizados do core, 1º uso real) → create/update/delete automáticos (inclui o delete do purge). export = `record_audit` explícito (sem escrita no banco); anonymize = AuditLog(update) automático + SecurityLog
 - [x] (P0) CRUD CBV: `PersonListView`, `PersonDetailView`, `PersonCreateView`, `PersonUpdateView` com mixins → Frente 2 Bloco 2: `TenantRequiredMixin`+`PastorRequiredMixin` (Pastor-only; escopo de Líder = Frente 3, exige vínculo Person↔User do ACCESS_MATRIX §43); mutações via service (nunca form.save), sob `pessoas/`
 - [x] (P0) Form de Pessoa com `consent_given_at` obrigatório quando email/telefone preenchidos → Frente 2 Bloco 2: `PersonForm` (ModelForm fields explícitos, AP-10) + checkbox `consent_given` espelhando a regra; barreira efetiva no service (OPS-05)
 - [x] (P0) Filtros (status, comunidade, ministério) e busca por nome em `PersonListView` → Frente 2 Bloco 2: filtros via querystring + busca `q` (icontains); exclui anonimizadas; paginação 25; select_related anti-N+1
 - [ ] (P1) Importação CSV (síncrona com progress HTMX ou Celery — depende de OD-003)
-- [ ] (P0) View e fluxo de anonimização com confirmação dupla (OD-014)
-- [ ] (P0) View e download de exportação de dados de Pessoa
+- [x] (P0) View e fluxo de anonimização com confirmação dupla (OD-014) → Frente 2 Bloco 3: `PersonAnonymizeView` exige digitar o nome exato (OD-014 opção b, **FECHADA** 2026-06-04). Pastor-only
+- [x] (P0) View e download de exportação de dados de Pessoa → Frente 2 Bloco 3: `PersonExportView` baixa JSON/CSV (`?format=`); AuditLog export + SecurityLog person_exported
 
 #### Comunidades
 
@@ -323,9 +323,9 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [x] (P0) `test_anonymize_person_audited`
 - [x] (P0) `test_export_person_data_returns_json_and_csv`
 - [x] (P0) `test_export_person_data_audited`
-- [ ] (P0) `test_person_fk_set_null_after_anonymize`
-- [ ] (P1) `test_celery_beat_purge_after_30_days`
-- [ ] (P0) `test_person_actions_audited` (create, update, delete)
+- [x] (P0) `test_person_fk_set_null_after_anonymize` → Frente 2 Bloco 3 (anonimiza + purga → leader NULL)
+- [x] (P1) `test_celery_beat_purge_after_30_days` → Frente 2 Bloco 3
+- [x] (P0) `test_person_actions_audited` (create, update, delete) → create/update (Bloco 1) + delete via purge (Bloco 3), todos via AuditLogMixin
 - [ ] (P0) `test_community_respects_plan_limit`
 - [ ] (P0) `test_community_hidden_when_has_communities_false`
 - [ ] (P0) `test_community_update_audited`
