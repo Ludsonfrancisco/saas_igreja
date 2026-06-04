@@ -24,9 +24,13 @@ from django.views.generic import FormView, ListView
 from django_tenants.utils import get_public_schema_name
 
 from apps.accounts import services
-from apps.accounts.forms import AcceptInviteForm, InviteForm
-from apps.accounts.models import Invite, User
-from apps.core.mixins import PastorRequiredMixin, TenantRequiredMixin
+from apps.accounts.forms import AcceptInviteForm, GrantSupportAccessForm, InviteForm
+from apps.accounts.models import Invite, SupportAccess, User
+from apps.core.mixins import (
+    PastorRequiredMixin,
+    PlatformAdminRequiredMixin,
+    TenantRequiredMixin,
+)
 
 
 class UserListView(TenantRequiredMixin, PastorRequiredMixin, ListView):
@@ -203,3 +207,63 @@ class InviteAcceptView(View):
 
         messages.success(request, 'Conta criada com sucesso. Faca login.')
         return redirect('account_login')
+
+
+# --- Area de plataforma: SupportAccess (Frente 5 — RN-015 / RISK-009) -------
+#
+# Estas views vivem no schema PUBLIC (area de plataforma), NAO em tenant. Por
+# isso usam `PlatformAdminRequiredMixin` (exige PlatformAdmin ativo + schema
+# public), o espelho invertido do TenantRequiredMixin. As acoes sensiveis
+# delegam ao service layer (`grant_support_access` / `revoke_support_access`),
+# que audita no SecurityLog da igreja-alvo.
+
+
+class SupportAccessListView(PlatformAdminRequiredMixin, ListView):
+    """Lista os SupportAccess (area de plataforma). Apenas PlatformAdmin ativo.
+
+    `select_related('admin', 'church', 'admin__user')` evita N+1 ao exibir o
+    admin (e seu email), a igreja e o status de cada acesso (P-ARQ-09). O status
+    (ativo/expirado/revogado) e derivado no template a partir de
+    `ended_at`/`expires_at`.
+    """
+
+    model = SupportAccess
+    template_name = 'accounts/support_access_list.html'
+    context_object_name = 'support_accesses'
+
+    def get_queryset(self):
+        return SupportAccess.objects.select_related(
+            'admin', 'church', 'admin__user'
+        ).order_by('-started_at')
+
+
+class SupportAccessGrantView(PlatformAdminRequiredMixin, FormView):
+    """Concede SupportAccess a uma igreja. Apenas PlatformAdmin ativo (RN-015)."""
+
+    template_name = 'accounts/support_access_form.html'
+    form_class = GrantSupportAccessForm
+    success_url = reverse_lazy('accounts:support_access_list')
+
+    def form_valid(self, form):
+        try:
+            services.grant_support_access(
+                admin=self.request.user.platform_admin,
+                church=form.cleaned_data['church'],
+                justification=form.cleaned_data['justification'],
+            )
+        except ValidationError as exc:
+            form.add_error(None, exc.messages[0])
+            return self.form_invalid(form)
+
+        messages.success(self.request, 'Acesso de suporte concedido.')
+        return super().form_valid(form)
+
+
+class SupportAccessRevokeView(PlatformAdminRequiredMixin, View):
+    """Revoga um SupportAccess. POST-only. Apenas PlatformAdmin ativo (RN-015)."""
+
+    def post(self, request, pk):
+        support_access = get_object_or_404(SupportAccess, pk=pk)
+        services.revoke_support_access(support_access=support_access)
+        messages.success(request, 'Acesso de suporte revogado.')
+        return redirect('accounts:support_access_list')

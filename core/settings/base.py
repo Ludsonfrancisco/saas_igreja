@@ -94,6 +94,12 @@ MIDDLEWARE = [
     # TenantMiddleware, mantido no topo). Carrega user_id+IP no thread-local
     # lido pelos signals de auditoria (TECH_SPEC §2 / §5.9).
     'apps.core.middleware.AuditContextMiddleware',
+    # PlatformAdminSupportMiddleware (RN-015 / RISK-009) vem DEPOIS de
+    # AuditContextMiddleware: precisa de request.user (AuthenticationMiddleware),
+    # request.tenant e do schema ja resolvido (TenantMiddleware, no topo). Bloqueia
+    # qualquer request de Platform Admin a um tenant sem SupportAccess ativo e
+    # audita cada acesso/negacao no SecurityLog do tenant.
+    'apps.core.middleware.PlatformAdminSupportMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # AxesMiddleware deve vir DEPOIS de AuthenticationMiddleware: intercepta o

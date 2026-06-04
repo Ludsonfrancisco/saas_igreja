@@ -83,6 +83,8 @@ class SecurityLog(models.Model):
         ('person_exported', 'Pessoa exportada'),
         ('person_anonymized', 'Pessoa anonimizada'),
         ('platform_admin_access', 'Acesso de Platform Admin'),
+        ('support_access_granted', 'Acesso de suporte concedido'),
+        ('support_access_revoked', 'Acesso de suporte revogado'),
         ('sensitive_file_upload', 'Upload de arquivo sensivel'),
         ('sensitive_file_download', 'Download de arquivo sensivel'),
     ]

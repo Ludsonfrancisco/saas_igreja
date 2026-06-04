@@ -33,14 +33,19 @@ from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.utils import timezone
+from django_tenants.utils import schema_context
 
-from apps.accounts.models import Invite, User
+from apps.accounts.models import Invite, SupportAccess, User
 from apps.core.audit import log_security_event, record_audit
 
 _VALID_ROLES = set(User.Role.values)
 
 # Janela de validade do convite (RN-003a). Apos isso, o aceite e recusado.
 _INVITE_TTL = timedelta(days=7)
+
+# Janela de validade do SupportAccess (RN-015 / RISK-009). Acesso de suporte
+# expira automaticamente em 4 horas (alem de poder ser revogado antes).
+_SUPPORT_ACCESS_TTL = timedelta(hours=4)
 
 
 def _actor_id(actor):
@@ -331,3 +336,83 @@ def cancel_invite(*, invite, actor=None):
     record_audit(action='delete', instance=invite, user_id=_actor_id(actor))
     invite.delete()
     return None
+
+
+# --- SupportAccess (Frente 5 — RN-015 / RISK-009) --------------------------
+#
+# Grant/revoke de SupportAccess acontecem na AREA DE PLATAFORMA, servida no
+# schema `public`. Mas o SecurityLog SOBRE o acesso a uma igreja Y pertence ao
+# SecurityLog da igreja Y (que so existe no schema do tenant). Por isso gravamos
+# o evento DENTRO do schema da igreja-alvo via `schema_context(...)`: chamar
+# `log_security_event` direto no public cairia na guarda de schema public do
+# helper e NADA seria gravado.
+#
+# A `justification` pode conter dados de ticket/contato — NUNCA entra no payload
+# do log (TENANT-07); fica apenas no model SupportAccess.
+
+
+def grant_support_access(*, admin, church, justification):
+    """Concede SupportAccess de um Platform Admin a uma igreja por 4h (RN-015).
+
+    RISK-009: Platform Admin so acessa um tenant com SupportAccess vigente. Este
+    service cria o registro com `expires_at = now + 4h` e audita a concessao no
+    SecurityLog DA IGREJA-ALVO (schema do tenant), via `schema_context`.
+
+    Validacao: `justification` nao pode ser vazia (ticket/motivo obrigatorio) —
+    senao `ValidationError`. Retorna o `SupportAccess` criado.
+
+    Retenção/trilha: o evento `support_access_granted` vive no SecurityLog do
+    tenant; a `justification` fica SO no model (fora do log — pode conter PII de
+    ticket, TENANT-07).
+    """
+    # TODO(Frente 6): exigir MFA do admin antes de conceder (RISK-009/§215).
+    if not justification or not justification.strip():
+        raise ValidationError(
+            'Justificativa e obrigatoria para conceder acesso de suporte.'
+        )
+
+    support_access = SupportAccess.objects.create(
+        admin=admin,
+        church=church,
+        justification=justification,
+        expires_at=timezone.now() + _SUPPORT_ACCESS_TTL,
+    )
+
+    with schema_context(church.schema_name):
+        log_security_event(
+            event_type='support_access_granted',
+            user_id=admin.user_id,
+            payload={
+                'support_access_id': support_access.id,
+                'admin_id': admin.id,
+                'expires_at': support_access.expires_at.isoformat(),
+            },
+        )
+    return support_access
+
+
+def revoke_support_access(*, support_access):
+    """Revoga (encerra) um SupportAccess vigente (RN-015 / RISK-009).
+
+    Marca `ended_at = now` e audita `support_access_revoked` no SecurityLog DA
+    IGREJA-ALVO (schema do tenant), via `schema_context`. Idempotente: se o acesso
+    ja estava encerrado (`ended_at` nao-nulo), retorna sem re-gravar nada.
+
+    Retorna o proprio `support_access`.
+    """
+    if support_access.ended_at is not None:
+        return support_access
+
+    support_access.ended_at = timezone.now()
+    support_access.save(update_fields=['ended_at'])
+
+    with schema_context(support_access.church.schema_name):
+        log_security_event(
+            event_type='support_access_revoked',
+            user_id=support_access.admin.user_id,
+            payload={
+                'support_access_id': support_access.id,
+                'admin_id': support_access.admin_id,
+            },
+        )
+    return support_access

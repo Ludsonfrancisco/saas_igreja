@@ -1,0 +1,30 @@
+{% comment %}
+Concessao de SupportAccess (area de plataforma — RN-015 / RISK-009). Markup
+minimo pt-BR; styling Athos fica para a frente de frontend. CSRF obrigatorio.
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Conceder acesso de suporte</title>
+</head>
+<body>
+  <h1>Conceder acesso de suporte</h1>
+
+  {% if messages %}
+    <ul>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Conceder</button>
+  </form>
+
+  <p><a href="{% url 'accounts:support_access_list' %}">Voltar</a></p>
+</body>
+</html>

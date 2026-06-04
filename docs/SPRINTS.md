@@ -206,13 +206,13 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### Platform Admin e SupportAccess (RISK-009)
 
-- [ ] (P0) Implementar `PlatformAdminWithSupportAccessMixin` em `apps/core/mixins.py`
-- [ ] (P0) Criar service `grant_support_access` (admin, church, justification) → cria `SupportAccess` com `expires_at = now + 4h` + `SecurityLog`
-- [ ] (P0) Criar service `revoke_support_access` → marca `ended_at` + `SecurityLog`
-- [ ] (P0) Middleware/dispatch bloqueia Platform Admin em tenant sem `SupportAccess` ativo
-- [ ] (P0) Toda request de Platform Admin durante `SupportAccess` ativo gera `SecurityLog` (event_type=`platform_admin_access`)
-- [ ] (P0) View de admin de plataforma para conceder e revogar `SupportAccess`
-- [ ] (P0) `PlatformAdmin` exige MFA habilitado para conceder `SupportAccess` (gate de segurança)
+- [x] (P0) Implementar `PlatformAdminWithSupportAccessMixin` em `apps/core/mixins.py` → defense-in-depth (controle PRIMÁRIO é o middleware); + `PlatformAdminRequiredMixin` (área de plataforma, espelho invertido: exige public + admin ativo)
+- [x] (P0) Criar service `grant_support_access` (admin, church, justification) → cria `SupportAccess` com `expires_at = now + 4h` + `SecurityLog` → log gravado no schema da **igreja-alvo** via `schema_context` (grant roda no public, mas SecurityLog é de tenant); justification fora do payload (TENANT-07)
+- [x] (P0) Criar service `revoke_support_access` → marca `ended_at` + `SecurityLog` → idempotente; log no schema da igreja-alvo
+- [x] (P0) Middleware/dispatch bloqueia Platform Admin em tenant sem `SupportAccess` ativo → `PlatformAdminSupportMiddleware` (após AuditContextMiddleware); 403 com body fixo
+- [x] (P0) Toda request de Platform Admin durante `SupportAccess` ativo gera `SecurityLog` (event_type=`platform_admin_access`) → middleware loga denied=True/False por request
+- [x] (P0) View de admin de plataforma para conceder e revogar `SupportAccess` → `SupportAccessList/Grant/Revoke` sob `plataforma/suporte/`; `GrantSupportAccessForm`; templates pt-BR mínimos
+- [ ] (P0) `PlatformAdmin` exige MFA habilitado para conceder `SupportAccess` (gate de segurança) → **ADIADO p/ Frente 6** (decisão do dono / Opção A): MFA (allauth.mfa) só existe na Frente 6; sem fluxo de setup o gate sempre bloquearia. Deixado como `# TODO(Frente 6)` em `grant_support_access`. Nasce junto com o MFA
 
 #### Auditoria e SecurityLog
 
@@ -250,10 +250,10 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [x] (P0) `test_cannot_remove_last_pastor` (validação considera multi-role)
 - [ ] (P0) `test_mfa_totp_opt_in_setup_and_login`
 - [ ] (P0) `test_mfa_backup_codes_single_use`
-- [ ] (P0) `test_platform_admin_blocked_without_support_access`
-- [ ] (P0) `test_grant_support_access_creates_4h_window_and_security_log`
-- [ ] (P0) `test_support_access_expired_auto_blocks`
-- [ ] (P0) `test_revoke_support_access_blocks_immediately`
+- [x] (P0) `test_platform_admin_blocked_without_support_access`
+- [x] (P0) `test_grant_support_access_creates_4h_window_and_security_log`
+- [x] (P0) `test_support_access_expired_auto_blocks`
+- [x] (P0) `test_revoke_support_access_blocks_immediately`
 - [x] (P0) `test_deactivate_blocks_login`
 - [x] (P0) `test_list_users_scoped_by_church`
 - [x] (P0) `test_auditlog_no_cross_schema_fk`

@@ -1,0 +1,52 @@
+{% comment %}
+Lista de SupportAccess (area de plataforma — RN-015 / RISK-009). Markup minimo
+pt-BR; styling Athos fica para a frente de frontend. Status derivado de
+ended_at/expires_at via a property `is_active` do model.
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Acessos de suporte</title>
+</head>
+<body>
+  <h1>Acessos de suporte</h1>
+
+  {% if messages %}
+    <ul>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <p><a href="{% url 'accounts:support_access_grant' %}">Conceder acesso</a></p>
+
+  <ul>
+    {% for sa in support_accesses %}
+      <li>
+        <span>Igreja: {{ sa.church.name }}</span>
+        <span>Admin: {{ sa.admin.user.email }}</span>
+        <span>
+          Status:
+          {% if sa.ended_at %}Revogado
+          {% elif sa.is_active %}Ativo
+          {% else %}Expirado{% endif %}
+        </span>
+        <span>Expira em: {{ sa.expires_at }}</span>
+
+        {% if not sa.ended_at and sa.is_active %}
+          <form method="post"
+                action="{% url 'accounts:support_access_revoke' pk=sa.pk %}"
+                style="display:inline">
+            {% csrf_token %}
+            <button type="submit">Revogar</button>
+          </form>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>Nenhum acesso de suporte registrado.</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>

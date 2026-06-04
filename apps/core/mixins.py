@@ -13,14 +13,23 @@ Este modulo concentra os mixins de view exigidos pela arquitetura:
   proprio escopo. Sao model-agnosticos (filtros por lookup string), prontos
   para as views de Community/Ministry da Sprint 3 — nao referenciam esses models.
 
-`PlatformAdminWithSupportAccessMixin` (RN-015 / Frente 5) NAO e implementado
-aqui — depende do fluxo de SupportAccess, escopo de outra frente.
+Frente 5 (RN-015 / RISK-009 — Platform Admin & SupportAccess):
+
+- `PlatformAdminRequiredMixin`: barreira das views da AREA DE PLATAFORMA, que
+  vivem no schema `public` (espelho invertido do TenantRequiredMixin — exige
+  estar NO public, e um PlatformAdmin ativo).
+- `PlatformAdminWithSupportAccessMixin`: barreira (defense-in-depth) das views
+  servidas DENTRO de um tenant a um Platform Admin: so libera com SupportAccess
+  ativo, senao 403 + SecurityLog. O controle PRIMARIO de RISK-009 e o
+  `PlatformAdminSupportMiddleware` (apps.core.middleware), que captura QUALQUER
+  request de Platform Admin a um tenant — este mixin e a segunda linha.
 """
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import connection
 from django.http import Http404
+from django.utils import timezone
 from django_tenants.utils import get_public_schema_name
 
 
@@ -111,3 +120,67 @@ class ScopedToMinistryMixin:
         if self.request.user.has_any_role('pastor'):
             return qs
         return qs.filter(coordinator__user__id=self.request.user.id)
+
+
+class PlatformAdminRequiredMixin:
+    """Barreira das views da AREA DE PLATAFORMA (RN-015 / Frente 5).
+
+    A area de plataforma (gestao de SupportAccess) vive no schema `public`, NAO
+    dentro de um tenant — e o espelho invertido do `TenantRequiredMixin`:
+
+    - exige usuario autenticado COM um `PlatformAdmin` ativo; senao
+      `PermissionDenied` (HTTP 403);
+    - exige estar NO schema `public`; servida de dentro de um tenant, devolve
+      `Http404` (a area de plataforma nao e roteavel por subdominio de igreja, e
+      nao revelamos sua existencia ali).
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            raise PermissionDenied
+        admin = getattr(request.user, 'platform_admin', None)
+        if admin is None or not admin.is_active:
+            raise PermissionDenied
+        if connection.schema_name != get_public_schema_name():
+            raise Http404()
+        return super().dispatch(request, *args, **kwargs)
+
+
+class PlatformAdminWithSupportAccessMixin:
+    """Libera Platform Admin numa view de tenant so com SupportAccess ativo.
+
+    RN-015 / RISK-009. Pega o `PlatformAdmin` do usuario; sem admin ou inativo,
+    `PermissionDenied`. Com admin ativo, exige um `SupportAccess` vigente
+    (`ended_at IS NULL AND expires_at > now`) para a igreja do request
+    (`request.tenant`). Sem acesso: grava SecurityLog `platform_admin_access`
+    com `denied=True` e levanta `PermissionDenied` (403).
+
+    Defense-in-depth: o controle PRIMARIO de RISK-009 e o
+    `PlatformAdminSupportMiddleware`, que bloqueia ANTES de qualquer view rodar.
+    Na pratica o ramo de "deny" deste mixin quase nunca dispara — ele e a segunda
+    linha caso o middleware seja removido/reordenado.
+
+    Imports lazy no dispatch: evita o ciclo apps.core <-> apps.accounts no import.
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        from apps.accounts.models import SupportAccess
+        from apps.core.audit import log_security_event
+
+        admin = getattr(request.user, 'platform_admin', None)
+        if admin is None or not admin.is_active:
+            raise PermissionDenied
+        has_access = SupportAccess.objects.filter(
+            admin=admin,
+            church=request.tenant,
+            ended_at__isnull=True,
+            expires_at__gt=timezone.now(),
+        ).exists()
+        if not has_access:
+            log_security_event(
+                event_type='platform_admin_access',
+                user_id=request.user.id,
+                payload={'denied': True, 'reason': 'no_active_support_access'},
+            )
+            raise PermissionDenied
+        return super().dispatch(request, *args, **kwargs)

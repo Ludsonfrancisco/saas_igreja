@@ -26,6 +26,9 @@ from apps.accounts.views import (
     InviteCreateView,
     InviteListView,
     InviteResendView,
+    SupportAccessGrantView,
+    SupportAccessListView,
+    SupportAccessRevokeView,
     UserListView,
 )
 
@@ -49,6 +52,23 @@ urlpatterns = [
         'configuracoes/convites/<int:pk>/cancelar/',
         InviteCancelView.as_view(),
         name='invite_cancel',
+    ),
+    # Area de plataforma (prefixo `plataforma/`): gestao de SupportAccess. As
+    # views vivem no schema public (PlatformAdminRequiredMixin) — RN-015/RISK-009.
+    path(
+        'plataforma/suporte/',
+        SupportAccessListView.as_view(),
+        name='support_access_list',
+    ),
+    path(
+        'plataforma/suporte/conceder/',
+        SupportAccessGrantView.as_view(),
+        name='support_access_grant',
+    ),
+    path(
+        'plataforma/suporte/<int:pk>/revogar/',
+        SupportAccessRevokeView.as_view(),
+        name='support_access_revoke',
     ),
     # Publica (prefixo `contas/`): aceite de convite.
     path(

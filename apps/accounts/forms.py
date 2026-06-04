@@ -9,6 +9,7 @@ from django import forms
 from django.contrib.auth.password_validation import validate_password
 
 from apps.accounts.models import User
+from apps.tenants.models import Church
 
 
 class InviteForm(forms.Form):
@@ -53,3 +54,16 @@ class AcceptInviteForm(forms.Form):
         if password1 and password2 and password1 != password2:
             self.add_error('password2', 'As senhas nao coincidem.')
         return cleaned
+
+
+class GrantSupportAccessForm(forms.Form):
+    """Formulario de concessao de SupportAccess (Frente 5 — RN-015 / RISK-009).
+
+    `forms.Form` explicito (nunca ModelForm `__all__`, AP-10): igreja-alvo +
+    justificativa. A janela de 4h e o vinculo ao admin sao definidos no service
+    (`grant_support_access`), nao no form. A `justification` e obrigatoria (motivo
+    do suporte) e fica apenas no model — nunca no log (TENANT-07).
+    """
+
+    church = forms.ModelChoiceField(queryset=Church.objects.all(), label='Igreja')
+    justification = forms.CharField(widget=forms.Textarea, label='Justificativa')
