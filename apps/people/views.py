@@ -23,6 +23,7 @@ from django.views.generic import DetailView, FormView, ListView, UpdateView
 from apps.communities.models import Community
 from apps.core.mixins import (
     LeaderOrPastorMixin,
+    PastorOrSecretaryMixin,
     PastorRequiredMixin,
     ScopedToCommunityMixin,
     TenantRequiredMixin,
@@ -90,8 +91,8 @@ class PersonDetailView(
     community_scope_lookup = 'community__leaders__user_id'
 
 
-class PersonCreateView(TenantRequiredMixin, PastorRequiredMixin, FormView):
-    """Cadastra uma pessoa via service (consent + limite de plano). Apenas Pastor."""
+class PersonCreateView(TenantRequiredMixin, PastorOrSecretaryMixin, FormView):
+    """Cadastra pessoa via service (consent + limite de plano). Pastor ou Secretário."""
 
     template_name = 'people/person_form.html'
     form_class = PersonForm

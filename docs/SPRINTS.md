@@ -319,10 +319,10 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### Gestão de Acessos (OD-019 / RISK-015)
 
-- [ ] (P0) Adicionar `secretary` ao `User.Role` (admin sem financeiro)
-- [ ] (P0) Mixins de permissão p/ Secretário (admin sem financeiro nem ações irreversíveis); Secretário entra nas views de Pessoas/Comunidades/Ministérios/Usuários
+- [x] (P0) Adicionar `secretary` ao `User.Role` (admin sem financeiro) → Bloco 4a (migração accounts/0002)
+- [x] (P0) Mixins de permissão p/ Secretário → Bloco 4a: `PastorOrSecretaryMixin` (criar) + `LeaderOrPastorMixin` inclui secretary + `ScopedTo*` curto-circuitam Pastor/Secretário; anonimizar/exportar/excluir seguem só Pastor
 - [ ] (P0) Tela de **Gestão de Acessos** (Pastor+Secretário): concede funções (multi-role) + escopo de grupo (`Community.leaders`/`Ministry.coordinators`) a um membro; cria/liga `User` via convite; grava `Person.user_id`
-- [ ] (P0) **Travas (🔒):** Secretário não concede `pastor` nem desativa Pastor; ninguém auto-escalona; concessão escopada ao tenant + auditada (`role_change`); RN-004 intacta
+- [x] (P0) **Travas (🔒):** Secretário não concede `pastor` nem desativa Pastor; ninguém auto-escalona → Bloco 4a: implementadas em `change_roles`/`deactivate_user`; concessão auditada; RN-004 intacta
 
 ### Testes mínimos da Sprint 3
 
@@ -342,8 +342,8 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [x] (P0) `test_ministry_m2m_with_person` → coberto por `test_person_ministries_m2m` (Frente 1) + ministry.members
 - [x] (P0) `test_leader_sees_only_own_community_persons` (escopo) → Frente 3 Bloco 1: vínculo `Person.user_id` (IntegerField, TENANT-04) + mixins de escopo corrigidos p/ `__user_id` (eram `__user__id`, FK proibida) + lookup configurável; PersonList/Detail/Update liberados p/ Líder escopado
 - [x] (P0) `test_community_multiple_leaders` (Bloco 2) e `test_ministry_multiple_coordinators` (Bloco 3) — ambos M2M (OD-019)
-- [ ] (P0) `test_secretary_can_manage_but_not_finance_or_anonymize`
-- [ ] (P0) `test_secretary_cannot_grant_pastor` e `test_no_self_role_escalation` (travas OD-019/RISK-015)
+- [x] (P0) `test_secretary_can_manage_but_not_finance_or_anonymize` → Bloco 4a (test_secretary_manages_people_but_not_anonymize_or_export + creates_but_cannot_delete)
+- [x] (P0) `test_secretary_cannot_grant_pastor` e `test_no_self_role_escalation` (travas OD-019/RISK-015) → Bloco 4a
 - [ ] (P0) `test_tenant_isolation_matrix` (atualizado para novas views)
 - [ ] (P0) `test_permissions_matrix` (atualizado para novas views)
 - [ ] (P1) `test_csv_import_idempotent`

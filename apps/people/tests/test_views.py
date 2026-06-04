@@ -342,3 +342,16 @@ def test_export_view_member_forbidden(tenant_client, church_a):
     tenant_client.force_login(member)
     resp = tenant_client.get(f'/pessoas/{person.pk}/exportar/')
     assert resp.status_code == 403
+
+
+@pytest.mark.django_db(transaction=True)
+def test_secretary_manages_people_but_not_anonymize_or_export(tenant_client, church_a):
+    """OD-019: Secretário cria/lista pessoas (vê todas), mas não anonimiza/exporta."""
+    secretary = _make_user(church_a, 'sec@a.com', ['secretary'])
+    person = _make_person(church_a, 'Alvo')
+    tenant_client.force_login(secretary)
+
+    assert tenant_client.get(LIST_URL).status_code == 200
+    assert tenant_client.get(CREATE_URL).status_code == 200
+    assert tenant_client.get(f'/pessoas/{person.pk}/anonimizar/').status_code == 403
+    assert tenant_client.get(f'/pessoas/{person.pk}/exportar/').status_code == 403

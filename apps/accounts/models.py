@@ -50,6 +50,9 @@ class User(AbstractUser):
 
     class Role(models.TextChoices):
         PASTOR = 'pastor', 'Lider Principal'
+        # OD-019: Secretario = admin da igreja SEM financeiro (cadastra/edita
+        # pessoas/grupos e concede acessos com teto); nao anonimiza/exporta/exclui.
+        SECRETARY = 'secretary', 'Secretario'
         LEADER = 'leader', 'Lider'
         TREASURER = 'treasurer', 'Tesoureiro'
         MEMBER = 'member', 'Membro'

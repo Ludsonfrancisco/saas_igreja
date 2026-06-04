@@ -89,6 +89,16 @@ def change_roles(*, user, new_roles, actor=None):
         raise ValidationError(f'Papeis invalidos: {", ".join(sorted(invalid))}.')
 
     roles_before = list(user.roles)
+
+    # Travas da Gestão de Acessos (OD-019 / RISK-015):
+    # (1) ninguém altera os próprios papéis (sem auto-escalonamento);
+    if actor is not None and actor.id == user.id:
+        raise ValidationError('Voce nao pode alterar os proprios papeis.')
+    # (2) só um Pastor concede o papel `pastor` (Secretário não escala a Pastor).
+    granting_pastor = 'pastor' in new_roles and 'pastor' not in roles_before
+    if granting_pastor and actor is not None and not actor.has_any_role('pastor'):
+        raise ValidationError('Apenas um Pastor pode conceder o papel de Pastor.')
+
     removing_pastor = 'pastor' in roles_before and 'pastor' not in new_roles
     if removing_pastor and not _has_other_active_pastor(
         church=user.church, excluding_user_id=user.id
@@ -128,6 +138,18 @@ def deactivate_user(*, user, actor=None):
     AuditLog(action='update', changes={'is_active': [True, False]}). Retorna o
     `user`. Idempotente-amigavel: se ja inativo, apenas re-grava o estado.
     """
+    # Travas da Gestão de Acessos (OD-019 / RISK-015):
+    # (1) ninguém desativa a própria conta;
+    if actor is not None and actor.id == user.id:
+        raise ValidationError('Voce nao pode desativar a propria conta.')
+    # (2) só um Pastor desativa um Pastor (Secretário não derruba Pastor).
+    if (
+        'pastor' in user.roles
+        and actor is not None
+        and not actor.has_any_role('pastor')
+    ):
+        raise ValidationError('Apenas um Pastor pode desativar um Pastor.')
+
     is_last_active_pastor = (
         'pastor' in user.roles
         and user.is_active

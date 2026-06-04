@@ -129,3 +129,14 @@ def test_ministry_delete_pastor_only(tenant_client, church_a):
     assert resp.status_code == 302
     with schema_context(church_a.schema_name):
         assert not Ministry.objects.filter(pk=ministry.pk).exists()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_secretary_creates_but_cannot_delete_ministry(tenant_client, church_a):
+    """OD-019: Secretário cria/edita ministério, mas não exclui (só Pastor)."""
+    secretary = _make_user(church_a, 'sec@a.com', ['secretary'])
+    ministry = _make_ministry(church_a, 'Alvo')
+    tenant_client.force_login(secretary)
+
+    assert tenant_client.get(CREATE_URL).status_code == 200
+    assert tenant_client.get(f'/ministerios/{ministry.pk}/excluir/').status_code == 403

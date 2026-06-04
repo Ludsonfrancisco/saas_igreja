@@ -22,6 +22,7 @@ from django.views.generic import (
 
 from apps.core.mixins import (
     LeaderOrPastorMixin,
+    PastorOrSecretaryMixin,
     PastorRequiredMixin,
     ScopedToMinistryMixin,
     TenantRequiredMixin,
@@ -49,8 +50,8 @@ class MinistryDetailView(TenantRequiredMixin, LeaderOrPastorMixin, DetailView):
     context_object_name = 'ministry'
 
 
-class MinistryCreateView(TenantRequiredMixin, PastorRequiredMixin, CreateView):
-    """Cria ministério. Apenas Pastor. AuditLog automático (AuditLogMixin)."""
+class MinistryCreateView(TenantRequiredMixin, PastorOrSecretaryMixin, CreateView):
+    """Cria ministério. Pastor ou Secretário. AuditLog automático (AuditLogMixin)."""
 
     model = Ministry
     form_class = MinistryForm
@@ -76,8 +77,10 @@ class MinistryUpdateView(
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        # Só o Pastor define coordenadores (§3.5); para o Coordenador o campo some.
-        kwargs['can_set_coordinators'] = self.request.user.has_any_role('pastor')
+        # Pastor e Secretário definem coordenadores (§3.5); p/ o Coordenador some.
+        kwargs['can_set_coordinators'] = self.request.user.has_any_role(
+            'pastor', 'secretary'
+        )
         return kwargs
 
     def form_valid(self, form):

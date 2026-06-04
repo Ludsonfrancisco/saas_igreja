@@ -79,10 +79,27 @@ class PastorRequiredMixin(RoleRequiredMixin):
     required_roles = ('pastor',)
 
 
-class LeaderOrPastorMixin(RoleRequiredMixin):
-    """Pastor ou Lider (qualquer um cobre). Escopo refinado em get_queryset."""
+class PastorOrSecretaryMixin(RoleRequiredMixin):
+    """Pastor ou Secretario — acoes administrativas da igreja (OD-019).
 
-    required_roles = ('pastor', 'leader')
+    Criar pessoas/comunidades/ministerios, gerir usuarios e conceder acessos. NAO
+    cobre acoes destrutivas/LGPD (anonimizar/exportar/excluir), que seguem
+    `PastorRequiredMixin`.
+    """
+
+    required_roles = ('pastor', 'secretary')
+
+
+class LeaderOrPastorMixin(RoleRequiredMixin):
+    """Pastor, Secretario ou Lider/Coordenador (OD-019).
+
+    Camada de PAPEL das views de gestao (listar/ver/editar pessoas, comunidades e
+    ministerios). O ESCOPO e refinado nos `ScopedTo*` mixins: Pastor e Secretario
+    veem tudo (curto-circuitam); Lider/Coordenador veem so o proprio vinculo.
+    (Nome historico mantido; inclui secretary desde a Frente 3 / OD-019.)
+    """
+
+    required_roles = ('pastor', 'secretary', 'leader')
 
 
 class TreasurerOrPastorMixin(RoleRequiredMixin):
@@ -108,7 +125,7 @@ class ScopedToCommunityMixin:
 
     def get_queryset(self):
         qs = super().get_queryset()
-        if self.request.user.has_any_role('pastor'):
+        if self.request.user.has_any_role('pastor', 'secretary'):
             return qs
         return qs.filter(**{self.community_scope_lookup: self.request.user.id})
 
@@ -126,7 +143,7 @@ class ScopedToMinistryMixin:
 
     def get_queryset(self):
         qs = super().get_queryset()
-        if self.request.user.has_any_role('pastor'):
+        if self.request.user.has_any_role('pastor', 'secretary'):
             return qs
         return qs.filter(**{self.ministry_scope_lookup: self.request.user.id})
 

@@ -28,6 +28,7 @@ from apps.communities.forms import CommunityForm
 from apps.communities.models import Community
 from apps.core.mixins import (
     LeaderOrPastorMixin,
+    PastorOrSecretaryMixin,
     PastorRequiredMixin,
     ScopedToCommunityMixin,
     TenantRequiredMixin,
@@ -75,9 +76,9 @@ class CommunityDetailView(
 
 
 class CommunityCreateView(
-    CommunitiesEnabledMixin, TenantRequiredMixin, PastorRequiredMixin, CreateView
+    CommunitiesEnabledMixin, TenantRequiredMixin, PastorOrSecretaryMixin, CreateView
 ):
-    """Cria comunidade via service (limite de plano + has_communities). Só Pastor."""
+    """Cria comunidade via service (plano + has_communities). Pastor ou Secretário."""
 
     model = Community
     form_class = CommunityForm
@@ -121,8 +122,10 @@ class CommunityUpdateView(
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        # Só o Pastor define líderes (§3.4); para o Líder o campo some.
-        kwargs['can_set_leaders'] = self.request.user.has_any_role('pastor')
+        # Pastor e Secretário definem líderes (§3.4); para o Líder o campo some.
+        kwargs['can_set_leaders'] = self.request.user.has_any_role(
+            'pastor', 'secretary'
+        )
         return kwargs
 
     def form_valid(self, form):

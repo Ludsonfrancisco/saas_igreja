@@ -177,3 +177,14 @@ def test_community_create_via_view_blocked_by_plan_limit(
     assert resp.status_code == 200
     with schema_context(church_a.schema_name):
         assert not Community.objects.filter(name='Nova').exists()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_secretary_creates_but_cannot_delete_community(tenant_client, church_a):
+    """OD-019: Secretário cria/edita comunidade, mas não exclui (só Pastor)."""
+    secretary = _make_user(church_a, 'sec@a.com', ['secretary'])
+    community = _make_community(church_a, 'Alvo')
+    tenant_client.force_login(secretary)
+
+    assert tenant_client.get(CREATE_URL).status_code == 200
+    assert tenant_client.get(f'/comunidades/{community.pk}/excluir/').status_code == 403
