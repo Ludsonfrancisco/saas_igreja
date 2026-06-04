@@ -1,0 +1,75 @@
+{% comment %}
+Lista de Pessoas (Frente 2 / Bloco 2). Markup mínimo pt-BR; styling Athos fica
+para a frente de frontend. Filtros via GET (status/comunidade/ministério) + busca.
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Pessoas</title>
+</head>
+<body>
+  <h1>Pessoas</h1>
+
+  {% if messages %}
+    <ul>
+      {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+
+  <p><a href="{% url 'people:create' %}">Cadastrar pessoa</a></p>
+
+  <form method="get">
+    <input type="text" name="q" value="{{ filters.q }}" placeholder="Buscar por nome">
+    <select name="status">
+      <option value="">Todos os status</option>
+      {% for value, label in status_choices %}
+        <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select name="community">
+      <option value="">Todas as comunidades</option>
+      {% for c in communities %}
+        <option value="{{ c.id }}" {% if filters.community == c.id|stringformat:'s' %}selected{% endif %}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+    <select name="ministry">
+      <option value="">Todos os ministérios</option>
+      {% for m in ministries %}
+        <option value="{{ m.id }}" {% if filters.ministry == m.id|stringformat:'s' %}selected{% endif %}>{{ m.name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Filtrar</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr><th>Nome</th><th>Status</th><th>Comunidade</th><th>Ações</th></tr>
+    </thead>
+    <tbody>
+      {% for person in persons %}
+        <tr>
+          <td><a href="{% url 'people:detail' pk=person.pk %}">{{ person.name }}</a></td>
+          <td>{{ person.get_status_display }}</td>
+          <td>{{ person.community.name|default:'—' }}</td>
+          <td><a href="{% url 'people:update' pk=person.pk %}">Editar</a></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4">Nenhuma pessoa encontrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if is_paginated %}
+    <p>
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+      {% endif %}
+      Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Próxima</a>
+      {% endif %}
+    </p>
+  {% endif %}
+</body>
+</html>

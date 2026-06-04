@@ -1,0 +1,40 @@
+{% comment %}
+Detalhe de Pessoa (Frente 2 / Bloco 2). Markup mínimo pt-BR. As ações LGPD
+(anonimizar/exportar) entram no Bloco 3.
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>{{ person.name }}</title>
+</head>
+<body>
+  <h1>{{ person.name }}</h1>
+
+  {% if messages %}
+    <ul>
+      {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+
+  <dl>
+    <dt>Status</dt><dd>{{ person.get_status_display }}</dd>
+    <dt>Email</dt><dd>{{ person.email|default:'—' }}</dd>
+    <dt>Telefone</dt><dd>{{ person.phone|default:'—' }}</dd>
+    <dt>Nascimento</dt><dd>{{ person.birth_date|default:'—' }}</dd>
+    <dt>Comunidade</dt><dd>{{ person.community.name|default:'—' }}</dd>
+    <dt>Ministérios</dt>
+    <dd>
+      {% for m in person.ministries.all %}{{ m.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}
+    </dd>
+    <dt>Consentimento LGPD</dt>
+    <dd>{% if person.consent_given_at %}Sim ({{ person.consent_given_at }}){% else %}Não{% endif %}</dd>
+    <dt>Observações</dt><dd>{{ person.notes|default:'—' }}</dd>
+  </dl>
+
+  <p>
+    <a href="{% url 'people:update' pk=person.pk %}">Editar</a> ·
+    <a href="{% url 'people:list' %}">Voltar</a>
+  </p>
+</body>
+</html>

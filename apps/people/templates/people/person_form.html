@@ -1,0 +1,22 @@
+{% comment %}
+Cadastro/edição de Pessoa (Frente 2 / Bloco 2). Markup mínimo pt-BR. CSRF
+obrigatório. O service aplica consent (OPS-05) e limite de plano (OPS-04).
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>Pessoa</title>
+</head>
+<body>
+  <h1>{% if form.instance.pk %}Editar pessoa{% else %}Cadastrar pessoa{% endif %}</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Salvar</button>
+  </form>
+
+  <p><a href="{% url 'people:list' %}">Voltar</a></p>
+</body>
+</html>
