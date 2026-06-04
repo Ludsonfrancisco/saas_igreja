@@ -56,6 +56,12 @@ class Person(BaseModel, AuditLogMixin):
         default=Status.VISITOR,
         db_index=True,
     )
+    # Vínculo OPCIONAL ao User (público) de um staff que loga — líder/coordenador
+    # (ACCESS_MATRIX §43). NÃO é FK (TENANT-04: model de tenant nunca referencia
+    # User por FK); guardamos o id do User público, igual ao AuditLog.user_id.
+    # NULL para membros comuns (a maioria, sem login). Indexado p/ o escopo de
+    # papel (`community__leader__user_id`, `coordinator__user_id`).
+    user_id = models.IntegerField(null=True, blank=True, db_index=True)
     community = models.ForeignKey(
         'communities.Community',
         on_delete=models.SET_NULL,

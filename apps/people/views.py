@@ -21,29 +21,42 @@ from django.views import View
 from django.views.generic import DetailView, FormView, ListView, UpdateView
 
 from apps.communities.models import Community
-from apps.core.mixins import PastorRequiredMixin, TenantRequiredMixin
+from apps.core.mixins import (
+    LeaderOrPastorMixin,
+    PastorRequiredMixin,
+    ScopedToCommunityMixin,
+    TenantRequiredMixin,
+)
 from apps.ministries.models import Ministry
 from apps.people import services
 from apps.people.forms import PersonForm
 from apps.people.models import Person
 
 
-class PersonListView(TenantRequiredMixin, PastorRequiredMixin, ListView):
-    """Lista as pessoas ATIVAS da igreja, com filtros e busca. Apenas Pastor.
+class PersonListView(
+    TenantRequiredMixin, LeaderOrPastorMixin, ScopedToCommunityMixin, ListView
+):
+    """Lista pessoas ATIVAS com filtros e busca. Pastor vê todas; Líder só as da
+    sua comunidade (ACCESS_MATRIX §3.3).
 
-    Exclui anonimizadas (`anonymized_at` nulo). Filtros via querystring: `status`,
-    `community`, `ministry`; busca `q` por nome. `select_related('community')`
-    evita N+1 ao exibir a comunidade (P-ARQ-09).
+    O escopo de papel vem do `ScopedToCommunityMixin` (`super().get_queryset()`):
+    para Pessoa, o lookup é `community__leader__user_id` (a pessoa pertence a uma
+    comunidade cujo líder é o user logado). Pastor curto-circuita e vê tudo.
+    Exclui anonimizadas; filtros `status`/`community`/`ministry`; busca `q`.
     """
 
     model = Person
     template_name = 'people/person_list.html'
     context_object_name = 'persons'
     paginate_by = 25
+    community_scope_lookup = 'community__leader__user_id'
 
     def get_queryset(self):
-        qs = Person.objects.filter(anonymized_at__isnull=True).select_related(
-            'community'
+        qs = (
+            super()
+            .get_queryset()
+            .filter(anonymized_at__isnull=True)
+            .select_related('community')
         )
         params = self.request.GET
         if status := params.get('status'):
@@ -65,12 +78,16 @@ class PersonListView(TenantRequiredMixin, PastorRequiredMixin, ListView):
         return context
 
 
-class PersonDetailView(TenantRequiredMixin, PastorRequiredMixin, DetailView):
-    """Detalhe de uma pessoa. Apenas Pastor."""
+class PersonDetailView(
+    TenantRequiredMixin, LeaderOrPastorMixin, ScopedToCommunityMixin, DetailView
+):
+    """Detalhe de uma pessoa. Pastor vê qualquer uma; Líder só as da sua comunidade
+    (fora do escopo → 404, sem vazar existência). ACCESS_MATRIX §3.3."""
 
     model = Person
     template_name = 'people/person_detail.html'
     context_object_name = 'person'
+    community_scope_lookup = 'community__leader__user_id'
 
 
 class PersonCreateView(TenantRequiredMixin, PastorRequiredMixin, FormView):
@@ -80,8 +97,14 @@ class PersonCreateView(TenantRequiredMixin, PastorRequiredMixin, FormView):
     form_class = PersonForm
     success_url = reverse_lazy('people:list')
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['church'] = self.request.tenant
+        return kwargs
+
     def form_valid(self, form):
         data = form.cleaned_data
+        linked = data.get('linked_user')
         try:
             services.create_person(
                 church=self.request.tenant,
@@ -94,6 +117,7 @@ class PersonCreateView(TenantRequiredMixin, PastorRequiredMixin, FormView):
                 ministries=data['ministries'],
                 consent_given_at=timezone.now() if data['consent_given'] else None,
                 notes=data['notes'],
+                user_id=linked.id if linked else None,
             )
         except ValidationError as exc:
             form.add_error(None, exc.messages[0])
@@ -102,18 +126,28 @@ class PersonCreateView(TenantRequiredMixin, PastorRequiredMixin, FormView):
         return super().form_valid(form)
 
 
-class PersonUpdateView(TenantRequiredMixin, PastorRequiredMixin, UpdateView):
-    """Edita uma pessoa via service (revalida consent). Apenas Pastor."""
+class PersonUpdateView(
+    TenantRequiredMixin, LeaderOrPastorMixin, ScopedToCommunityMixin, UpdateView
+):
+    """Edita uma pessoa via service. Pastor edita qualquer uma; Líder só as da sua
+    comunidade (ACCESS_MATRIX §3.3). Revalida consent."""
 
     model = Person
     form_class = PersonForm
     template_name = 'people/person_form.html'
+    community_scope_lookup = 'community__leader__user_id'
 
     def get_success_url(self):
         return reverse_lazy('people:detail', kwargs={'pk': self.object.pk})
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['church'] = self.request.tenant
+        return kwargs
+
     def form_valid(self, form):
         data = form.cleaned_data
+        linked = data.get('linked_user')
         # Preserva o consentimento original; só (re)marca/limpa conforme o checkbox.
         consent_at = self.object.consent_given_at
         if data['consent_given'] and consent_at is None:
@@ -132,6 +166,7 @@ class PersonUpdateView(TenantRequiredMixin, PastorRequiredMixin, UpdateView):
                 consent_given_at=consent_at,
                 notes=data['notes'],
                 ministries=data['ministries'],
+                user_id=linked.id if linked else None,
             )
         except ValidationError as exc:
             form.add_error(None, exc.messages[0])

@@ -92,34 +92,43 @@ class TreasurerOrPastorMixin(RoleRequiredMixin):
 
 
 class ScopedToCommunityMixin:
-    """Camada de queryset: limita comunidades ao escopo do usuario (P-ARQ-08).
+    """Camada de queryset: limita o escopo ao Lider da comunidade (P-ARQ-08).
 
-    Pastor curto-circuita e ve tudo. Outros papeis veem apenas comunidades onde
-    sao lider. Filtro por lookup string puro (`leader__user__id`): este mixin e
-    deliberadamente model-agnostico e NAO importa o model `Community` (que so
-    nasce na Sprint 3). E estrutura para reuso nas views daquela sprint.
+    Pastor curto-circuita e ve tudo. Outros papeis veem apenas registros ligados
+    a uma comunidade que LIDERAM. O vinculo e `Person.user_id` (TENANT-04: o staff
+    Person guarda o id do User publico, NAO uma FK — por isso `__user_id`, e nao
+    `__user__id`).
+
+    Lookup configuravel via `community_scope_lookup`: numa queryset de `Community`
+    e `leader__user_id` (default); numa de `Person` (membros), a view sobrescreve
+    para `community__leader__user_id`.
     """
+
+    community_scope_lookup = 'leader__user_id'
 
     def get_queryset(self):
         qs = super().get_queryset()
         if self.request.user.has_any_role('pastor'):
             return qs
-        return qs.filter(leader__user__id=self.request.user.id)
+        return qs.filter(**{self.community_scope_lookup: self.request.user.id})
 
 
 class ScopedToMinistryMixin:
-    """Camada de queryset: limita ministerios ao escopo do usuario (P-ARQ-08).
+    """Camada de queryset: limita o escopo ao Coordenador do ministerio (P-ARQ-08).
 
-    Pastor curto-circuita e ve tudo. Outros papeis veem apenas ministerios onde
-    sao coordenador. Filtro por lookup string puro (`coordinator__user__id`);
-    model-agnostico, NAO importa `Ministry` (Sprint 3).
+    Espelha `ScopedToCommunityMixin`. Vinculo por `Person.user_id` (TENANT-04 →
+    `__user_id`). Lookup configuravel via `ministry_scope_lookup`: numa queryset de
+    `Ministry` e `coordinator__user_id` (default); numa de `Person`, a view usa
+    `ministries__coordinator__user_id`.
     """
+
+    ministry_scope_lookup = 'coordinator__user_id'
 
     def get_queryset(self):
         qs = super().get_queryset()
         if self.request.user.has_any_role('pastor'):
             return qs
-        return qs.filter(coordinator__user__id=self.request.user.id)
+        return qs.filter(**{self.ministry_scope_lookup: self.request.user.id})
 
 
 class PlatformAdminRequiredMixin:

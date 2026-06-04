@@ -41,6 +41,7 @@ _EDITABLE_FIELDS = (
     'community',
     'consent_given_at',
     'notes',
+    'user_id',
 )
 _UNSET = object()
 
@@ -78,10 +79,12 @@ def create_person(
     ministries=None,
     consent_given_at=None,
     notes='',
+    user_id=None,
 ):
     """Cria uma Pessoa aplicando consentimento (RN-005) e limite de plano (OPS-04).
 
-    AuditLog('create') é automático (AuditLogMixin). Retorna a Person criada.
+    `user_id` (opcional) liga o Person a um User-staff (líder/coordenador) por id
+    (TENANT-04, não-FK). AuditLog('create') é automático. Retorna a Person criada.
     """
     _require_consent(email, phone, consent_given_at)
     _enforce_plan_limit(church)
@@ -95,6 +98,7 @@ def create_person(
         community=community,
         consent_given_at=consent_given_at,
         notes=notes,
+        user_id=user_id,
     )
     if ministries:
         person.ministries.set(ministries)

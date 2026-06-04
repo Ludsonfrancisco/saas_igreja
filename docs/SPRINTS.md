@@ -331,7 +331,7 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [ ] (P0) `test_community_update_audited`
 - [ ] (P0) `test_ministry_create`
 - [ ] (P0) `test_ministry_m2m_with_person`
-- [ ] (P0) `test_leader_sees_only_own_community_persons` (escopo)
+- [x] (P0) `test_leader_sees_only_own_community_persons` (escopo) → Frente 3 Bloco 1: vínculo `Person.user_id` (IntegerField, TENANT-04) + mixins de escopo corrigidos p/ `__user_id` (eram `__user__id`, FK proibida) + lookup configurável; PersonList/Detail/Update liberados p/ Líder escopado
 - [ ] (P0) `test_tenant_isolation_matrix` (atualizado para novas views)
 - [ ] (P0) `test_permissions_matrix` (atualizado para novas views)
 - [ ] (P1) `test_csv_import_idempotent`

@@ -16,6 +16,7 @@ from django.utils import timezone
 from django_tenants.utils import schema_context
 
 from apps.accounts.models import User
+from apps.communities.models import Community
 from apps.people.models import Person
 
 GOOD_PASSWORD = 'Senha@123'
@@ -52,12 +53,42 @@ def _count_persons(church, **filters):
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.parametrize(
     'roles,expected',
-    [(['pastor'], 200), (['leader'], 403), (['member'], 403)],
+    # Pastor e Líder veem a lista (Líder escopado à sua comunidade); Membro não.
+    [(['pastor'], 200), (['leader'], 200), (['member'], 403)],
 )
 def test_person_list_role_barrier(tenant_client, church_a, roles, expected):
     user = _make_user(church_a, f'{roles[0]}@a.com', roles)
     tenant_client.force_login(user)
     assert tenant_client.get(LIST_URL).status_code == expected
+
+
+@pytest.mark.django_db(transaction=True)
+def test_leader_sees_only_own_community_persons(tenant_client, church_a):
+    """Líder vê só as pessoas da comunidade que lidera; Pastor vê todas (§3.3)."""
+    leader_user = _make_user(church_a, 'leader@a.com', ['leader'])
+    with schema_context(church_a.schema_name):
+        # Person-staff do líder, ligada ao User por user_id (TENANT-04).
+        leader_person = Person.objects.create(name='Lider', user_id=leader_user.id)
+        my_community = Community.objects.create(name='Minha', leader=leader_person)
+        other_community = Community.objects.create(name='Outra')
+        Person.objects.create(name='Meu Membro', community=my_community)
+        Person.objects.create(name='Outro Membro', community=other_community)
+        Person.objects.create(name='Sem Comunidade')
+
+    tenant_client.force_login(leader_user)
+    resp = tenant_client.get(LIST_URL)
+    assert {p.name for p in resp.context['persons']} == {'Meu Membro'}
+
+    # Pastor vê todas (sem escopo).
+    pastor = _make_user(church_a, 'pastor@a.com', ['pastor'])
+    tenant_client.force_login(pastor)
+    resp = tenant_client.get(LIST_URL)
+    assert {p.name for p in resp.context['persons']} == {
+        'Lider',
+        'Meu Membro',
+        'Outro Membro',
+        'Sem Comunidade',
+    }
 
 
 @pytest.mark.django_db(transaction=True)
@@ -165,7 +196,6 @@ def test_update_person_via_view(tenant_client, church_a):
 
 @pytest.mark.django_db(transaction=True)
 def test_person_list_filters_by_community_and_ministry(tenant_client, church_a):
-    from apps.communities.models import Community
     from apps.ministries.models import Ministry
 
     pastor = _make_user(church_a, 'pastor@a.com', ['pastor'])
