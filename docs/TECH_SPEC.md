@@ -246,7 +246,8 @@ class User(AbstractUser):
 
     class Role(models.TextChoices):
         PASTOR = 'pastor', 'Lider Principal'
-        LEADER = 'leader', 'Lider'
+        SECRETARY = 'secretary', 'Secretario'  # OD-019: admin sem financeiro
+        LEADER = 'leader', 'Lider'  # comunidade E ministerio (diferenca = vinculo)
         TREASURER = 'treasurer', 'Tesoureiro'
         MEMBER = 'member', 'Membro'
 
@@ -397,6 +398,10 @@ class Person(BaseModel, AuditLogMixin):  # Sprint 3: + AuditLogMixin (audit auto
         default=Status.VISITOR,
         db_index=True,
     )
+    # Sprint 3 / OD-019: vínculo OPCIONAL ao User (público) de um staff que loga
+    # (líder/coordenador). NÃO é FK (TENANT-04: model de tenant nunca referencia
+    # User por FK) — guarda o id do User, igual a AuditLog.user_id. NULL p/ membros.
+    user_id = models.IntegerField(null=True, blank=True, db_index=True)
     community = models.ForeignKey(
         'communities.Community',
         on_delete=models.SET_NULL,
@@ -419,32 +424,24 @@ class Person(BaseModel, AuditLogMixin):  # Sprint 3: + AuditLogMixin (audit auto
 
 ```python
 # apps/communities/models.py
-class Community(BaseModel):
+class Community(BaseModel, AuditLogMixin):
     """Comunidade. Ativa apenas se Church.has_communities=True."""
     name = models.CharField(max_length=80)
-    leader = models.ForeignKey(
-        'people.Person',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='communities_led',
-    )
+    # OD-019 (2026-06-04): M2M, não FK — uma comunidade pode ter VÁRIOS líderes
+    # (ex.: casal de líderes, líder + auxiliar). Cada líder é um Person cujo
+    # `user_id` aponta ao User-staff. Escopo: ScopedToCommunityMixin -> leaders__user_id.
+    leaders = models.ManyToManyField('people.Person', blank=True, related_name='communities_led')
     meeting_day = models.CharField(max_length=15, null=True, blank=True)
     meeting_time = models.TimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
 
 # apps/ministries/models.py
-class Ministry(BaseModel):
+class Ministry(BaseModel, AuditLogMixin):
     """Ministério ou departamento."""
     name = models.CharField(max_length=80)
-    coordinator = models.ForeignKey(
-        'people.Person',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='ministries_led',
-    )
+    # OD-019: M2M, não FK — vários coordenadores por ministério.
+    coordinators = models.ManyToManyField('people.Person', blank=True, related_name='ministries_led')
     is_active = models.BooleanField(default=True)
 ```
 

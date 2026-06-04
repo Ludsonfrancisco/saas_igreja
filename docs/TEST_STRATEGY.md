@@ -200,7 +200,16 @@ def test_all_authenticated_views_require_tenant(client, url_name):
 
 ### 6.2 Permissions Matrix
 
-`apps/core/tests/test_permissions_matrix.py` cobre cada célula de [`ACCESS_MATRIX.md`](ACCESS_MATRIX.md):
+`apps/core/tests/test_permissions_matrix.py` cobre cada célula de [`ACCESS_MATRIX.md`](ACCESS_MATRIX.md).
+
+> **Atualização OD-019 (2026-06-04):** a matriz cresceu — nova coluna **Secretário**
+> e o teto da Gestão de Acessos. Casos obrigatórios a acrescentar a `PERMISSION_CASES`
+> conforme as views nascem: Secretário pode gerir Pessoas/Comunidades/Ministérios/
+> Usuários mas **não** anonimizar/exportar/excluir nem mexer em financeiro; e as
+> travas `test_secretary_cannot_grant_pastor` / `test_no_self_role_escalation`
+> (RISK-015). Multi-líder (M2M) entra no isolation/escopo, não na matriz de papéis.
+
+Exemplo do esqueleto parametrizado:
 
 ```python
 PERMISSION_CASES = [

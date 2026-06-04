@@ -16,6 +16,7 @@ Matriz detalhada de permissões por módulo, ação e papel. Toda barreira efeti
 |---|---|---|
 | Platform Admin | Plataforma | `PlatformAdmin` (model separado); acesso a tenant exige `SupportAccess` ativo |
 | Pastor / Admin da Igreja | Tenant inteiro | `'pastor' in user.roles` |
+| Secretário | Admin da igreja, sem financeiro | `'secretary' in user.roles` — cadastra/edita pessoas, grupos e escalas e **concede acessos (com teto)**; NÃO faz financeiro nem ações irreversíveis (anonimizar/excluir) |
 | Líder de Comunidade | Sua(s) comunidade(s) | `'leader' in user.roles` + comunidades onde é `Community.leader` |
 | Coordenador de Ministério | Seu(s) ministério(s) | `'leader' in user.roles` + ministérios onde é `Ministry.coordinator` |
 | Tesoureiro | Escopo financeiro (pós-MVP) | `'treasurer' in user.roles` |
@@ -40,10 +41,10 @@ Um usuário pode ter mais de uma role simultânea. Permissões são acumuladas:
 
 Ambos usam a role `leader`. A diferença é por **vínculo**:
 
-- Líder de Comunidade: `Community.leader` aponta para o `Person` cujo `User` é o líder.
-- Coordenador de Ministério: `Ministry.coordinator` aponta para o `Person` cujo `User` é o coordenador.
+- Líder de Comunidade: o `Person` está em `Community.leaders` (M2M) e seu `user_id` é o do líder logado.
+- Coordenador de Ministério: o `Person` está em `Ministry.coordinators` (M2M) e seu `user_id` é o do coordenador.
 
-Permissões são resolvidas via vínculo (`ScopedToCommunityMixin`, `ScopedToMinistryMixin`). Mesma pessoa pode ser líder de N comunidades e/ou coordenador de N ministérios.
+Permissões são resolvidas via vínculo (`ScopedToCommunityMixin`, `ScopedToMinistryMixin`). Mesma pessoa pode ser líder de N comunidades e/ou coordenador de N ministérios. **E o inverso também (decisão 2026-06-04 / OD-019):** uma mesma comunidade pode ter VÁRIOS líderes e um ministério VÁRIOS coordenadores — `Community.leaders` e `Ministry.coordinators` são **M2M** de `Person` (antes eram FK única). O vínculo ao login é `Person.user_id` (IntegerField, TENANT-04).
 
 ---
 
@@ -60,67 +61,92 @@ Permissões são resolvidas via vínculo (`ScopedToCommunityMixin`, `ScopedToMin
 
 ### 3.1 Plataforma e Tenants
 
-| Ação | Platform Admin | Pastor | Líder Com. | Coord. Min. | Tesoureiro | Membro |
-|---|---|---|---|---|---|---|
-| Listar igrejas | ✅ 📝 | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Criar/provisionar igreja | ✅ 📝 | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Suspender/reativar igreja | ✅ 📝 | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Acessar dados de igreja (suporte) | ✅ 📝 com `SupportAccess` | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Editar dados da sua igreja | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Alterar `has_communities` | ❌ | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
-| Alterar paleta/logo | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Alterar `privacy_policy_url` | ❌ | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
+| Ação | Platform Admin | Pastor | Secretário | Líder Com. | Coord. Min. | Tesoureiro | Membro |
+|---|---|---|---|---|---|---|---|
+| Listar igrejas | ✅ 📝 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Criar/provisionar igreja | ✅ 📝 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Suspender/reativar igreja | ✅ 📝 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Acessar dados de igreja (suporte) | ✅ 📝 com `SupportAccess` | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Editar dados da sua igreja | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Alterar `has_communities` | ❌ | ✅ 📝 | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Alterar paleta/logo | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Alterar `privacy_policy_url` | ❌ | ✅ 📝 | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ### 3.2 Usuários e Acessos
 
-| Ação | Platform Admin | Pastor | Líder Com. | Coord. Min. | Tesoureiro | Membro |
-|---|---|---|---|---|---|---|
-| Listar usuários da igreja | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Convidar usuário | ❌ | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
-| Reenviar convite | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Cancelar convite | ❌ | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
-| Aceitar próprio convite | — | — | — | — | — | ✅ (convidado) |
-| Alterar papel de usuário | ❌ | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
-| Remover último Pastor | ❌ | ❌ (regra RN-004) | ❌ | ❌ | ❌ | ❌ |
-| Desativar usuário | ❌ | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
-| Reativar usuário | ❌ | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
+| Ação | Platform Admin | Pastor | Secretário | Líder Com. | Coord. Min. | Tesoureiro | Membro |
+|---|---|---|---|---|---|---|---|
+| Listar usuários da igreja | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Convidar usuário | ❌ | ✅ 📝 | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
+| Reenviar convite | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Cancelar convite | ❌ | ✅ 📝 | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
+| Aceitar próprio convite | — | — | — | — | — | — | ✅ (convidado) |
+| Conceder/alterar papéis (exceto `pastor`) | ❌ | ✅ 📝 | ✅ 📝 🔒 | ❌ | ❌ | ❌ | ❌ |
+| **Conceder o papel `pastor`** | ❌ | ✅ 📝 | ❌ 🔒 | ❌ | ❌ | ❌ | ❌ |
+| **Alterar os próprios papéis (auto-escalonar)** | ❌ | ❌ 🔒 | ❌ 🔒 | ❌ | ❌ | ❌ | ❌ |
+| Remover último Pastor | ❌ | ❌ (regra RN-004) | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Desativar usuário (não-Pastor) | ❌ | ✅ 📝 | ✅ 📝 🔒 | ❌ | ❌ | ❌ | ❌ |
+| **Desativar um Pastor** | ❌ | ✅ 📝 | ❌ 🔒 | ❌ | ❌ | ❌ | ❌ |
+| Reativar usuário | ❌ | ✅ 📝 | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
+
+> 🔒 **Travas de segurança da Gestão de Acessos (OD-019 / RISK-015).** O Secretário concede acesso, mas com teto: (a) **não pode conceder/atribuir o papel `pastor`** nem **desativar um Pastor** — só Pastor cria/derruba Pastor; (b) **ninguém altera os próprios papéis** (sem auto-escalonamento); (c) tudo escopado ao tenant (`church`); (d) toda concessão é auditada (`AuditLog` + `SecurityLog` `role_change`); (e) RN-004 (último Pastor) permanece. MFA do Secretário passa a ser exigido na Sprint 7 (junto com Pastor/PlatformAdmin).
+
+### 3.2.1 Fluxo de Gestão de Acessos (OD-019)
+
+Tela administrativa (Pastor ou Secretário) que concede acesso a um membro de forma
+unificada — funções **+** escopo de grupo numa só operação:
+
+1. Seleciona o **`Person`** (membro) e garante que ele tenha um **`User`** (login):
+   se não tiver, dispara um **convite** (fluxo da Sprint 2). O vínculo é gravado em
+   `Person.user_id` (IntegerField, TENANT-04 — nunca FK).
+2. Marca as **funções** (multi-select → `User.roles`): `leader`, `treasurer`,
+   `secretary`. O papel `pastor` é exceção (ver travas 🔒).
+3. Para função **com escopo**, seleciona o(s) **grupo(s)**: `leader` →
+   comunidade(s) (`Community.leaders`, M2M) e/ou ministério(s)
+   (`Ministry.coordinators`, M2M). O acesso resultante **cai em cascata** sobre os
+   membros daquele grupo (resolvido por `ScopedToCommunityMixin`/
+   `ScopedToMinistryMixin`, lookup `*_user_id`).
+
+**Travas obrigatórias (🔒 — RISK-015):** Secretário NÃO concede/atribui `pastor`
+nem desativa Pastor; ninguém altera os próprios papéis; tudo escopado ao tenant e
+auditado (`role_change`); RN-004 (último Pastor) intacta.
 
 ### 3.3 Pessoas
 
-| Ação | Platform Admin | Pastor | Líder Com. | Coord. Min. | Tesoureiro | Membro |
-|---|---|---|---|---|---|---|
-| Listar todas as pessoas | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Listar pessoas da sua comunidade | ❌ | ✅ | 🟡 | ❌ | ❌ | ❌ |
-| Listar pessoas do seu ministério | ❌ | ✅ | ❌ | 🟡 | ❌ | ❌ |
-| Ver detalhe de pessoa | ❌ | ✅ | 🟡 (sua comunidade) | 🟡 (seu ministério) | ❌ | ❌ |
-| Criar pessoa | ❌ | ✅ | ✅ (vincula à sua comunidade) | ❌ | ❌ | ❌ |
-| Editar pessoa | ❌ | ✅ | 🟡 (sua comunidade) | ❌ | ❌ | ❌ |
-| Mudar status (visitor→member→leader) | ❌ | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
-| Importar CSV | ❌ | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
-| Anonimizar pessoa | ❌ | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
-| Exportar dados de pessoa | ❌ | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
+| Ação | Platform Admin | Pastor | Secretário | Líder Com. | Coord. Min. | Tesoureiro | Membro |
+|---|---|---|---|---|---|---|---|
+| Listar todas as pessoas | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Listar pessoas da sua comunidade | ❌ | ✅ | ✅ | 🟡 | ❌ | ❌ | ❌ |
+| Listar pessoas do seu ministério | ❌ | ✅ | ✅ | ❌ | 🟡 | ❌ | ❌ |
+| Ver detalhe de pessoa | ❌ | ✅ | ✅ | 🟡 (sua comunidade) | 🟡 (seu ministério) | ❌ | ❌ |
+| Criar pessoa | ❌ | ✅ | ✅ | ✅ (vincula à sua comunidade) | ❌ | ❌ | ❌ |
+| Editar pessoa | ❌ | ✅ | ✅ | 🟡 (sua comunidade) | ❌ | ❌ | ❌ |
+| Mudar status (visitor→member→leader) | ❌ | ✅ 📝 | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
+| Importar CSV | ❌ | ✅ 📝 | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
+| Anonimizar pessoa | ❌ | ✅ 📝 | ❌ 🔒 | ❌ | ❌ | ❌ | ❌ |
+| Exportar dados de pessoa | ❌ | ✅ 📝 | ❌ 🔒 | ❌ | ❌ | ❌ | ❌ |
 
 ### 3.4 Comunidades
 
-| Ação | Platform Admin | Pastor | Líder Com. | Coord. Min. | Tesoureiro | Membro |
-|---|---|---|---|---|---|---|
-| Listar comunidades | ❌ | ✅ | ✅ (todas; ver só sua em detalhe) | ❌ | ❌ | ❌ |
-| Criar comunidade | ❌ | ✅ (se `has_communities=True`) | ❌ | ❌ | ❌ | ❌ |
-| Editar comunidade | ❌ | ✅ | 🟡 (sua) | ❌ | ❌ | ❌ |
-| Excluir comunidade | ❌ | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
-| Definir líder | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Vincular pessoa | ❌ | ✅ | 🟡 (sua) | ❌ | ❌ | ❌ |
+| Ação | Platform Admin | Pastor | Secretário | Líder Com. | Coord. Min. | Tesoureiro | Membro |
+|---|---|---|---|---|---|---|---|
+| Listar comunidades | ❌ | ✅ | ✅ | ✅ (todas; ver só sua em detalhe) | ❌ | ❌ | ❌ |
+| Criar comunidade | ❌ | ✅ (se `has_communities=True`) | ✅ (se `has_communities=True`) | ❌ | ❌ | ❌ | ❌ |
+| Editar comunidade | ❌ | ✅ | ✅ | 🟡 (sua) | ❌ | ❌ | ❌ |
+| Excluir comunidade | ❌ | ✅ 📝 | ❌ 🔒 | ❌ | ❌ | ❌ | ❌ |
+| Definir líderes (1+, M2M) | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Vincular pessoa | ❌ | ✅ | ✅ | 🟡 (sua) | ❌ | ❌ | ❌ |
 
 ### 3.5 Ministérios
 
-| Ação | Platform Admin | Pastor | Líder Com. | Coord. Min. | Tesoureiro | Membro |
-|---|---|---|---|---|---|---|
-| Listar ministérios | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Criar ministério | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Editar ministério | ❌ | ✅ | ❌ | 🟡 (seu) | ❌ | ❌ |
-| Excluir ministério | ❌ | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
-| Definir coordenador | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Vincular pessoa | ❌ | ✅ | ❌ | 🟡 (seu) | ❌ | ❌ |
+| Ação | Platform Admin | Pastor | Secretário | Líder Com. | Coord. Min. | Tesoureiro | Membro |
+|---|---|---|---|---|---|---|---|
+| Listar ministérios | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Criar ministério | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Editar ministério | ❌ | ✅ | ✅ | ❌ | 🟡 (seu) | ❌ | ❌ |
+| Excluir ministério | ❌ | ✅ 📝 | ❌ 🔒 | ❌ | ❌ | ❌ | ❌ |
+| Definir coordenadores (1+, M2M) | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Vincular pessoa | ❌ | ✅ | ✅ | ❌ | 🟡 (seu) | ❌ | ❌ |
 
 ### 3.6 Encontros e Presença
 

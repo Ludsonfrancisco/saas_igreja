@@ -361,6 +361,33 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 
 ---
 
+### OD-019 — Modelo de papéis e Gestão de Acessos
+
+| Campo | Valor |
+|---|---|
+| Status | ✅ Fechada (2026-06-04) |
+| Impacto | Alto (autorização, segurança) |
+| Owner | Produto + Segurança |
+| Decisão | Papel **`secretary`** (admin sem financeiro); **`leader` unificado** (comunidade e ministério, diferença = vínculo); **M2M** `Community.leaders`/`Ministry.coordinators` (vários por grupo); tela de **Gestão de Acessos** concede funções + escopo; **conceder acesso = Pastor + Secretário** (Tesoureiro de fora) |
+
+**Contexto:** o dono pediu (2026-06-04) papéis administrativos (secretário) e a possibilidade de vários líderes por célula / coordenadores por ministério, com uma tela onde um admin concede funções + escopo de grupo a um membro.
+
+**Decisões:**
+- **Papéis:** adiciona `secretary` ao `User.Role`. `leader` continua único (comunidade vs ministério = vínculo, não papel separado). `treasurer` permanece (financeiro pós-MVP).
+- **Cardinalidade:** `Community.leader`/`Ministry.coordinator` (FK) → `Community.leaders`/`Ministry.coordinators` (**M2M** de `Person`). Vínculo ao login segue `Person.user_id` (IntegerField, TENANT-04).
+- **Gestão de Acessos:** Pastor ou Secretário concede; ver fluxo em `ACCESS_MATRIX §3.2.1`.
+
+**Travas de segurança obrigatórias (viram requisito — `RISK-015`):**
+1. Secretário **não** concede/atribui o papel `pastor` nem desativa um Pastor (só Pastor cria/derruba Pastor).
+2. **Ninguém** altera os próprios papéis (sem auto-escalonamento).
+3. Concessão escopada ao tenant (`church`) e **auditada** (`AuditLog` + `SecurityLog` `role_change`).
+4. RN-004 (último Pastor) permanece.
+5. **MFA do Secretário** passa a ser exigido na Sprint 7 (junto com Pastor/PlatformAdmin).
+
+**Impacto na implementação:** afeta `ScopedToCommunityMixin`/`ScopedToMinistryMixin` (lookup `leaders__user_id`/`coordinators__user_id`), models de Community/Ministry (M2M), e replaneja a Frente 3 da Sprint 3 (Comunidades M2M → Ministérios M2M → Gestão de Acessos → CSV/fecho).
+
+---
+
 ## Histórico — decisões fechadas
 
 | ID | Decisão | Data | Resultado |

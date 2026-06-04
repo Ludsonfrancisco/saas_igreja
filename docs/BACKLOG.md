@@ -63,7 +63,7 @@ Backlog inicial do MVP. Cada requisito funcional (`RF-XXX`) do PRD vira uma **is
 | RF-017 | Sessão segura: cookies `Secure`, `HttpOnly`, `SameSite=Lax` em produção | Sistema | accounts | P0 | `test_session_cookies_flags` | RISK-002 |
 | RF-018a | MFA opt-in (TOTP): setup via `django-allauth` com QR code e 8 backup codes de uso único | Qualquer usuário com login | accounts | P0 | `test_mfa_totp_opt_in_setup_and_login` | RISK-013 |
 | RF-020 | Listar usuários da igreja: email, roles, status, último login | Pastor | accounts | P0 | `test_list_users_scoped_by_church` | RISK-001 |
-| RF-021 | Alterar roles de usuário: gera `AuditLog` + `SecurityLog`; não permite remover último Pastor (RN-004) | Pastor | accounts | P0 | `test_role_change_audited` | RISK-004 |
+| RF-021 | Alterar roles / Gestão de Acessos: concede funções (multi-role) + escopo de grupo; `AuditLog`+`SecurityLog`; **travas OD-019:** Secretário não concede `pastor` nem desativa Pastor, sem auto-escalonamento, RN-004 | Pastor, Secretário | accounts | P0 | `test_role_change_audited`, `test_secretary_cannot_grant_pastor` | RISK-004/015 |
 | RF-022 | Desativar acesso: `is_active=False`; bloqueia login; preserva histórico | Pastor | accounts | P0 | `test_deactivate_blocks_login` | RISK-002 |
 | RF-023 | Reativar acesso: reverso de RF-022; gera `AuditLog` | Pastor | accounts | P1 | `test_reactivate_user` | — |
 
@@ -85,11 +85,11 @@ Backlog inicial do MVP. Cada requisito funcional (`RF-XXX`) do PRD vira uma **is
 | RF-033 | Importar pessoas via CSV: assíncrono (Celery); idempotente por `import_id` | Pastor | people | P1 | `test_csv_import_idempotent` | — |
 | RF-034 | Anonimizar pessoa: substitui PII; soft delete imediato; purge físico semanal (Celery Beat) | Pastor | people | P0 | `test_anonymize_lgpd` | RISK-005/011 |
 | RF-035 | Exportar dados de pessoa: JSON + CSV; gera `AuditLog` com `action=export` | Pastor | people | P0 | `test_export_person_data` | RISK-005 |
-| RF-040 | Criar comunidade: só se `has_communities=True`; respeita `plan.max_communities` | Pastor | communities | P0 | `test_community_respects_plan_limit` | — |
-| RF-041 | Editar comunidade: nome, líder, dia/hora; gera `AuditLog` | Pastor, Líder | communities | P0 | `test_community_update_audited` | RISK-004 |
-| RF-042 | Vincular pessoa a comunidade: `Person.community` FK `on_delete=SET_NULL` (RN-007) | Pastor, Líder | communities | P0 | `test_person_community_set_null` | — |
-| RF-050 | Criar ministério: nome obrigatório; coordinator opcional | Pastor | ministries | P0 | `test_ministry_create` | — |
-| RF-051 | Vincular pessoas a ministério: M2M `Person.ministries` | Pastor, Coordenador | ministries | P0 | `test_ministry_m2m` | — |
+| RF-040 | Criar comunidade: só se `has_communities=True`; respeita `plan.max_communities` | Pastor, Secretário | communities | P0 | `test_community_respects_plan_limit` | — |
+| RF-041 | Editar comunidade: nome, **líderes (M2M, 1+, OD-019)**, dia/hora; gera `AuditLog` | Pastor, Secretário, Líder | communities | P0 | `test_community_update_audited` | RISK-004 |
+| RF-042 | Vincular pessoa a comunidade: `Person.community` FK `on_delete=SET_NULL` (RN-007) | Pastor, Secretário, Líder | communities | P0 | `test_person_community_set_null` | — |
+| RF-050 | Criar ministério: nome obrigatório; **coordenadores (M2M, 0+, OD-019)** opcionais | Pastor, Secretário | ministries | P0 | `test_ministry_create` | — |
+| RF-051 | Vincular pessoas a ministério: M2M `Person.ministries` | Pastor, Secretário, Coordenador | ministries | P0 | `test_ministry_m2m` | — |
 
 ---
 

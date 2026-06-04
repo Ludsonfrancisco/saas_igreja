@@ -46,12 +46,13 @@
 | Vazamento cross-tenant | A2 | `TenantRequiredMixin` em toda view; schema-per-tenant; 404 (nunca 403 com dado) | `test_tenant_isolation_matrix` |
 | IDOR via manipulação de URL | A1/A2 | Queryset sempre filtrado por tenant; permissões em 3 camadas (P-ARQ-08) | `test_permissions_matrix`, `test_*_returns_404` |
 | Escalonamento de privilégio | A3 | Verificação `has_any_role(...)` em view + service + queryset; sem confiar no menu | `test_permissions_matrix` |
+| **Escalonamento via Gestão de Acessos (RISK-015)** | A3 | Secretário **não** concede o papel `pastor` nem desativa um Pastor; **ninguém altera os próprios papéis**; concessão escopada ao tenant e auditada (`role_change`); RN-004 (último Pastor); MFA do Secretário na Sprint 7 (OD-019) | `test_secretary_cannot_grant_pastor`, `test_no_self_role_escalation`, `test_permissions_matrix` |
 | Upload malicioso (XSS/RCE) | A4 | Validação de MIME via `python-magic`; SVG proibido; ≤10MB; PDF/PNG/JPG (RN-012) | `test_upload_validates_mime_via_magic`, `test_upload_rejects_svg` |
 | Download não autorizado de arquivo | A1/A2 | View autenticada + permissão por tenant/papel; URL assinada TTL 60s; sem link público | `test_download_requires_permission`, `test_no_permanent_public_url` |
 | Abuso de Platform Admin | A5 | `SupportAccess` (janela 4h) obrigatório; `PlatformAdminWithSupportAccessMixin`; MFA obrigatório; toda ação auditada | `test_platform_admin_blocked_without_support_access` |
 | Vazamento de PII em telemetria | A6 | Sentry `before_send` sanitiza email/telefone; logs sem PII desnecessária; tag `tenant_id` | `test_sentry_no_pii` |
 | Sequestro de sessão / CSRF | A1 | Cookies `Secure`/`HttpOnly`/`SameSite`; HSTS, CSP, X-Frame; CSRF nativo do Django | `test_security_headers_present`, `test_session_cookies_flags` |
-| Roubo de credenciais de conta crítica | A1 | MFA TOTP opt-in (Sprint 2) → obrigatório para `pastor`/`PlatformAdmin` (Sprint 7) | `test_mfa_enforced_for_pastor_role` |
+| Roubo de credenciais de conta crítica | A1 | MFA TOTP opt-in (Sprint 2) → obrigatório para `pastor`/**`secretary`**/`PlatformAdmin` (Sprint 7; secretary incluído por OD-019) | `test_mfa_enforced_for_pastor_role` |
 | Exposição de secrets | A6 | `python-decouple` + env vars; `.env` no `.gitignore`; sem secret no compose (AP-12) | Revisão de código + `pip-audit` |
 | Comprometimento de backup | A6 | R2 com criptografia em trânsito/repouso; bucket privado; restore testado (RTO 4h/RPO 24h) | Teste mensal de restore (`RESTORE.md`) |
 

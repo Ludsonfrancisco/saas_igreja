@@ -154,6 +154,7 @@ Há aproximadamente 400 mil igrejas no Brasil. A maioria, na faixa de 50 a 2.000
 - Dores: dados sensíveis em planilhas compartilhadas, sem auditoria.
 - Objetivos: cadastrar pessoas com consentimento, anexar PDFs (declarações, atestados), saber quem alterou o quê.
 - Critério de adoção: formulários enxutos, auditoria visível, upload simples de PDF.
+- **Papel no MVP (OD-019, 2026-06-04):** `User.Role.SECRETARY` — admin da igreja SEM financeiro. Cadastra/edita pessoas, comunidades, ministérios e escalas, e **concede acessos (com teto)** junto com o Pastor. NÃO faz financeiro (Tesoureiro) nem ações irreversíveis de LGPD (anonimizar/exportar/excluir = só Pastor).
 
 ### 6.5 Persona 5 — Tesoureiro (futuro, fora do MVP profundo)
 
@@ -197,12 +198,12 @@ Há aproximadamente 400 mil igrejas no Brasil. A maioria, na faixa de 50 a 2.000
 | Multi-tenancy | `Church(TenantMixin)`, `Domain`, `TenantMiddleware`, schema-per-tenant, subdomínio resolve tenant |
 | Autenticação | Login por email via `django-allauth`, sem username; password policy; account lockout via `django-axes` |
 | Convites | Model `Invite` (token UUID, expiração, papel, igreja, convidado por, aceito em) |
-| Papéis e permissões backend | `User.Role` (`PASTOR`, `LEADER`, `TREASURER`, `MEMBER`); mixins customizados por papel; permissões aplicadas em views/services/querysets |
+| Papéis e permissões backend | `User.Role` (`PASTOR`, `SECRETARY`, `LEADER`, `TREASURER`, `MEMBER`); mixins customizados por papel; permissões aplicadas em views/services/querysets |
 | Auditoria | `AuditLog` no schema do tenant; eventos: create, read sensível, update, delete, export, anonymize |
 | SecurityLog | Log separado para eventos de segurança (login falho, lockout, mudança de papel, exportação de dados pessoais) |
 | Pessoas | CRUD, status (`VISITOR`, `CONGREGANT`, `MEMBER`, `LEADER`, `INACTIVE`), consentimento LGPD, anonimização, exportação |
-| Comunidades | CRUD condicional a `has_communities=True`; vínculo Pessoa → Comunidade |
-| Ministérios | CRUD; M2M Pessoa ↔ Ministério |
+| Comunidades | CRUD condicional a `has_communities=True`; vínculo Pessoa → Comunidade; **vários líderes por comunidade** (`Community.leaders` M2M, OD-019) |
+| Ministérios | CRUD; M2M Pessoa ↔ Ministério; **vários coordenadores por ministério** (`Ministry.coordinators` M2M, OD-019) |
 | Encontros e Cultos | CRUD de `Gathering` com tipos `WORSHIP`, `COMMUNITY`, `EVENT`, `MEETING` |
 | Presença | Marcação em lote via checkbox por Pessoa; `update_or_create` para evitar duplicação |
 | Escalas e voluntários (versão básica) | CRUD de `Schedule` por ministério, vínculo a `Gathering`, detecção e bloqueio de conflito, aprovação de exceção por coordenador |
@@ -344,7 +345,7 @@ ID `RF-XXX` · Título · Descrição · Ator · Prioridade (P0/P1/P2) · Módul
 | ID | Título | Ator | Prio | Módulo | Critério de aceite | Teste | Sprint |
 |---|---|---|---|---|---|---|---|
 | RF-020 | Listar usuários da igreja | Pastor/Admin | P0 | Accounts | Lista usuários com email, papel, status, último login | `test_list_users_scoped_by_church` | 2 |
-| RF-021 | Alterar papel de usuário | Pastor/Admin | P0 | Accounts | Mudança gera `AuditLog` e `SecurityLog`; não permite remover último Pastor | `test_role_change_audited` | 2 |
+| RF-021 | Alterar papel de usuário / Gestão de Acessos | Pastor, Secretário | P0 | Accounts | Concede funções (multi-role) + escopo de grupo; gera `AuditLog`+`SecurityLog`; **travas OD-019/RISK-015:** Secretário não concede `pastor` nem desativa Pastor, ninguém auto-escalona, RN-004 (último Pastor) | `test_role_change_audited`, `test_secretary_cannot_grant_pastor` | 2 |
 | RF-022 | Desativar acesso | Pastor/Admin | P0 | Accounts | Marca `is_active=False`; usuário não consegue mais logar; preserva histórico | `test_deactivate_blocks_login` | 2 |
 | RF-023 | Reativar acesso | Pastor/Admin | P1 | Accounts | Reverso de RF-022; gera `AuditLog` | `test_reactivate_user` | 2 |
 
@@ -363,16 +364,16 @@ ID `RF-XXX` · Título · Descrição · Ator · Prioridade (P0/P1/P2) · Módul
 
 | ID | Título | Ator | Prio | Módulo | Critério de aceite | Teste | Sprint |
 |---|---|---|---|---|---|---|---|
-| RF-040 | Criar comunidade | Pastor/Admin | P0 | Communities | Só disponível se `has_communities=True`; respeita `max_communities` do plano | `test_community_respects_plan_limit` | 3 |
-| RF-041 | Editar comunidade | Pastor/Admin, Líder | P0 | Communities | Atualiza nome, líder, dia/hora; gera `AuditLog` | `test_community_update_audited` | 3 |
-| RF-042 | Vincular pessoa a comunidade | Pastor, Líder | P0 | Communities | Person.community = Community; `on_delete=SET_NULL` | `test_person_community_set_null` | 3 |
+| RF-040 | Criar comunidade | Pastor, Secretário | P0 | Communities | Só disponível se `has_communities=True`; respeita `max_communities` do plano | `test_community_respects_plan_limit` | 3 |
+| RF-041 | Editar comunidade | Pastor, Secretário, Líder (sua) | P0 | Communities | Atualiza nome, **líderes (M2M, 1+)**, dia/hora; gera `AuditLog` | `test_community_update_audited` | 3 |
+| RF-042 | Vincular pessoa a comunidade | Pastor, Secretário, Líder (sua) | P0 | Communities | Person.community = Community; `on_delete=SET_NULL` | `test_person_community_set_null` | 3 |
 
 ### 11.6 Ministérios
 
 | ID | Título | Ator | Prio | Módulo | Critério de aceite | Teste | Sprint |
 |---|---|---|---|---|---|---|---|
-| RF-050 | Criar ministério | Pastor/Admin | P0 | Ministries | Nome obrigatório; coordinator opcional | `test_ministry_create` | 3 |
-| RF-051 | Vincular pessoas a ministério | Pastor, Coordenador | P0 | Ministries | M2M `Person.ministries` | `test_ministry_m2m` | 3 |
+| RF-050 | Criar ministério | Pastor, Secretário | P0 | Ministries | Nome obrigatório; **coordenadores (M2M, 0+)** opcionais | `test_ministry_create` | 3 |
+| RF-051 | Vincular pessoas a ministério | Pastor, Secretário, Coordenador (seu) | P0 | Ministries | M2M `Person.ministries` | `test_ministry_m2m` | 3 |
 
 ### 11.7 Encontros e Presença
 
@@ -1275,6 +1276,7 @@ gantt
 | RISK-012 | Sentry vazando PII | Médio | Média | **Média** | `before_send` sanitiza email/telefone; tags `tenant_id` | `test_sentry_no_pii` | 7 |
 | RISK-013 | MFA não obrigatório para perfis críticos antes de produção pública | Alto | Baixa (com plano) | **Média** | OD-002 fechada: opt-in disponível na Sprint 2; enforcement obrigatório via middleware na Sprint 7 para `pastor` e `PlatformAdmin` | `test_mfa_enforced_for_pastor_role`, `test_mfa_enforced_for_platform_admin` | 2 + 7 |
 | RISK-014 | VPS subdimensionado com 10+ igrejas | Médio | Média | **Média** | VPS 8GB desde início; Sentry para monitorar; plano de escala para 16GB ou banco gerenciado | Monitoramento Sentry + CPU/RAM | 7 |
+| RISK-015 | Escalonamento de privilégio via Gestão de Acessos | Alto (segurança) | Baixa (com travas) | **Média** | OD-019: Secretário não concede `pastor` nem desativa Pastor; sem auto-escalonamento; concessão escopada ao tenant e auditada (`role_change`); RN-004; MFA do Secretário na Sprint 7 | `test_secretary_cannot_grant_pastor`, `test_no_self_role_escalation` | 3 + 7 |
 
 ### 27.1 Gates de segurança
 

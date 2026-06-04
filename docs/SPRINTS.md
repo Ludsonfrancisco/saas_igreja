@@ -302,7 +302,8 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 #### Comunidades
 
 - [x] (P0) Criar `apps/communities/models.py` com `Community` → Frente 1 (leader FK `SET_NULL`, reverse `community.members`)
-- [ ] (P0) CRUD CBV com mixins (`PastorRequiredMixin` ou `LeaderOrPastorMixin` + `ScopedToCommunityMixin`)
+- [ ] (P0) **OD-019:** migrar `Community.leader` (FK) → `Community.leaders` (**M2M**, vários líderes por comunidade); ajustar `ScopedToCommunityMixin` p/ `leaders__user_id`
+- [ ] (P0) CRUD CBV com mixins (`PastorRequiredMixin`/`LeaderOrPastorMixin` + `ScopedToCommunityMixin`); Criar/Excluir=Pastor+Secretário; Listar=Pastor+Secretário+Líder; Detalhe/Editar=Líder escopado; **definir líderes (M2M, 1+)**
 - [ ] (P0) Esconder menu/criação quando `Church.has_communities=False`
 - [ ] (P0) Service verifica `church.plan.max_communities` antes de criar
 - [ ] (P0) `apps/communities/signals.py` com `AuditLog`
@@ -311,9 +312,17 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 #### Ministérios
 
 - [x] (P0) Criar `apps/ministries/models.py` com `Ministry` → Frente 1 (coordinator FK `SET_NULL`, M2M reverse `ministry.members`)
+- [ ] (P0) **OD-019:** migrar `Ministry.coordinator` (FK) → `Ministry.coordinators` (**M2M**); ajustar `ScopedToMinistryMixin` p/ `coordinators__user_id`
 - [ ] (P0) CRUD CBV com mixins
 - [ ] (P0) `apps/ministries/signals.py` com `AuditLog`
 - [ ] (P0) M2M Pessoa ↔ Ministério via form
+
+#### Gestão de Acessos (OD-019 / RISK-015)
+
+- [ ] (P0) Adicionar `secretary` ao `User.Role` (admin sem financeiro)
+- [ ] (P0) Mixins de permissão p/ Secretário (admin sem financeiro nem ações irreversíveis); Secretário entra nas views de Pessoas/Comunidades/Ministérios/Usuários
+- [ ] (P0) Tela de **Gestão de Acessos** (Pastor+Secretário): concede funções (multi-role) + escopo de grupo (`Community.leaders`/`Ministry.coordinators`) a um membro; cria/liga `User` via convite; grava `Person.user_id`
+- [ ] (P0) **Travas (🔒):** Secretário não concede `pastor` nem desativa Pastor; ninguém auto-escalona; concessão escopada ao tenant + auditada (`role_change`); RN-004 intacta
 
 ### Testes mínimos da Sprint 3
 
@@ -332,6 +341,9 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [ ] (P0) `test_ministry_create`
 - [ ] (P0) `test_ministry_m2m_with_person`
 - [x] (P0) `test_leader_sees_only_own_community_persons` (escopo) → Frente 3 Bloco 1: vínculo `Person.user_id` (IntegerField, TENANT-04) + mixins de escopo corrigidos p/ `__user_id` (eram `__user__id`, FK proibida) + lookup configurável; PersonList/Detail/Update liberados p/ Líder escopado
+- [ ] (P0) `test_community_multiple_leaders` (M2M) e `test_ministry_multiple_coordinators`
+- [ ] (P0) `test_secretary_can_manage_but_not_finance_or_anonymize`
+- [ ] (P0) `test_secretary_cannot_grant_pastor` e `test_no_self_role_escalation` (travas OD-019/RISK-015)
 - [ ] (P0) `test_tenant_isolation_matrix` (atualizado para novas views)
 - [ ] (P0) `test_permissions_matrix` (atualizado para novas views)
 - [ ] (P1) `test_csv_import_idempotent`
@@ -530,7 +542,7 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 #### Hardening
 
 - [ ] (P0) Threat model formal (`docs/THREAT_MODEL.md`)
-- [ ] (P0) Implementar `MFARequiredForRoleMiddleware` que força MFA para usuários com `'pastor' in roles` e para `PlatformAdmin` (login sem MFA configurado → redireciona para setup; login com MFA configurado → exige TOTP)
+- [ ] (P0) Implementar `MFARequiredForRoleMiddleware` que força MFA para usuários com `'pastor' in roles`, `'secretary' in roles` (OD-019) e para `PlatformAdmin` (login sem MFA configurado → redireciona para setup; login com MFA configurado → exige TOTP)
 - [ ] (P0) Comunicar Pastors ativos sobre MFA obrigatório (gracias period de 7 dias se houver usuários existentes)
 - [ ] (P0) Configurar Sentry com `before_send` que sanitiza email/telefone
 - [ ] (P0) Configurar Sentry com tag `tenant_id` em todos os eventos
