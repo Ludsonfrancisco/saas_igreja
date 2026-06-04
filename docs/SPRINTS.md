@@ -224,8 +224,8 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### TenantAdminMixin
 
-- [ ] (P0) Criar `apps/core/admin.py` com `TenantAdminMixin` que proíbe acesso ao admin padrão em produção
-- [ ] (P0) Aplicar `TenantAdminMixin` em todos os `ModelAdmin`
+- [x] (P0) Criar `apps/core/admin.py` com `TenantAdminMixin` que proíbe acesso ao admin padrão em produção → mixin de `ModelAdmin`: em prod (`DEBUG=False`) `has_*_permission` retornam False (curto-circuito antes do super); em dev delega ao padrão. URLs do admin tampouco montadas no ROOT_URLCONF (já não roteável) — mixin é 2ª linha
+- [x] (P0) Aplicar `TenantAdminMixin` em todos os `ModelAdmin` → **vacuamente satisfeito**: nenhum `ModelAdmin` registrado na Sprint 2; mixin pronto como base obrigatória para os ModelAdmin da Sprint 3+
 
 ### Testes mínimos da Sprint 2
 
@@ -258,19 +258,19 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [x] (P0) `test_list_users_scoped_by_church`
 - [x] (P0) `test_auditlog_no_cross_schema_fk`
 - [x] (P0) `test_auditlog_scoped_by_tenant_id`
-- [ ] (P0) `test_tenant_isolation_matrix` (versão inicial nas views já existentes)
-- [ ] (P0) `test_permissions_matrix` (versão inicial para Pastor vs Leader vs Member)
+- [x] (P0) `test_tenant_isolation_matrix` (versão inicial nas views já existentes) → `apps/core/tests/test_tenant_isolation_matrix.py`: percorre views tenant-scoped existentes (usuários/convites) — login obrigatório, 404 no schema public, e Pastor de A não vê dados de B
+- [x] (P0) `test_permissions_matrix` (versão inicial para Pastor vs Leader vs Member) → `apps/core/tests/test_permissions_matrix.py`: parametrizado papel × view (Pastor 200 / Leader-Member 403 nas views só-Pastor; conta login-only libera todos)
 
 ### Critério de conclusão da Sprint 2
 
-- [ ] Bateria de testes de auth, convites, autorização, auditoria, MFA e SupportAccess passando
-- [ ] `pip-audit` e `safety check` sem CVEs
-- [ ] Cobertura de `accounts`, `core` e `tenants` ≥ 90%
-- [ ] Pastor consegue: convidar (com múltiplas roles), aceitar, listar, alterar roles, desativar usuário
-- [ ] Multi-role funcional (treasurer+leader testado)
-- [ ] MFA opt-in disponível e testado
-- [ ] Platform Admin bloqueado sem SupportAccess; com SupportAccess audita toda ação
-- [ ] Tentativas de força bruta bloqueadas e auditadas
+- [x] Bateria de testes de auth, convites, autorização, auditoria, MFA e SupportAccess passando → suíte completa 155 verdes
+- [x] `pip-audit` e `safety check` sem CVEs → ambos limpos (112 pacotes; safety `check` deprecado, migrar p/ `safety scan` no CI da Sprint 7)
+- [x] Cobertura de `accounts`, `core` e `tenants` ≥ 90% → agregada 98%
+- [x] Pastor consegue: convidar (com múltiplas roles), aceitar, listar, alterar roles, desativar usuário
+- [x] Multi-role funcional (treasurer+leader testado)
+- [x] MFA opt-in disponível e testado
+- [x] Platform Admin bloqueado sem SupportAccess; com SupportAccess audita toda ação
+- [x] Tentativas de força bruta bloqueadas e auditadas
 
 ---
 
