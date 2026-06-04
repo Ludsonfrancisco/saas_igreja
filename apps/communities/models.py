@@ -7,11 +7,14 @@ RN-007). Pessoas vinculam-se via `Person.community` (reverse: `community.members
 
 from django.db import models
 
-from apps.core.models import BaseModel
+from apps.core.models import AuditLogMixin, BaseModel
 
 
-class Community(BaseModel):
-    """Comunidade. Ativa apenas se `Church.has_communities=True`."""
+class Community(BaseModel, AuditLogMixin):
+    """Comunidade. Ativa apenas se `Church.has_communities=True`.
+
+    Herda `AuditLogMixin`: create/update/delete auditados automaticamente (core).
+    """
 
     name = models.CharField(max_length=80)
     leader = models.ForeignKey(

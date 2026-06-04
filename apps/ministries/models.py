@@ -7,11 +7,14 @@ apaga o ministério, RN-007). Pessoas participam via o M2M `Person.ministries`
 
 from django.db import models
 
-from apps.core.models import BaseModel
+from apps.core.models import AuditLogMixin, BaseModel
 
 
-class Ministry(BaseModel):
-    """Ministério ou departamento."""
+class Ministry(BaseModel, AuditLogMixin):
+    """Ministério ou departamento.
+
+    Herda `AuditLogMixin`: create/update/delete auditados automaticamente (core).
+    """
 
     name = models.CharField(max_length=80)
     coordinator = models.ForeignKey(

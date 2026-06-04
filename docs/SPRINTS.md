@@ -286,12 +286,12 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 #### Pessoas
 
 - [x] (P0) Criar `apps/people/models.py` com `Person` (status TextChoices, `consent_given_at`) → Frente 1: + `anonymized_at` (necessário p/ o purge de 30 dias, RN-006) + M2M `ministries`; `email`/`phone` mantêm `null=True` (TECH_SPEC §5.4, `# noqa: DJ001`)
-- [ ] (P0) Criar `apps/people/services.py` com `create_person` (verifica plano e consent)
-- [ ] (P0) Criar `apps/people/services.py` com `update_person`, `change_status`
-- [ ] (P0) Criar `apps/people/services.py` com `anonymize_person` (soft delete + substitui PII)
-- [ ] (P0) Criar `apps/people/services.py` com `export_person_data` (JSON + CSV)
+- [x] (P0) Criar `apps/people/services.py` com `create_person` (verifica plano e consent) → Frente 2 Bloco 1: consent (RN-005) + limite via `Plan.PLAN_LIMITS[church.plan]` (conta só ativo)
+- [x] (P0) Criar `apps/people/services.py` com `update_person`, `change_status` → Frente 2 Bloco 1 (update revalida consent; whitelist de campos)
+- [x] (P0) Criar `apps/people/services.py` com `anonymize_person` (soft delete + substitui PII) → Frente 2 Bloco 1: idempotente, marca `anonymized_at`, desvincula comunidade/ministérios, SecurityLog `person_anonymized` sem PII
+- [x] (P0) Criar `apps/people/services.py` com `export_person_data` (JSON + CSV) → Frente 2 Bloco 1: AuditLog `export` + SecurityLog `person_exported`
 - [ ] (P0) Criar Celery Beat job semanal `purge_anonymized_persons` (purge físico após 30 dias)
-- [ ] (P0) Criar `apps/people/signals.py` com `AuditLog` em create/update/delete/export/anonymize
+- [x] (P0) Criar `apps/people/signals.py` com `AuditLog` em create/update/delete/export/anonymize → Frente 2 Bloco 1: **decisão** — em vez de signals.py por app, Person/Community/Ministry herdam `AuditLogMixin` (signals centralizados do core, 1º uso real) → create/update/delete automáticos (inclui o delete do purge). export = `record_audit` explícito (sem escrita no banco); anonymize = AuditLog(update) automático + SecurityLog
 - [ ] (P0) CRUD CBV: `PersonListView`, `PersonDetailView`, `PersonCreateView`, `PersonUpdateView` com mixins
 - [ ] (P0) Form de Pessoa com `consent_given_at` obrigatório quando email/telefone preenchidos
 - [ ] (P0) Filtros (status, comunidade, ministério) e busca por nome em `PersonListView`
@@ -317,12 +317,12 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 ### Testes mínimos da Sprint 3
 
-- [ ] (P0) `test_person_create_requires_consent_when_email_or_phone`
-- [ ] (P0) `test_person_create_respects_plan_max_persons`
-- [ ] (P0) `test_anonymize_person_replaces_pii_and_sets_inactive`
-- [ ] (P0) `test_anonymize_person_audited`
-- [ ] (P0) `test_export_person_data_returns_json_and_csv`
-- [ ] (P0) `test_export_person_data_audited`
+- [x] (P0) `test_person_create_requires_consent_when_email_or_phone`
+- [x] (P0) `test_person_create_respects_plan_max_persons`
+- [x] (P0) `test_anonymize_person_replaces_pii_and_sets_inactive`
+- [x] (P0) `test_anonymize_person_audited`
+- [x] (P0) `test_export_person_data_returns_json_and_csv`
+- [x] (P0) `test_export_person_data_audited`
 - [ ] (P0) `test_person_fk_set_null_after_anonymize`
 - [ ] (P1) `test_celery_beat_purge_after_30_days`
 - [ ] (P0) `test_person_actions_audited` (create, update, delete)

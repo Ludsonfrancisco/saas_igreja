@@ -19,11 +19,22 @@ LGPD:
 
 from django.db import models
 
-from apps.core.models import BaseModel
+from apps.core.models import AuditLogMixin, BaseModel
 
 
-class Person(BaseModel):
-    """Pessoa vinculada à igreja. LGPD-aware (TECH_SPEC §5.4)."""
+class Person(BaseModel, AuditLogMixin):
+    """Pessoa vinculada à igreja. LGPD-aware (TECH_SPEC §5.4).
+
+    Herda `AuditLogMixin`: create/update/delete são auditados automaticamente
+    pelos signals centralizados do core (P-ARQ-06) — inclusive o `delete` do purge
+    físico (RN-006). Os services NÃO chamam `record_audit` para essas três ações
+    (evita auditoria dupla); apenas as ações LGPD especiais `export`/`anonymize`
+    emitem `SecurityLog` explícito.
+
+    Ordem das bases `(BaseModel, AuditLogMixin)` (e não o inverso do docstring do
+    mixin) é DELIBERADA: preserva o `Meta.ordering` do BaseModel; o `isinstance`
+    dos receivers de auditoria continua valendo (mixin está no MRO).
+    """
 
     class Status(models.TextChoices):
         VISITOR = 'visitor', 'Visitante'
