@@ -1,8 +1,9 @@
 """Ministério/departamento — model do TENANT (TECH_SPEC §5.5).
 
-O `coordinator` é uma `Person` (FK `SET_NULL`: anonimizar/remover a pessoa não
-apaga o ministério, RN-007). Pessoas participam via o M2M `Person.ministries`
-(reverse: `ministry.members`).
+Os `coordinators` são `Person` (M2M, OD-019 — vários coordenadores por ministério).
+Apagar/anonimizar uma Pessoa-coordenadora só remove o vínculo M2M (o ministério
+permanece, RN-007). Pessoas participam via o M2M `Person.ministries` (reverse:
+`ministry.members`). O escopo de papel resolve por `coordinators__user_id`.
 """
 
 from django.db import models
@@ -17,10 +18,9 @@ class Ministry(BaseModel, AuditLogMixin):
     """
 
     name = models.CharField(max_length=80)
-    coordinator = models.ForeignKey(
+    # OD-019: M2M (não FK) — vários coordenadores por ministério.
+    coordinators = models.ManyToManyField(
         'people.Person',
-        on_delete=models.SET_NULL,
-        null=True,
         blank=True,
         related_name='ministries_led',
     )

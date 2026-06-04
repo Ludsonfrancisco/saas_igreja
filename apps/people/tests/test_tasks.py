@@ -58,11 +58,12 @@ def test_purge_audits_delete(church_a):
 
 @pytest.mark.django_db(transaction=True)
 def test_person_fk_set_null_after_anonymize(church_a):
-    """Após anonimizar + purgar: FK `SET_NULL` e vínculo M2M removido (RN-007).
+    """Após anonimizar + purgar a Person, os vínculos para ela são limpos (RN-007).
 
-    O purge deleta a Person; quem aponta para ela é preservado: `Ministry.coordinator`
-    (FK) vira NULL e o vínculo `Community.leaders` (M2M, OD-019) some — comunidade e
-    ministério permanecem.
+    Com OD-019, liderança/coordenação são M2M (`Community.leaders`/
+    `Ministry.coordinators`): deletar a Person remove esses vínculos, mas a
+    comunidade e o ministério PERMANECEM. (FKs `SET_NULL` propriamente ditas para
+    Person chegam com Attendance/Schedule nas Sprints 4/5.)
     """
     from apps.ministries.models import Ministry
 
@@ -70,7 +71,8 @@ def test_person_fk_set_null_after_anonymize(church_a):
         person = Person.objects.create(name='Lider')
         community = Community.objects.create(name='Celula')
         community.leaders.add(person)
-        ministry = Ministry.objects.create(name='Louvor', coordinator=person)
+        ministry = Ministry.objects.create(name='Louvor')
+        ministry.coordinators.add(person)
         services.anonymize_person(person=person)
         # Recua o anonymized_at para cair na janela de purge.
         Person.objects.filter(pk=person.pk).update(
@@ -80,9 +82,8 @@ def test_person_fk_set_null_after_anonymize(church_a):
     purge_anonymized_persons()
 
     with schema_context(church_a.schema_name):
-        community.refresh_from_db()
-        ministry.refresh_from_db()
         assert not Person.objects.filter(pk=person.pk).exists()
-        assert ministry.coordinator is None  # FK SET_NULL
         assert community.leaders.count() == 0  # vínculo M2M removido
+        assert ministry.coordinators.count() == 0  # vínculo M2M removido
         assert Community.objects.filter(pk=community.pk).exists()
+        assert Ministry.objects.filter(pk=ministry.pk).exists()

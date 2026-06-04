@@ -118,11 +118,11 @@ class ScopedToMinistryMixin:
 
     Espelha `ScopedToCommunityMixin`. Vinculo por `Person.user_id` (TENANT-04 →
     `__user_id`). Lookup configuravel via `ministry_scope_lookup`: numa queryset de
-    `Ministry` e `coordinator__user_id` (default); numa de `Person`, a view usa
-    `ministries__coordinator__user_id`.
+    `Ministry` e `coordinators__user_id` (default; M2M OD-019); numa de `Person`, a
+    view usa `ministries__coordinators__user_id`.
     """
 
-    ministry_scope_lookup = 'coordinator__user_id'
+    ministry_scope_lookup = 'coordinators__user_id'
 
     def get_queryset(self):
         qs = super().get_queryset()

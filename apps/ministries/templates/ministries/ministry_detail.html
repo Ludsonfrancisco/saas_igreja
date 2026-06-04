@@ -1,0 +1,26 @@
+{% comment %}Detalhe de Ministério (Frente 3 / Bloco 3). Markup mínimo pt-BR.{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>{{ ministry.name }}</title></head>
+<body>
+  <h1>{{ ministry.name }}</h1>
+
+  {% if messages %}
+    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  <dl>
+    <dt>Coordenadores</dt>
+    <dd>{% for c in ministry.coordinators.all %}{{ c.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</dd>
+    <dt>Ativo</dt><dd>{{ ministry.is_active|yesno:'Sim,Não' }}</dd>
+    <dt>Membros</dt>
+    <dd>{% for member in ministry.members.all %}{{ member.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</dd>
+  </dl>
+
+  <p>
+    <a href="{% url 'ministries:update' pk=ministry.pk %}">Editar</a> ·
+    <a href="{% url 'ministries:delete' pk=ministry.pk %}">Excluir</a> ·
+    <a href="{% url 'ministries:list' %}">Voltar</a>
+  </p>
+</body>
+</html>

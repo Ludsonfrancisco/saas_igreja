@@ -312,10 +312,10 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 #### Ministérios
 
 - [x] (P0) Criar `apps/ministries/models.py` com `Ministry` → Frente 1 (coordinator FK `SET_NULL`, M2M reverse `ministry.members`)
-- [ ] (P0) **OD-019:** migrar `Ministry.coordinator` (FK) → `Ministry.coordinators` (**M2M**); ajustar `ScopedToMinistryMixin` p/ `coordinators__user_id`
-- [ ] (P0) CRUD CBV com mixins
-- [ ] (P0) `apps/ministries/signals.py` com `AuditLog`
-- [ ] (P0) M2M Pessoa ↔ Ministério via form
+- [x] (P0) **OD-019:** migrar `Ministry.coordinator` (FK) → `Ministry.coordinators` (**M2M**); ajustar `ScopedToMinistryMixin` p/ `coordinators__user_id` → Bloco 3 (migração ministries/0003)
+- [x] (P0) CRUD CBV com mixins → Bloco 3: List/Detail=Pastor+Líder; Editar=Coordenador escopado; Criar/Excluir=Pastor; definir coordenadores (M2M) só Pastor
+- [x] (P0) `apps/ministries/signals.py` com `AuditLog` → via `AuditLogMixin` (Frente 1)
+- [x] (P0) M2M Pessoa ↔ Ministério via form → `PersonForm.ministries` (Frente 2); ministry detail lista `members`
 
 #### Gestão de Acessos (OD-019 / RISK-015)
 
@@ -338,10 +338,10 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [ ] (P0) `test_community_respects_plan_limit`
 - [ ] (P0) `test_community_hidden_when_has_communities_false`
 - [ ] (P0) `test_community_update_audited`
-- [ ] (P0) `test_ministry_create`
-- [ ] (P0) `test_ministry_m2m_with_person`
+- [x] (P0) `test_ministry_create` → Bloco 3 (test_ministry_str/create_via_view)
+- [x] (P0) `test_ministry_m2m_with_person` → coberto por `test_person_ministries_m2m` (Frente 1) + ministry.members
 - [x] (P0) `test_leader_sees_only_own_community_persons` (escopo) → Frente 3 Bloco 1: vínculo `Person.user_id` (IntegerField, TENANT-04) + mixins de escopo corrigidos p/ `__user_id` (eram `__user__id`, FK proibida) + lookup configurável; PersonList/Detail/Update liberados p/ Líder escopado
-- [x] (P0) `test_community_multiple_leaders` (M2M) e [ ] `test_ministry_multiple_coordinators` (Ministérios) → Bloco 2 cobre o de comunidade
+- [x] (P0) `test_community_multiple_leaders` (Bloco 2) e `test_ministry_multiple_coordinators` (Bloco 3) — ambos M2M (OD-019)
 - [ ] (P0) `test_secretary_can_manage_but_not_finance_or_anonymize`
 - [ ] (P0) `test_secretary_cannot_grant_pastor` e `test_no_self_role_escalation` (travas OD-019/RISK-015)
 - [ ] (P0) `test_tenant_isolation_matrix` (atualizado para novas views)

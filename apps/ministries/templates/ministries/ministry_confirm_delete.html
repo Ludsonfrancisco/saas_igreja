@@ -1,0 +1,14 @@
+{% comment %}Confirmação de exclusão de Ministério (Frente 3 / Bloco 3). CSRF.{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Excluir ministério</title></head>
+<body>
+  <h1>Excluir {{ ministry.name }}?</h1>
+  <p>Esta ação não pode ser desfeita. As pessoas vinculadas são preservadas (o vínculo é removido).</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Excluir definitivamente</button>
+  </form>
+  <p><a href="{% url 'ministries:detail' pk=ministry.pk %}">Cancelar</a></p>
+</body>
+</html>

@@ -26,6 +26,8 @@ urlpatterns: list[path] = [
     path('', include('apps.people.urls')),
     # App communities: CRUD de Comunidades sob `comunidades/` (namespace 'communities').
     path('', include('apps.communities.urls')),
+    # App ministries: CRUD de Ministérios sob `ministerios/` (namespace 'ministries').
+    path('', include('apps.ministries.urls')),
     # Fluxos de autenticacao do allauth (login, logout, reset/confirm de senha)
     # sob prefixo pt-BR. O cadastro publico esta fechado (AccountAdapter), mas a
     # rota de signup ainda e incluida pelo allauth — ela responde fechada.

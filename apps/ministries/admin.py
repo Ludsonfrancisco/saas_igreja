@@ -8,6 +8,8 @@ from apps.ministries.models import Ministry
 
 @admin.register(Ministry)
 class MinistryAdmin(TenantAdminMixin, admin.ModelAdmin):
-    list_display = ('name', 'coordinator', 'is_active')
+    # `coordinators` é M2M (OD-019) — fora do list_display; vai no filter_horizontal.
+    list_display = ('name', 'is_active')
     list_filter = ('is_active',)
     search_fields = ('name',)
+    filter_horizontal = ('coordinators',)

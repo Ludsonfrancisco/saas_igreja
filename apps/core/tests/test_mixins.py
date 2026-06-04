@@ -180,5 +180,5 @@ def test_scoped_to_ministry_pastor_short_circuits():
 
 def test_scoped_to_ministry_non_pastor_filters_by_coordinator():
     inst = _scoped_instance(ScopedToMinistryMixin, ['leader'])
-    # TENANT-04: lookup por `coordinator__user_id` (não-FK).
-    assert inst.get_queryset().filters == {'coordinator__user_id': 7}
+    # TENANT-04 + OD-019 (M2M): lookup por `coordinators__user_id`.
+    assert inst.get_queryset().filters == {'coordinators__user_id': 7}
