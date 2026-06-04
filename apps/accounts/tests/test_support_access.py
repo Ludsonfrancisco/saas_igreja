@@ -23,6 +23,7 @@ PII: nenhum dado real — emails sinteticos `@a.com`, justification de ticket.
 """
 
 import pytest
+from allauth.mfa.models import Authenticator
 from django.core.exceptions import ValidationError
 from django.db import connection
 from django.test import Client
@@ -53,10 +54,26 @@ def _make_user(church, email, roles):
     )
 
 
-def _make_platform_admin(email='admin@plataforma.com', is_active=True):
-    """Cria um User (publico, sem church) + seu PlatformAdmin."""
+def _enable_mfa(user):
+    """Da MFA TOTP ao user (satisfaz o gate §215). O gate so checa EXISTENCIA de
+    um Authenticator TOTP, entao um registro minimo basta (Authenticator vive no
+    schema public, junto com User — TENANT-04)."""
+    Authenticator.objects.create(
+        user=user, type=Authenticator.Type.TOTP, data={'secret': 'x'}
+    )
+
+
+def _make_platform_admin(email='admin@plataforma.com', is_active=True, with_mfa=True):
+    """Cria um User (publico, sem church) + seu PlatformAdmin.
+
+    `with_mfa=True` por padrao: um PlatformAdmin real precisa de MFA (gate §215),
+    entao a maioria dos testes o quer com MFA ativo. Os testes do proprio gate
+    passam `with_mfa=False` para exercitar o bloqueio.
+    """
     user = User.objects.create_user(email=email, password=GOOD_PASSWORD)
     admin = PlatformAdmin.objects.create(user=user, is_active=is_active)
+    if with_mfa:
+        _enable_mfa(user)
     return user, admin
 
 
@@ -140,6 +157,35 @@ def test_grant_support_access_rejects_empty_justification(church_a):
         grant_support_access(admin=admin, church=church_a, justification='   ')
 
     assert SupportAccess.objects.count() == 0
+
+
+# --- 2b. Gate §215: admin sem MFA nao concede acesso (RISK-009) -------------
+
+
+@pytest.mark.django_db(transaction=True)
+def test_grant_support_access_blocked_when_admin_has_no_mfa(church_a):
+    """Gate §215: PlatformAdmin SEM MFA TOTP -> ValidationError, nada criado."""
+    _user, admin = _make_platform_admin(with_mfa=False)
+
+    with pytest.raises(ValidationError):
+        grant_support_access(admin=admin, church=church_a, justification='Ticket')
+
+    assert SupportAccess.objects.count() == 0
+    # E o gate bloqueia ANTES de qualquer log de concessao.
+    assert _security_logs(church_a, event_type='support_access_granted') == []
+
+
+@pytest.mark.django_db(transaction=True)
+def test_grant_support_access_allowed_when_admin_has_mfa(church_a):
+    """Gate §215: PlatformAdmin COM MFA TOTP concede normalmente."""
+    _user, admin = _make_platform_admin(with_mfa=True)
+
+    support_access = grant_support_access(
+        admin=admin, church=church_a, justification='Ticket'
+    )
+
+    assert support_access.is_active is True
+    assert SupportAccess.objects.count() == 1
 
 
 # --- 3. Middleware: acesso expirado nao conta como vigente ------------------

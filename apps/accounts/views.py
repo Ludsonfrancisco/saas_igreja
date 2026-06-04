@@ -14,13 +14,14 @@ minimo pt-BR.
 """
 
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.db import connection
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import FormView, ListView
+from django.views.generic import FormView, ListView, TemplateView
 from django_tenants.utils import get_public_schema_name
 
 from apps.accounts import services
@@ -267,3 +268,32 @@ class SupportAccessRevokeView(PlatformAdminRequiredMixin, View):
         services.revoke_support_access(support_access=support_access)
         messages.success(request, 'Acesso de suporte revogado.')
         return redirect('accounts:support_access_list')
+
+
+# --- Conta do usuario: seguranca / MFA opt-in (Frente 6 — RF-018a) ----------
+#
+# Ponto de entrada pt-BR na conta para o MFA. O fluxo real (ativar TOTP com QR,
+# ver/regerar recovery codes, desativar) usa as views NATIVAS do allauth.mfa
+# (`mfa_index` e filhas, sob /contas/2fa/) — aqui so expomos o status e o CTA.
+
+
+class AccountSecurityView(LoginRequiredMixin, TemplateView):
+    """Pagina 'Seguranca da conta': status do MFA + atalho para a gerencia.
+
+    Disponivel a QUALQUER usuario autenticado (MFA e opt-in nesta sprint),
+    inclusive PlatformAdmin no schema public — por isso `LoginRequiredMixin` e
+    NAO `TenantRequiredMixin`. O enforcement obrigatorio (pastor/PlatformAdmin) e
+    Sprint 7.
+    """
+
+    template_name = 'accounts/account_security.html'
+
+    def get_context_data(self, **kwargs):
+        from allauth.mfa.models import Authenticator
+        from allauth.mfa.utils import is_mfa_enabled
+
+        context = super().get_context_data(**kwargs)
+        context['mfa_enabled'] = is_mfa_enabled(
+            self.request.user, [Authenticator.Type.TOTP]
+        )
+        return context

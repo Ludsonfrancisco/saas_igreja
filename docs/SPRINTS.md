@@ -182,10 +182,10 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### MFA opt-in (decisão OD-002)
 
-- [ ] (P0) Habilitar `django-allauth` MFA TOTP (opt-in) — fluxo de setup com QR code
-- [ ] (P0) Gerar backup codes (8 códigos de uso único)
-- [ ] (P0) View de gerenciamento de MFA na conta do usuário (ativar, desativar, regerar backup codes)
-- [ ] (P0) Templates seguindo design system
+- [x] (P0) Habilitar `django-allauth` MFA TOTP (opt-in) — fluxo de setup com QR code → `allauth.mfa` em SHARED_APPS (Authenticator referencia User público, TENANT-04); `MFA_SUPPORTED_TYPES=['totp','recovery_codes']` (sem WebAuthn); telas NATIVAS do allauth sob `contas/2fa/`. Dep `django-allauth[mfa]` (qrcode+fido2)
+- [x] (P0) Gerar backup codes (8 códigos de uso único) → `MFA_RECOVERY_CODE_COUNT=8` (default allauth é 10); single-use nativo (`test_mfa_backup_codes_single_use`)
+- [x] (P0) View de gerenciamento de MFA na conta do usuário (ativar, desativar, regerar backup codes) → ponto de entrada pt-BR `AccountSecurityView` em `contas/seguranca/` (status + CTA) levando às telas nativas do allauth.mfa
+- [ ] (P0) Templates seguindo design system → **adiado** (styling Athos consolidado na frente de frontend, como o resto da Sprint 2); telas nativas/markup mínimo por ora
 
 #### Convites
 
@@ -212,14 +212,14 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [x] (P0) Middleware/dispatch bloqueia Platform Admin em tenant sem `SupportAccess` ativo → `PlatformAdminSupportMiddleware` (após AuditContextMiddleware); 403 com body fixo
 - [x] (P0) Toda request de Platform Admin durante `SupportAccess` ativo gera `SecurityLog` (event_type=`platform_admin_access`) → middleware loga denied=True/False por request
 - [x] (P0) View de admin de plataforma para conceder e revogar `SupportAccess` → `SupportAccessList/Grant/Revoke` sob `plataforma/suporte/`; `GrantSupportAccessForm`; templates pt-BR mínimos
-- [ ] (P0) `PlatformAdmin` exige MFA habilitado para conceder `SupportAccess` (gate de segurança) → **ADIADO p/ Frente 6** (decisão do dono / Opção A): MFA (allauth.mfa) só existe na Frente 6; sem fluxo de setup o gate sempre bloquearia. Deixado como `# TODO(Frente 6)` em `grant_support_access`. Nasce junto com o MFA
+- [x] (P0) `PlatformAdmin` exige MFA habilitado para conceder `SupportAccess` (gate de segurança) → **LIGADO na Frente 6**: `grant_support_access` chama `is_mfa_enabled(admin.user, [TOTP])`; sem MFA → `ValidationError` (nada criado), surfacado no form. Só na CONCESSÃO (enforcement amplo por uso é Sprint 7). Testes `test_grant_support_access_blocked_when_admin_has_no_mfa`/`..._allowed_when_admin_has_mfa`
 
 #### Auditoria e SecurityLog
 
 - [x] (P0) Criar `apps/core/models.py` com `AuditLog` (tenant_id CharField, user_id IntegerField, sem FK cross-schema) → migrado só p/ schemas de tenant (§5.9.1; ausente do public)
 - [x] (P0) Criar `apps/core/models.py` com `SecurityLog` (event_type, payload JSON, ip_address)
 - [x] (P0) Implementar `AuditLogMixin` para signals automáticos em `post_save`/`post_delete` → mixin abstrato + `signals.py` (ready()) + `AuditContextMiddleware` (thread-local user/IP) + helpers `record_audit`/`log_security_event` em `apps/core/audit.py`
-- [ ] (P0) Disparar `SecurityLog` em: login success/failure, lockout, password reset, role change, user deactivated/reactivated, mfa_enabled, mfa_disabled, support_access_granted, support_access_revoked, platform_admin_access → helper `log_security_event` pronto; **disparo dos eventos nas Frentes 2 (auth/lockout/reset/role), 5 (support_access/platform_admin) e 6 (mfa)**
+- [x] (P0) Disparar `SecurityLog` em: login success/failure, lockout, password reset, role change, user deactivated/reactivated, mfa_enabled, mfa_disabled, support_access_granted, support_access_revoked, platform_admin_access → completo: Frentes 2 (auth/lockout/reset/role), 5 (support_access/platform_admin) e 6 (mfa_enabled/mfa_disabled via signals nativos `authenticator_added`/`removed` do allauth.mfa, só TOTP)
 - [x] (P0) Configurar Sentry com `before_send` que sanitiza PII → `apps/core/sentry.py` + init guardado por `SENTRY_DSN` em `base.py` (`send_default_pii=False`)
 
 #### TenantAdminMixin
@@ -248,8 +248,8 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [x] (P0) `test_user_multi_role_union_of_permissions` (treasurer+leader tem ambos)
 - [x] (P0) `test_has_any_role_and_has_all_roles`
 - [x] (P0) `test_cannot_remove_last_pastor` (validação considera multi-role)
-- [ ] (P0) `test_mfa_totp_opt_in_setup_and_login`
-- [ ] (P0) `test_mfa_backup_codes_single_use`
+- [x] (P0) `test_mfa_totp_opt_in_setup_and_login`
+- [x] (P0) `test_mfa_backup_codes_single_use`
 - [x] (P0) `test_platform_admin_blocked_without_support_access`
 - [x] (P0) `test_grant_support_access_creates_4h_window_and_security_log`
 - [x] (P0) `test_support_access_expired_auto_blocks`

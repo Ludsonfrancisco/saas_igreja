@@ -44,6 +44,11 @@ SHARED_APPS = [
     # TENANT_APPS. allauth.account.middleware.AccountMiddleware abaixo.
     'allauth',
     'allauth.account',
+    # allauth.mfa: MFA TOTP opt-in (RF-018a / OD-002 / PRD §15.4). O model
+    # Authenticator referencia o User PUBLICO (TENANT-04) -> SHARED_APPS, junto
+    # com allauth.account. Traz suas proprias migracoes (migrate_schemas
+    # --shared). Enforcement obrigatorio p/ pastor/PlatformAdmin e Sprint 7.
+    'allauth.mfa',
     # axes: account lockout / brute force (SEC-02). O lockout e contra o User
     # publico (login por email), entao seus models (AccessAttempt/AccessLog)
     # tambem vivem no public -> SHARED_APPS.
@@ -240,6 +245,18 @@ AUTH_PASSWORD_VALIDATORS = [
 # Token de reset de senha expira em 24h (PRD §15.1). Valor em SEGUNDOS; aplica-se
 # ao token de reset do Django/allauth (default Django e 3 dias).
 PASSWORD_RESET_TIMEOUT = 86400
+
+# --- MFA opt-in (allauth.mfa / RF-018a / OD-002 / PRD §15.4) ---
+# Sprint 2: qualquer usuario pode habilitar MFA TOTP na propria conta. O
+# enforcement obrigatorio (pastor/PlatformAdmin) e Sprint 7 (RF-018b).
+#
+# So TOTP + recovery codes no MVP (sem WebAuthn). Os recovery codes sao os "8
+# backup codes de uso unico" do SPRINTS §186 — single-use ja e nativo; aqui so
+# fixamos a contagem em 8 (default do allauth e 10).
+MFA_SUPPORTED_TYPES = ['totp', 'recovery_codes']
+MFA_RECOVERY_CODE_COUNT = 8
+# Emissor exibido no app autenticador (rotulo do QR code).
+MFA_TOTP_ISSUER = 'SaaS Igreja'
 
 # --- Internacionalizacao (interface 100% pt-BR) ---
 LANGUAGE_CODE = 'pt-br'

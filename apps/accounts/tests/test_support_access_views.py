@@ -14,6 +14,7 @@ o tenant `public` + seu Domain `localhost` precisam existir. As fixtures
 """
 
 import pytest
+from allauth.mfa.models import Authenticator
 from django.db import connection
 from django.test import Client
 from django_tenants.utils import schema_context
@@ -53,9 +54,15 @@ def _make_user(email, roles=None, church=None):
     )
 
 
-def _make_platform_admin(email='admin@plataforma.com', is_active=True):
+def _make_platform_admin(email='admin@plataforma.com', is_active=True, with_mfa=True):
+    """PlatformAdmin com MFA TOTP por padrao (gate §215). O gate so checa
+    existencia de um Authenticator TOTP; um registro minimo basta."""
     user = _make_user(email)
     admin = PlatformAdmin.objects.create(user=user, is_active=is_active)
+    if with_mfa:
+        Authenticator.objects.create(
+            user=user, type=Authenticator.Type.TOTP, data={'secret': 'x'}
+        )
     return user, admin
 
 

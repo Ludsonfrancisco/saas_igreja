@@ -21,6 +21,7 @@ Dois grupos de rotas convivem aqui:
 from django.urls import path
 
 from apps.accounts.views import (
+    AccountSecurityView,
     InviteAcceptView,
     InviteCancelView,
     InviteCreateView,
@@ -69,6 +70,14 @@ urlpatterns = [
         'plataforma/suporte/<int:pk>/revogar/',
         SupportAccessRevokeView.as_view(),
         name='support_access_revoke',
+    ),
+    # Conta do usuario (prefixo `contas/`): seguranca / MFA opt-in. Qualquer
+    # usuario autenticado (LoginRequiredMixin) — entrada pt-BR para as telas
+    # nativas do allauth.mfa sob `contas/2fa/`.
+    path(
+        'contas/seguranca/',
+        AccountSecurityView.as_view(),
+        name='account_security',
     ),
     # Publica (prefixo `contas/`): aceite de convite.
     path(

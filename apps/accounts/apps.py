@@ -13,6 +13,7 @@ class AccountsConfig(AppConfig):
         dispatch_uid para evitar conexao dupla em reload/autoreload.
         """
         from allauth.account.signals import password_reset
+        from allauth.mfa.signals import authenticator_added, authenticator_removed
         from axes.signals import user_locked_out
         from django.contrib.auth.signals import user_logged_in, user_login_failed
 
@@ -33,4 +34,12 @@ class AccountsConfig(AppConfig):
         password_reset.connect(
             signals.on_password_reset,
             dispatch_uid='accounts.on_password_reset',
+        )
+        authenticator_added.connect(
+            signals.on_authenticator_added,
+            dispatch_uid='accounts.on_authenticator_added',
+        )
+        authenticator_removed.connect(
+            signals.on_authenticator_removed,
+            dispatch_uid='accounts.on_authenticator_removed',
         )

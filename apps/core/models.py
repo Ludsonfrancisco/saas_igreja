@@ -80,6 +80,8 @@ class SecurityLog(models.Model):
         ('role_change', 'Mudanca de papel'),
         ('user_deactivated', 'Usuario desativado'),
         ('user_reactivated', 'Usuario reativado'),
+        ('mfa_enabled', 'MFA ativado'),
+        ('mfa_disabled', 'MFA desativado'),
         ('person_exported', 'Pessoa exportada'),
         ('person_anonymized', 'Pessoa anonimizada'),
         ('platform_admin_access', 'Acesso de Platform Admin'),

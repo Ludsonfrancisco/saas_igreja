@@ -10,6 +10,8 @@ Mapeamento evento -> signal:
   - login_failure            <- django.contrib.auth.signals.user_login_failed
   - lockout                  <- axes.signals.user_locked_out
   - password_reset_completed <- allauth.account.signals.password_reset
+  - mfa_enabled               <- allauth.mfa.signals.authenticator_added (TOTP)
+  - mfa_disabled              <- allauth.mfa.signals.authenticator_removed (TOTP)
   - password_reset_requested -> NAO aqui: e disparado no AccountAdapter
     (`send_password_reset_mail`), pois o allauth nao emite signal de "reset
     solicitado". Ver apps/accounts/adapter.py.
@@ -74,4 +76,44 @@ def on_password_reset(sender, request, user, **kwargs):
         event_type='password_reset_completed',
         user_id=getattr(user, 'id', None),
         payload={'channel': 'email'},
+    )
+
+
+def on_authenticator_added(sender, request, user, authenticator, **kwargs):
+    """SecurityLog 'mfa_enabled' quando o usuario ativa TOTP (allauth.mfa).
+
+    So o TOTP conta como "MFA ativado". O allauth dispara este mesmo signal para
+    os recovery codes auto-gerados JUNTO da ativacao do TOTP — sao acessorios do
+    fator, nao um novo fator, entao os ignoramos aqui para nao duplicar o evento.
+
+    Caso PlatformAdmin (RN-015): ele ativa MFA na area de plataforma (schema
+    public), onde NAO existe SecurityLog. A guarda de schema public do
+    `log_security_event` faz isso virar no-op naturalmente — a auditoria do MFA
+    do admin e uma lacuna conhecida, endereçada na Sprint 7 (decisao do dono).
+    """
+    from allauth.mfa.models import Authenticator
+
+    if authenticator.type != Authenticator.Type.TOTP:
+        return
+    log_security_event(
+        event_type='mfa_enabled',
+        user_id=getattr(user, 'id', None),
+        payload={'method': 'totp'},
+    )
+
+
+def on_authenticator_removed(sender, request, user, authenticator, **kwargs):
+    """SecurityLog 'mfa_disabled' quando o usuario desativa TOTP (allauth.mfa).
+
+    Espelha `on_authenticator_added`: so o TOTP conta (recovery codes removidos
+    em cascata sao ignorados). Mesma guarda de schema public para o PlatformAdmin.
+    """
+    from allauth.mfa.models import Authenticator
+
+    if authenticator.type != Authenticator.Type.TOTP:
+        return
+    log_security_event(
+        event_type='mfa_disabled',
+        user_id=getattr(user, 'id', None),
+        payload={'method': 'totp'},
     )

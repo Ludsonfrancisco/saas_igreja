@@ -358,14 +358,29 @@ def grant_support_access(*, admin, church, justification):
     service cria o registro com `expires_at = now + 4h` e audita a concessao no
     SecurityLog DA IGREJA-ALVO (schema do tenant), via `schema_context`.
 
-    Validacao: `justification` nao pode ser vazia (ticket/motivo obrigatorio) —
-    senao `ValidationError`. Retorna o `SupportAccess` criado.
+    Gate §215: o admin precisa ter MFA TOTP ativo na propria conta; senao
+    `ValidationError` (nada e criado). Validacao: `justification` nao pode ser
+    vazia (ticket/motivo obrigatorio) — senao `ValidationError`. Retorna o
+    `SupportAccess` criado.
 
     Retenção/trilha: o evento `support_access_granted` vive no SecurityLog do
     tenant; a `justification` fica SO no model (fora do log — pode conter PII de
     ticket, TENANT-07).
     """
-    # TODO(Frente 6): exigir MFA do admin antes de conceder (RISK-009/§215).
+    # Gate §215 (RISK-009): o PlatformAdmin so concede SupportAccess se ele
+    # proprio tiver MFA TOTP ativo. `is_mfa_enabled` consulta o Authenticator
+    # (model SHARED, no public) do usuario do admin; grant roda no public, entao o
+    # acesso e direto, sem `schema_context`. O enforcement AMPLO (exigir MFA em
+    # cada USO do acesso, via middleware) e Sprint 7 — aqui e so na concessao.
+    from allauth.mfa.models import Authenticator
+    from allauth.mfa.utils import is_mfa_enabled
+
+    if not is_mfa_enabled(admin.user, [Authenticator.Type.TOTP]):
+        raise ValidationError(
+            'Ative a verificacao em duas etapas (MFA) na sua conta antes de '
+            'conceder acesso de suporte.'
+        )
+
     if not justification or not justification.strip():
         raise ValidationError(
             'Justificativa e obrigatoria para conceder acesso de suporte.'
