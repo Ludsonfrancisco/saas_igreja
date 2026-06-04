@@ -1,10 +1,10 @@
-"""Views de Pessoa — CRUD tenant-scoped (Frente 2 / Bloco 2).
+"""Views de Pessoa — CRUD tenant-scoped (ACCESS_MATRIX §3.3).
 
-Escopo deste bloco: capacidades de **Pastor** (ACCESS_MATRIX §3.3 — listar todas,
-ver detalhe, criar, editar). As ações destrutivas/LGPD (anonimizar, exportar) vêm
-no Bloco 3; o acesso ESCOPADO de Líder/Coordenador (ver só a própria comunidade/
-ministério) vem na Frente 3, junto com `Community` e o vínculo Person↔User que ele
-exige (ACCESS_MATRIX §43) — por isso aqui tudo é `PastorRequiredMixin`.
+Papéis (Frente 3 Bloco 1): Listar/Ver/Editar são `LeaderOrPastorMixin` +
+`ScopedToCommunityMixin` — Pastor vê tudo, Líder só as pessoas da(s) comunidade(s)
+que lidera (lookup `community__leaders__user_id`, M2M OD-019). Criar e as ações
+LGPD (anonimizar/exportar) seguem `PastorRequiredMixin`. (Secretário entra no
+bloco de Gestão de Acessos.)
 
 Toda mutação passa pelo SERVICE (`apps.people.services`), nunca por `form.save()`:
 é lá que vivem as barreiras de consentimento (OPS-05) e limite de plano (OPS-04).
@@ -40,7 +40,7 @@ class PersonListView(
     sua comunidade (ACCESS_MATRIX §3.3).
 
     O escopo de papel vem do `ScopedToCommunityMixin` (`super().get_queryset()`):
-    para Pessoa, o lookup é `community__leader__user_id` (a pessoa pertence a uma
+    para Pessoa, o lookup é `community__leaders__user_id` (a pessoa pertence a uma
     comunidade cujo líder é o user logado). Pastor curto-circuita e vê tudo.
     Exclui anonimizadas; filtros `status`/`community`/`ministry`; busca `q`.
     """
@@ -49,7 +49,7 @@ class PersonListView(
     template_name = 'people/person_list.html'
     context_object_name = 'persons'
     paginate_by = 25
-    community_scope_lookup = 'community__leader__user_id'
+    community_scope_lookup = 'community__leaders__user_id'
 
     def get_queryset(self):
         qs = (
@@ -87,7 +87,7 @@ class PersonDetailView(
     model = Person
     template_name = 'people/person_detail.html'
     context_object_name = 'person'
-    community_scope_lookup = 'community__leader__user_id'
+    community_scope_lookup = 'community__leaders__user_id'
 
 
 class PersonCreateView(TenantRequiredMixin, PastorRequiredMixin, FormView):
@@ -135,7 +135,7 @@ class PersonUpdateView(
     model = Person
     form_class = PersonForm
     template_name = 'people/person_form.html'
-    community_scope_lookup = 'community__leader__user_id'
+    community_scope_lookup = 'community__leaders__user_id'
 
     def get_success_url(self):
         return reverse_lazy('people:detail', kwargs={'pk': self.object.pk})

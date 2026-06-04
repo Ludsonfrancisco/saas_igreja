@@ -168,9 +168,9 @@ def test_scoped_to_community_pastor_short_circuits():
 def test_scoped_to_community_non_pastor_filters_by_leader():
     inst = _scoped_instance(ScopedToCommunityMixin, ['leader'])
     qs = inst.get_queryset()
-    # TENANT-04: o staff Person guarda `user_id` (IntegerField, não-FK) -> lookup
-    # `leader__user_id` (e NÃO `leader__user__id`). Default configurável.
-    assert qs.filters == {'leader__user_id': 7}
+    # TENANT-04 + OD-019 (M2M): o staff Person guarda `user_id` (IntegerField,
+    # não-FK) e a comunidade tem `leaders` (M2M) -> lookup `leaders__user_id`.
+    assert qs.filters == {'leaders__user_id': 7}
 
 
 def test_scoped_to_ministry_pastor_short_circuits():

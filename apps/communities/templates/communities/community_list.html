@@ -1,0 +1,31 @@
+{% comment %}Lista de Comunidades (Frente 3 / Bloco 2). Markup mínimo pt-BR.{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Comunidades</title></head>
+<body>
+  <h1>Comunidades</h1>
+
+  {% if messages %}
+    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  <p><a href="{% url 'communities:create' %}">Nova comunidade</a></p>
+
+  <table>
+    <thead><tr><th>Nome</th><th>Líderes</th><th>Ativa</th></tr></thead>
+    <tbody>
+      {% for community in communities %}
+        <tr>
+          <td><a href="{% url 'communities:detail' pk=community.pk %}">{{ community.name }}</a></td>
+          <td>
+            {% for leader in community.leaders.all %}{{ leader.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}
+          </td>
+          <td>{{ community.is_active|yesno:'Sim,Não' }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="3">Nenhuma comunidade cadastrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

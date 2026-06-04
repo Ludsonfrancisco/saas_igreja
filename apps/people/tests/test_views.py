@@ -69,7 +69,8 @@ def test_leader_sees_only_own_community_persons(tenant_client, church_a):
     with schema_context(church_a.schema_name):
         # Person-staff do líder, ligada ao User por user_id (TENANT-04).
         leader_person = Person.objects.create(name='Lider', user_id=leader_user.id)
-        my_community = Community.objects.create(name='Minha', leader=leader_person)
+        my_community = Community.objects.create(name='Minha')
+        my_community.leaders.add(leader_person)  # M2M (OD-019)
         other_community = Community.objects.create(name='Outra')
         Person.objects.create(name='Meu Membro', community=my_community)
         Person.objects.create(name='Outro Membro', community=other_community)

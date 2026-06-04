@@ -1,0 +1,28 @@
+{% comment %}Detalhe de Comunidade (Frente 3 / Bloco 2). Markup mínimo pt-BR.{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>{{ community.name }}</title></head>
+<body>
+  <h1>{{ community.name }}</h1>
+
+  {% if messages %}
+    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  <dl>
+    <dt>Líderes</dt>
+    <dd>{% for leader in community.leaders.all %}{{ leader.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</dd>
+    <dt>Dia de reunião</dt><dd>{{ community.meeting_day|default:'—' }}</dd>
+    <dt>Horário</dt><dd>{{ community.meeting_time|default:'—' }}</dd>
+    <dt>Ativa</dt><dd>{{ community.is_active|yesno:'Sim,Não' }}</dd>
+    <dt>Membros</dt>
+    <dd>{% for member in community.members.all %}{{ member.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</dd>
+  </dl>
+
+  <p>
+    <a href="{% url 'communities:update' pk=community.pk %}">Editar</a> ·
+    <a href="{% url 'communities:delete' pk=community.pk %}">Excluir</a> ·
+    <a href="{% url 'communities:list' %}">Voltar</a>
+  </p>
+</body>
+</html>

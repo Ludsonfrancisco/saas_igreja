@@ -100,11 +100,11 @@ class ScopedToCommunityMixin:
     `__user__id`).
 
     Lookup configuravel via `community_scope_lookup`: numa queryset de `Community`
-    e `leader__user_id` (default); numa de `Person` (membros), a view sobrescreve
-    para `community__leader__user_id`.
+    e `leaders__user_id` (default; M2M OD-019); numa de `Person` (membros), a view
+    sobrescreve para `community__leaders__user_id`.
     """
 
-    community_scope_lookup = 'leader__user_id'
+    community_scope_lookup = 'leaders__user_id'
 
     def get_queryset(self):
         qs = super().get_queryset()

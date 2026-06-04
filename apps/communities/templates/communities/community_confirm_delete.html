@@ -1,0 +1,14 @@
+{% comment %}Confirmação de exclusão de Comunidade (Frente 3 / Bloco 2). CSRF.{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Excluir comunidade</title></head>
+<body>
+  <h1>Excluir {{ community.name }}?</h1>
+  <p>Esta ação não pode ser desfeita. As pessoas vinculadas são preservadas (o vínculo é removido).</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Excluir definitivamente</button>
+  </form>
+  <p><a href="{% url 'communities:detail' pk=community.pk %}">Cancelar</a></p>
+</body>
+</html>

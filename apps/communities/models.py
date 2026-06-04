@@ -1,8 +1,10 @@
 """Comunidade (célula/grupo) — model do TENANT (TECH_SPEC §5.5).
 
-Só faz sentido quando `Church.has_communities=True` (igreja em células). O `leader`
-é uma `Person` (FK `SET_NULL`: anonimizar/remover a pessoa não apaga a comunidade,
-RN-007). Pessoas vinculam-se via `Person.community` (reverse: `community.members`).
+Só faz sentido quando `Church.has_communities=True` (igreja em células). Os
+`leaders` são `Person` (M2M, OD-019 — uma comunidade pode ter VÁRIOS líderes:
+casal de líderes, líder + auxiliar). Pessoas-membros vinculam-se via
+`Person.community` (reverse: `community.members`). O escopo de papel resolve por
+`Community.leaders` → `Person.user_id` (lookup `leaders__user_id`).
 """
 
 from django.db import models
@@ -17,10 +19,10 @@ class Community(BaseModel, AuditLogMixin):
     """
 
     name = models.CharField(max_length=80)
-    leader = models.ForeignKey(
+    # OD-019: M2M (não FK) — vários líderes por comunidade. Apagar/anonimizar uma
+    # Person-líder só remove o vínculo M2M (a comunidade permanece, RN-007).
+    leaders = models.ManyToManyField(
         'people.Person',
-        on_delete=models.SET_NULL,
-        null=True,
         blank=True,
         related_name='communities_led',
     )

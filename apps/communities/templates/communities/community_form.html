@@ -1,0 +1,16 @@
+{% comment %}Cadastro/edição de Comunidade (Frente 3 / Bloco 2). CSRF obrigatório.{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Comunidade</title></head>
+<body>
+  <h1>{% if form.instance.pk %}Editar comunidade{% else %}Nova comunidade{% endif %}</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Salvar</button>
+  </form>
+
+  <p><a href="{% url 'communities:list' %}">Voltar</a></p>
+</body>
+</html>
