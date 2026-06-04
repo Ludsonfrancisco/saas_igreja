@@ -67,3 +67,21 @@ class GrantSupportAccessForm(forms.Form):
 
     church = forms.ModelChoiceField(queryset=Church.objects.all(), label='Igreja')
     justification = forms.CharField(widget=forms.Textarea, label='Justificativa')
+
+
+class UserAccessForm(forms.Form):
+    """Gestão de Acessos (OD-019): funções (multi-role) + ativo/inativo de um usuário.
+
+    `forms.Form` explícito (AP-10). As barreiras efetivas (RN-004, travas RISK-015)
+    vivem no service layer (`change_roles`/`deactivate_user`); aqui só coletamos a
+    entrada. O `pastor` aparece nas opções, mas só um Pastor pode concedê-lo/removê-lo
+    — a trava no service rejeita um Secretário que tente.
+    """
+
+    roles = forms.MultipleChoiceField(
+        choices=User.Role.choices,
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label='Funções',
+    )
+    is_active = forms.BooleanField(required=False, label='Conta ativa')

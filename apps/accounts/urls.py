@@ -30,6 +30,7 @@ from apps.accounts.views import (
     SupportAccessGrantView,
     SupportAccessListView,
     SupportAccessRevokeView,
+    UserAccessView,
     UserListView,
 )
 
@@ -38,6 +39,11 @@ app_name = 'accounts'
 urlpatterns = [
     # Tenant-scoped (prefixo `configuracoes/`).
     path('configuracoes/usuarios/', UserListView.as_view(), name='user_list'),
+    path(
+        'configuracoes/usuarios/<int:pk>/acesso/',
+        UserAccessView.as_view(),
+        name='user_access',
+    ),
     path('configuracoes/convites/', InviteListView.as_view(), name='invite_list'),
     path(
         'configuracoes/convites/novo/',

@@ -321,7 +321,7 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 - [x] (P0) Adicionar `secretary` ao `User.Role` (admin sem financeiro) → Bloco 4a (migração accounts/0002)
 - [x] (P0) Mixins de permissão p/ Secretário → Bloco 4a: `PastorOrSecretaryMixin` (criar) + `LeaderOrPastorMixin` inclui secretary + `ScopedTo*` curto-circuitam Pastor/Secretário; anonimizar/exportar/excluir seguem só Pastor
-- [ ] (P0) Tela de **Gestão de Acessos** (Pastor+Secretário): concede funções (multi-role) + escopo de grupo (`Community.leaders`/`Ministry.coordinators`) a um membro; cria/liga `User` via convite; grava `Person.user_id`
+- [x] (P0) Tela de **Gestão de Acessos** (Pastor+Secretário): concede funções (multi-role) + escopo de grupo → Bloco 4b: `UserListView` (tela de acessos) + `UserAccessView`/`UserAccessForm` para funções+ativo (via `change_roles`/`deactivate_user` com `actor`, travas surfaçam no HTTP); escopo de grupo via telas de Comunidade/Ministério (Secretário acessa) + link; vínculo Person↔User via `PersonForm.linked_user` (Bloco 1)
 - [x] (P0) **Travas (🔒):** Secretário não concede `pastor` nem desativa Pastor; ninguém auto-escalona → Bloco 4a: implementadas em `change_roles`/`deactivate_user`; concessão auditada; RN-004 intacta
 
 ### Testes mínimos da Sprint 3

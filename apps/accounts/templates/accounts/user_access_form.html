@@ -1,0 +1,37 @@
+{% comment %}
+Gestão de Acessos (OD-019 / Bloco 4b). Concede funções (roles) + ativo/inativo de
+um usuário. Markup mínimo pt-BR; CSRF obrigatório. As travas (RISK-015) e a regra
+do último Pastor (RN-004) vivem no service — erros aparecem no form.
+
+O escopo de GRUPO (qual comunidade/ministério a pessoa lidera) é definido nas telas
+de Comunidade/Ministério ("definir líderes/coordenadores"), que o Secretário acessa.
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Gestão de acesso — {{ target.email }}</title></head>
+<body>
+  <h1>Acesso de {{ target.email }}</h1>
+
+  {% if messages %}
+    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  {% if form.non_field_errors %}
+    <ul>{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Salvar acesso</button>
+  </form>
+
+  <p>
+    Para definir <strong>de qual grupo</strong> esta pessoa é líder/coordenador,
+    use as telas de
+    <a href="{% url 'communities:list' %}">Comunidades</a> e
+    <a href="{% url 'ministries:list' %}">Ministérios</a>.
+  </p>
+  <p><a href="{% url 'accounts:user_list' %}">Voltar</a></p>
+</body>
+</html>

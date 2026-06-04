@@ -9,7 +9,12 @@ fica para a frente de frontend. Papeis exibidos como chips.
   <title>Usuarios</title>
 </head>
 <body>
-  <h1>Usuarios da igreja</h1>
+  <h1>Gestão de Acessos</h1>
+
+  {% if messages %}
+    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+  {% endif %}
+
   <ul>
     {% for u in users %}
       <li>
@@ -18,6 +23,7 @@ fica para a frente de frontend. Papeis exibidos como chips.
         {% for role in u.roles %}
           <span class="chip">{{ role }}</span>
         {% endfor %}
+        <a href="{% url 'accounts:user_access' pk=u.pk %}">Gerenciar acesso</a>
       </li>
     {% empty %}
       <li>Nenhum usuario cadastrado.</li>

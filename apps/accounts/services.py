@@ -94,10 +94,17 @@ def change_roles(*, user, new_roles, actor=None):
     # (1) ninguém altera os próprios papéis (sem auto-escalonamento);
     if actor is not None and actor.id == user.id:
         raise ValidationError('Voce nao pode alterar os proprios papeis.')
-    # (2) só um Pastor concede o papel `pastor` (Secretário não escala a Pastor).
-    granting_pastor = 'pastor' in new_roles and 'pastor' not in roles_before
-    if granting_pastor and actor is not None and not actor.has_any_role('pastor'):
-        raise ValidationError('Apenas um Pastor pode conceder o papel de Pastor.')
+    # (2) só um Pastor MEXE no papel `pastor` — conceder OU remover (Secretário não
+    # escala a Pastor nem demove um Pastor).
+    pastor_membership_changing = ('pastor' in new_roles) != ('pastor' in roles_before)
+    if (
+        pastor_membership_changing
+        and actor is not None
+        and not actor.has_any_role('pastor')
+    ):
+        raise ValidationError(
+            'Apenas um Pastor pode conceder ou remover o papel de Pastor.'
+        )
 
     removing_pastor = 'pastor' in roles_before and 'pastor' not in new_roles
     if removing_pastor and not _has_other_active_pastor(

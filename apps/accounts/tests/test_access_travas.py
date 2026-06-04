@@ -57,6 +57,20 @@ def test_no_self_role_escalation(church_a):
 
 
 @pytest.mark.django_db(transaction=True)
+def test_secretary_cannot_remove_pastor(church_a):
+    """Trava nos dois sentidos: Secretário também não DEMOVE um Pastor (Bloco 4b)."""
+    secretary = _user(church_a, 'sec@a.com', ['secretary'])
+    pastor = _user(church_a, 'pastor@a.com', ['pastor'])
+    _user(church_a, 'pastor2@a.com', ['pastor'])  # 2º pastor: RN-004 não é o bloqueio
+
+    with pytest.raises(ValidationError):
+        change_roles(user=pastor, new_roles=['member'], actor=secretary)
+
+    pastor.refresh_from_db()
+    assert 'pastor' in pastor.roles
+
+
+@pytest.mark.django_db(transaction=True)
 def test_secretary_cannot_deactivate_pastor(church_a):
     secretary = _user(church_a, 'sec@a.com', ['secretary'])
     pastor = _user(church_a, 'pastor@a.com', ['pastor'])

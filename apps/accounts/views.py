@@ -13,6 +13,8 @@ O styling Athos fica para a frente de frontend; os templates aqui sao markup
 minimo pt-BR.
 """
 
+from functools import cached_property
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
@@ -25,26 +27,31 @@ from django.views.generic import FormView, ListView, TemplateView
 from django_tenants.utils import get_public_schema_name
 
 from apps.accounts import services
-from apps.accounts.forms import AcceptInviteForm, GrantSupportAccessForm, InviteForm
+from apps.accounts.forms import (
+    AcceptInviteForm,
+    GrantSupportAccessForm,
+    InviteForm,
+    UserAccessForm,
+)
 from apps.accounts.models import Invite, SupportAccess, User
 from apps.core.mixins import (
+    PastorOrSecretaryMixin,
     PastorRequiredMixin,
     PlatformAdminRequiredMixin,
     TenantRequiredMixin,
 )
 
 
-class UserListView(TenantRequiredMixin, PastorRequiredMixin, ListView):
-    """Lista os usuarios da igreja atual. Apenas Pastor (RN-003a / RF-021).
+class UserListView(TenantRequiredMixin, PastorOrSecretaryMixin, ListView):
+    """Gestão de Acessos — lista os usuarios da igreja (RF-021 / OD-019).
 
-    Tres camadas de permissao (P-ARQ-08):
-    - view: TenantRequiredMixin (login + tenant) + PastorRequiredMixin (papel);
+    Pastor ou Secretário (OD-019). Tres camadas de permissao (P-ARQ-08):
+    - view: TenantRequiredMixin (login + tenant) + PastorOrSecretaryMixin (papel);
     - queryset: filtra explicitamente por `church=request.tenant` (escopo por
-      igreja — RISK-001, sem vazamento cross-tenant);
-    - User e model publico, mas o filtro de church garante o recorte do tenant.
+      igreja — RISK-001, sem vazamento cross-tenant).
 
-    `church` ja esta carregado via FK simples; nao ha relacao iterada no template
-    que dispare N+1 (P-ARQ-09).
+    Cada linha leva a `UserAccessView`, onde se concede funcoes (roles) e ativa/
+    desativa, com as travas (RISK-015) aplicadas no service layer.
     """
 
     model = User
@@ -53,6 +60,54 @@ class UserListView(TenantRequiredMixin, PastorRequiredMixin, ListView):
 
     def get_queryset(self):
         return User.objects.filter(church=self.request.tenant).order_by('email')
+
+
+class UserAccessView(TenantRequiredMixin, PastorOrSecretaryMixin, FormView):
+    """Concede funções (roles) e ativa/desativa um usuário da igreja (OD-019/RF-021).
+
+    Pastor ou Secretário. As TRAVAS (RISK-015) — Secretário não mexe no papel
+    `pastor` nem desativa Pastor; ninguém altera a própria conta; RN-004 — vivem em
+    `change_roles`/`deactivate_user` (chamados com `actor=request.user`); aqui só
+    surfaçamos o erro no form.
+
+    O `target` é carregado SEMPRE filtrado por `church=request.tenant` (escopo por
+    igreja — sem manipular usuário de outro tenant).
+    """
+
+    template_name = 'accounts/user_access_form.html'
+    form_class = UserAccessForm
+    success_url = reverse_lazy('accounts:user_list')
+
+    @cached_property
+    def target(self):
+        return get_object_or_404(User, pk=self.kwargs['pk'], church=self.request.tenant)
+
+    def get_initial(self):
+        return {'roles': list(self.target.roles), 'is_active': self.target.is_active}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['target'] = self.target
+        return context
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        try:
+            if set(data['roles']) != set(self.target.roles):
+                services.change_roles(
+                    user=self.target,
+                    new_roles=data['roles'],
+                    actor=self.request.user,
+                )
+            if data['is_active'] and not self.target.is_active:
+                services.reactivate_user(user=self.target, actor=self.request.user)
+            elif not data['is_active'] and self.target.is_active:
+                services.deactivate_user(user=self.target, actor=self.request.user)
+        except ValidationError as exc:
+            form.add_error(None, exc.messages[0])
+            return self.form_invalid(form)
+        messages.success(self.request, 'Acesso atualizado com sucesso.')
+        return super().form_valid(form)
 
 
 class InviteListView(TenantRequiredMixin, PastorRequiredMixin, ListView):
