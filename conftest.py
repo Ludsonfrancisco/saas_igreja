@@ -82,6 +82,22 @@ def church_b(db):
 
 
 @pytest.fixture
+def in_tenant_a(church_a):
+    """Executa o corpo do teste DENTRO do schema do tenant A.
+
+    Models de TENANT_APPS (Person/Community/Ministry/...) só existem no schema do
+    tenant; testes de ORM puro precisam operar lá. O `schema_context` aponta o
+    search_path para `tenant_a` durante o teste e o restaura para o public no fim.
+    Usar com `@pytest.mark.django_db(transaction=True)` (DDL de criar Church).
+    """
+    from django_tenants.utils import schema_context
+
+    with schema_context(church_a.schema_name):
+        yield church_a
+    connection.set_schema_to_public()
+
+
+@pytest.fixture
 def pastor_a(db, church_a):
     """Pastor do tenant A (User publico, FK simples para church_a)."""
     from apps.accounts.models import User

@@ -285,7 +285,7 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### Pessoas
 
-- [ ] (P0) Criar `apps/people/models.py` com `Person` (status TextChoices, `consent_given_at`)
+- [x] (P0) Criar `apps/people/models.py` com `Person` (status TextChoices, `consent_given_at`) → Frente 1: + `anonymized_at` (necessário p/ o purge de 30 dias, RN-006) + M2M `ministries`; `email`/`phone` mantêm `null=True` (TECH_SPEC §5.4, `# noqa: DJ001`)
 - [ ] (P0) Criar `apps/people/services.py` com `create_person` (verifica plano e consent)
 - [ ] (P0) Criar `apps/people/services.py` com `update_person`, `change_status`
 - [ ] (P0) Criar `apps/people/services.py` com `anonymize_person` (soft delete + substitui PII)
@@ -301,16 +301,16 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### Comunidades
 
-- [ ] (P0) Criar `apps/communities/models.py` com `Community`
+- [x] (P0) Criar `apps/communities/models.py` com `Community` → Frente 1 (leader FK `SET_NULL`, reverse `community.members`)
 - [ ] (P0) CRUD CBV com mixins (`PastorRequiredMixin` ou `LeaderOrPastorMixin` + `ScopedToCommunityMixin`)
 - [ ] (P0) Esconder menu/criação quando `Church.has_communities=False`
 - [ ] (P0) Service verifica `church.plan.max_communities` antes de criar
 - [ ] (P0) `apps/communities/signals.py` com `AuditLog`
-- [ ] (P0) Vincular Pessoa → Comunidade (FK `SET_NULL`)
+- [x] (P0) Vincular Pessoa → Comunidade (FK `SET_NULL`) → Frente 1: FK `Person.community` (`SET_NULL`) criada e testada; vínculo via form/UI é Frente 3
 
 #### Ministérios
 
-- [ ] (P0) Criar `apps/ministries/models.py` com `Ministry`
+- [x] (P0) Criar `apps/ministries/models.py` com `Ministry` → Frente 1 (coordinator FK `SET_NULL`, M2M reverse `ministry.members`)
 - [ ] (P0) CRUD CBV com mixins
 - [ ] (P0) `apps/ministries/signals.py` com `AuditLog`
 - [ ] (P0) M2M Pessoa ↔ Ministério via form
