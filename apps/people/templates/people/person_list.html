@@ -17,7 +17,10 @@ para a frente de frontend. Filtros via GET (status/comunidade/ministério) + bus
     </ul>
   {% endif %}
 
-  <p><a href="{% url 'people:create' %}">Cadastrar pessoa</a></p>
+  <p>
+    <a href="{% url 'people:create' %}">Cadastrar pessoa</a> ·
+    <a href="{% url 'people:import' %}">Importar CSV</a>
+  </p>
 
   <form method="get">
     <input type="text" name="q" value="{{ filters.q }}" placeholder="Buscar por nome">

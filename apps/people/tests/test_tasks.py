@@ -15,7 +15,13 @@ from apps.communities.models import Community
 from apps.core.models import AuditLog
 from apps.people import services
 from apps.people.models import Person
-from apps.people.tasks import purge_anonymized_persons
+from apps.people.tasks import import_persons_csv, purge_anonymized_persons
+
+_CSV = (
+    'name,email,phone,status,consent\n'
+    'Ana Lima,ana@a.com,,member,sim\n'
+    'Bruno Souza,,,visitor,\n'
+)
 
 
 @pytest.mark.django_db(transaction=True)
@@ -87,3 +93,60 @@ def test_person_fk_set_null_after_anonymize(church_a):
         assert ministry.coordinators.count() == 0  # vínculo M2M removido
         assert Community.objects.filter(pk=community.pk).exists()
         assert Ministry.objects.filter(pk=ministry.pk).exists()
+
+
+# --- Importação CSV (RF-033) ------------------------------------------------
+
+
+@pytest.mark.django_db(transaction=True)
+def test_csv_import_creates_persons(church_a):
+    result = import_persons_csv(church_a.schema_name, _CSV, 'lote-1')
+
+    assert result['created'] == 2
+    with schema_context(church_a.schema_name):
+        ana = Person.objects.get(name='Ana Lima')
+        assert ana.email == 'ana@a.com'
+        assert ana.consent_given_at is not None
+        assert ana.import_id == 'lote-1'
+        # Bruno sem contato → sem consent exigido.
+        assert Person.objects.get(name='Bruno Souza').consent_given_at is None
+
+
+@pytest.mark.django_db(transaction=True)
+def test_csv_import_idempotent(church_a):
+    """Re-rodar o mesmo import_id é no-op — não duplica (RF-033)."""
+    import_persons_csv(church_a.schema_name, _CSV, 'lote-1')
+    second = import_persons_csv(church_a.schema_name, _CSV, 'lote-1')
+
+    assert second['status'] == 'already_imported'
+    with schema_context(church_a.schema_name):
+        assert Person.objects.count() == 2
+
+
+@pytest.mark.django_db(transaction=True)
+def test_csv_import_enforces_consent(church_a):
+    """Linha com email/telefone SEM consent é pulada e reportada (OPS-05)."""
+    csv_no_consent = 'name,email,phone,status,consent\nCarlos,carlos@a.com,,member,\n'
+    result = import_persons_csv(church_a.schema_name, csv_no_consent, 'lote-2')
+
+    assert result['created'] == 0
+    assert len(result['errors']) == 1
+    assert result['errors'][0]['row'] == 2
+    with schema_context(church_a.schema_name):
+        assert not Person.objects.filter(name='Carlos').exists()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_csv_import_skips_empty_name_and_falls_back_status(church_a):
+    """Linha sem nome é pulada; status inválido cai para VISITOR."""
+    csv_mixed = (
+        'name,email,phone,status,consent\n'
+        ',,,member,\n'  # nome vazio -> pulado (linha 2)
+        'Joana,,,xpto,\n'  # status inválido -> VISITOR
+    )
+    result = import_persons_csv(church_a.schema_name, csv_mixed, 'lote-3')
+
+    assert result['created'] == 1
+    assert any(e['row'] == 2 for e in result['errors'])
+    with schema_context(church_a.schema_name):
+        assert Person.objects.get(name='Joana').status == Person.Status.VISITOR

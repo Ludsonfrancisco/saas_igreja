@@ -65,3 +65,22 @@ class PersonForm(forms.ModelForm):
                 'informado.'
             )
         return cleaned
+
+
+class PersonImportForm(forms.Form):
+    """Upload de CSV para importação de pessoas (RF-033).
+
+    Validação leve: extensão `.csv` + decodificação UTF-8 (na view). A validação de
+    MIME forte via python-magic fica para a app de arquivos (Sprint 6); aqui o
+    conteúdo é parseado linha a linha e erros são reportados.
+    """
+
+    file = forms.FileField(
+        label='Arquivo CSV (colunas: name, email, phone, status, consent)'
+    )
+
+    def clean_file(self):
+        upload = self.cleaned_data['file']
+        if not upload.name.lower().endswith('.csv'):
+            raise forms.ValidationError('Envie um arquivo .csv.')
+        return upload

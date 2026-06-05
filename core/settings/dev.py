@@ -20,6 +20,12 @@ ALLOWED_HOSTS = ['*']
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+# Tasks Celery rodam INLINE em dev/teste (sem worker): `.delay()` executa na hora.
+# Em prod há worker real (prod.py não liga eager). Vale p/ o import CSV (RF-033) e
+# o purge LGPD funcionarem em dev sem subir o Celery.
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True
+
 # --- Performance baseline (dev only) ---
 # nplusone nao tem models, entao nao ha migracao/tenant a considerar.
 INSTALLED_APPS = INSTALLED_APPS + [

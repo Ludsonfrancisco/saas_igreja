@@ -355,3 +355,43 @@ def test_secretary_manages_people_but_not_anonymize_or_export(tenant_client, chu
     assert tenant_client.get(CREATE_URL).status_code == 200
     assert tenant_client.get(f'/pessoas/{person.pk}/anonimizar/').status_code == 403
     assert tenant_client.get(f'/pessoas/{person.pk}/exportar/').status_code == 403
+
+
+@pytest.mark.django_db(transaction=True)
+def test_person_import_via_view(tenant_client, church_a):
+    """Upload de CSV (Pastor) dispara a task (eager em teste) e cria as pessoas."""
+    from django.core.files.uploadedfile import SimpleUploadedFile
+
+    pastor = _make_user(church_a, 'pastor@a.com', ['pastor'])
+    tenant_client.force_login(pastor)
+    upload = SimpleUploadedFile(
+        'pessoas.csv',
+        b'name,email,phone,status,consent\nDeise,,,member,\n',
+        content_type='text/csv',
+    )
+
+    resp = tenant_client.post('/pessoas/importar/', {'file': upload})
+    assert resp.status_code == 302
+    with schema_context(church_a.schema_name):
+        assert Person.objects.filter(name='Deise').exists()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_person_import_member_forbidden(tenant_client, church_a):
+    member = _make_user(church_a, 'membro@a.com', ['member'])
+    tenant_client.force_login(member)
+    assert tenant_client.get('/pessoas/importar/').status_code == 403
+
+
+@pytest.mark.django_db(transaction=True)
+def test_person_import_rejects_non_csv(tenant_client, church_a):
+    from django.core.files.uploadedfile import SimpleUploadedFile
+
+    pastor = _make_user(church_a, 'pastor@a.com', ['pastor'])
+    tenant_client.force_login(pastor)
+    upload = SimpleUploadedFile('dados.txt', b'qualquer', content_type='text/plain')
+
+    resp = tenant_client.post('/pessoas/importar/', {'file': upload})
+    assert resp.status_code == 200  # form rejeita (não é .csv)
+    with schema_context(church_a.schema_name):
+        assert Person.objects.count() == 0

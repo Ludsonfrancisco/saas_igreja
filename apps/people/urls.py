@@ -11,6 +11,7 @@ from apps.people.views import (
     PersonCreateView,
     PersonDetailView,
     PersonExportView,
+    PersonImportView,
     PersonListView,
     PersonUpdateView,
 )
@@ -20,6 +21,7 @@ app_name = 'people'
 urlpatterns = [
     path('pessoas/', PersonListView.as_view(), name='list'),
     path('pessoas/nova/', PersonCreateView.as_view(), name='create'),
+    path('pessoas/importar/', PersonImportView.as_view(), name='import'),
     path('pessoas/<int:pk>/', PersonDetailView.as_view(), name='detail'),
     path('pessoas/<int:pk>/editar/', PersonUpdateView.as_view(), name='update'),
     path(

@@ -82,6 +82,11 @@ class Person(BaseModel, AuditLogMixin):
     # Soft delete LGPD: setado por `anonymize_person` (Frente 2). Alimenta o purge
     # fisico semanal (RN-006). Indexado para a query do job (status + anonymized_at).
     anonymized_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    # Lote de importacao CSV (RF-033). Idempotencia: re-rodar o mesmo import_id e
+    # no-op. NULL para pessoas cadastradas manualmente.
+    import_id = models.CharField(  # noqa: DJ001
+        max_length=64, null=True, blank=True, db_index=True
+    )
     notes = models.TextField(blank=True, default='')
 
     def __str__(self):

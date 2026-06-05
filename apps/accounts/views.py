@@ -3,8 +3,9 @@
 Frente 3: listagem de usuarios da igreja. Frente 4: ciclo de vida de convites
 (criar, listar, reenviar, cancelar, aceitar).
 
-Toda view AUTENTICADA e tenant-scoped (TenantRequiredMixin) e restrita por papel
-(PastorRequiredMixin) — RN-003a / P-ARQ-08 / TENANT-05. A UNICA excecao e
+Toda view AUTENTICADA e tenant-scoped (TenantRequiredMixin) e restrita por papel.
+Gestão de Acessos e convites = Pastor ou Secretário (`PastorOrSecretaryMixin`,
+OD-019). A UNICA excecao e
 `InviteAcceptView`: e PUBLICA por natureza (o convidado ainda nao tem conta),
 mas continua amarrada ao tenant via `request.tenant` (resolvido pelo
 TenantMiddleware antes da auth) e via `expected_church` no service.
@@ -36,7 +37,6 @@ from apps.accounts.forms import (
 from apps.accounts.models import Invite, SupportAccess, User
 from apps.core.mixins import (
     PastorOrSecretaryMixin,
-    PastorRequiredMixin,
     PlatformAdminRequiredMixin,
     TenantRequiredMixin,
 )
@@ -110,7 +110,7 @@ class UserAccessView(TenantRequiredMixin, PastorOrSecretaryMixin, FormView):
         return super().form_valid(form)
 
 
-class InviteListView(TenantRequiredMixin, PastorRequiredMixin, ListView):
+class InviteListView(TenantRequiredMixin, PastorOrSecretaryMixin, ListView):
     """Lista os convites PENDENTES da igreja atual. Apenas Pastor (RN-003a).
 
     Pendentes = `accepted_at__isnull=True`. `select_related('invited_by')` evita
@@ -130,7 +130,7 @@ class InviteListView(TenantRequiredMixin, PastorRequiredMixin, ListView):
         )
 
 
-class InviteCreateView(TenantRequiredMixin, PastorRequiredMixin, FormView):
+class InviteCreateView(TenantRequiredMixin, PastorOrSecretaryMixin, FormView):
     """Cria um convite e dispara o email de aceite. Apenas Pastor (RN-003a)."""
 
     template_name = 'accounts/invite_form.html'
@@ -156,7 +156,7 @@ class InviteCreateView(TenantRequiredMixin, PastorRequiredMixin, FormView):
         return super().form_valid(form)
 
 
-class InviteResendView(TenantRequiredMixin, PastorRequiredMixin, View):
+class InviteResendView(TenantRequiredMixin, PastorOrSecretaryMixin, View):
     """Reenvia um convite pendente (regenera token). POST-only. Apenas Pastor."""
 
     def post(self, request, pk):
@@ -176,7 +176,7 @@ class InviteResendView(TenantRequiredMixin, PastorRequiredMixin, View):
         return redirect('accounts:invite_list')
 
 
-class InviteCancelView(TenantRequiredMixin, PastorRequiredMixin, View):
+class InviteCancelView(TenantRequiredMixin, PastorOrSecretaryMixin, View):
     """Cancela (hard delete) um convite pendente. POST-only. Apenas Pastor."""
 
     def post(self, request, pk):

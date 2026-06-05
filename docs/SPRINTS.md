@@ -295,7 +295,7 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [x] (P0) CRUD CBV: `PersonListView`, `PersonDetailView`, `PersonCreateView`, `PersonUpdateView` com mixins → Frente 2 Bloco 2: `TenantRequiredMixin`+`PastorRequiredMixin` (Pastor-only; escopo de Líder = Frente 3, exige vínculo Person↔User do ACCESS_MATRIX §43); mutações via service (nunca form.save), sob `pessoas/`
 - [x] (P0) Form de Pessoa com `consent_given_at` obrigatório quando email/telefone preenchidos → Frente 2 Bloco 2: `PersonForm` (ModelForm fields explícitos, AP-10) + checkbox `consent_given` espelhando a regra; barreira efetiva no service (OPS-05)
 - [x] (P0) Filtros (status, comunidade, ministério) e busca por nome em `PersonListView` → Frente 2 Bloco 2: filtros via querystring + busca `q` (icontains); exclui anonimizadas; paginação 25; select_related anti-N+1
-- [ ] (P1) Importação CSV (síncrona com progress HTMX ou Celery — depende de OD-003)
+- [x] (P1) Importação CSV (assíncrona Celery, AP-04) → Bloco 5a: task `import_persons_csv` (idempotente por `import_id`; consent OPS-05 + plano OPS-04 por linha) + `PersonImportView` (Pastor/Secretário) + `Person.import_id`; eager em dev/teste
 - [x] (P0) View e fluxo de anonimização com confirmação dupla (OD-014) → Frente 2 Bloco 3: `PersonAnonymizeView` exige digitar o nome exato (OD-014 opção b, **FECHADA** 2026-06-04). Pastor-only
 - [x] (P0) View e download de exportação de dados de Pessoa → Frente 2 Bloco 3: `PersonExportView` baixa JSON/CSV (`?format=`); AuditLog export + SecurityLog person_exported
 
@@ -344,9 +344,9 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [x] (P0) `test_community_multiple_leaders` (Bloco 2) e `test_ministry_multiple_coordinators` (Bloco 3) — ambos M2M (OD-019)
 - [x] (P0) `test_secretary_can_manage_but_not_finance_or_anonymize` → Bloco 4a (test_secretary_manages_people_but_not_anonymize_or_export + creates_but_cannot_delete)
 - [x] (P0) `test_secretary_cannot_grant_pastor` e `test_no_self_role_escalation` (travas OD-019/RISK-015) → Bloco 4a
-- [ ] (P0) `test_tenant_isolation_matrix` (atualizado para novas views)
-- [ ] (P0) `test_permissions_matrix` (atualizado para novas views)
-- [ ] (P1) `test_csv_import_idempotent`
+- [x] (P0) `test_tenant_isolation_matrix` (atualizado para novas views) → Bloco 5b: + pessoas/comunidades/ministérios em `AUTHENTICATED_TENANT_URLS` + check de vazamento de Pessoa (schema-per-tenant)
+- [x] (P0) `test_permissions_matrix` (atualizado para novas views) → Bloco 5b: + papel `secretary` + views people/communities/ministries/import/user_access/convites (admin vs staff-escopado vs login-only)
+- [x] (P1) `test_csv_import_idempotent` → Bloco 5a (+ consent, empty-name, status fallback, view upload/reject)
 
 ### Critério de conclusão da Sprint 3
 

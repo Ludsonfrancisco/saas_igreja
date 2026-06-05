@@ -80,11 +80,13 @@ def create_person(
     consent_given_at=None,
     notes='',
     user_id=None,
+    import_id=None,
 ):
     """Cria uma Pessoa aplicando consentimento (RN-005) e limite de plano (OPS-04).
 
     `user_id` (opcional) liga o Person a um User-staff (líder/coordenador) por id
-    (TENANT-04, não-FK). AuditLog('create') é automático. Retorna a Person criada.
+    (TENANT-04, não-FK). `import_id` (opcional) marca o lote de importação CSV
+    (RF-033). AuditLog('create') é automático. Retorna a Person criada.
     """
     _require_consent(email, phone, consent_given_at)
     _enforce_plan_limit(church)
@@ -99,6 +101,7 @@ def create_person(
         consent_given_at=consent_given_at,
         notes=notes,
         user_id=user_id,
+        import_id=import_id,
     )
     if ministries:
         person.ministries.set(ministries)

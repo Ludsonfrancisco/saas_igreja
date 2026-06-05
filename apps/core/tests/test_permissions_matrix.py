@@ -1,19 +1,17 @@
-"""Sprint 2 / Frente 7 — Gate de permissões por papel (P-ARQ-08 / ACCESS_MATRIX).
+"""Gate de permissões por papel (P-ARQ-08 / ACCESS_MATRIX) — atualizado p/ OD-019.
 
-Versão INICIAL do `test_permissions_matrix` (TEST_STRATEGY §6.2): uma linha por
-célula (papel × view) das views autenticadas JÁ EXISTENTES na Sprint 2. Cobre o
-contrato Pastor vs Leader vs Member:
+`test_permissions_matrix` (TEST_STRATEGY §6.2): uma linha por célula (papel × view)
+das views autenticadas. Cobre Pastor / Secretário / Líder-Coordenador / Membro.
 
-- views de gestão (usuários, convites) exigem `pastor` (PastorRequiredMixin) —
-  Leader e Member recebem 403;
-- a página "Segurança da conta" é login-only — qualquer papel autenticado entra.
+Padrões de barreira (a checagem roda no `dispatch`, então um GET basta):
+- **admin** (Pastor+Secretário): criar pessoa/comunidade/ministério, importar CSV,
+  Gestão de Acessos, convites. Líder/Membro → 403.
+- **staff escopado** (Pastor+Secretário+Líder/Coord): listar pessoas/comunidades/
+  ministérios. Membro → 403. (Líder vê escopado; aqui só checamos o gate de papel.)
+- **login-only**: Segurança da conta — qualquer papel autenticado.
 
-A barreira de papel roda no `dispatch` (antes do método HTTP), então um GET basta
-para exercitar a célula. Conforme novas views/ações nascem (Sprint 3+: create,
-anonymize, etc.), acrescente as células a `PERMISSION_CASES`.
-
-`transaction=True` por causa do DDL de criar Church; search_path restaurado no
-teardown.
+Conforme novas views/ações nascem, acrescente as células.
+`transaction=True` por causa do DDL de criar Church.
 """
 
 import pytest
@@ -27,25 +25,53 @@ GOOD_PASSWORD = 'Senha@123'
 USER_LIST = '/configuracoes/usuarios/'
 INVITE_LIST = '/configuracoes/convites/'
 INVITE_CREATE = '/configuracoes/convites/novo/'
+PEOPLE_LIST = '/pessoas/'
+PEOPLE_CREATE = '/pessoas/nova/'
+PEOPLE_IMPORT = '/pessoas/importar/'
+COMM_LIST = '/comunidades/'
+COMM_CREATE = '/comunidades/nova/'
+MIN_LIST = '/ministerios/'
+MIN_CREATE = '/ministerios/novo/'
 ACCOUNT_SECURITY = '/contas/seguranca/'
 
-# (papel, url, status_esperado) — GET. 200 = liberado, 403 = negado pelo papel.
-PERMISSION_CASES = [
-    # Views só-Pastor: Leader e Member negados.
-    ('pastor', USER_LIST, 200),
-    ('leader', USER_LIST, 403),
-    ('member', USER_LIST, 403),
-    ('pastor', INVITE_LIST, 200),
-    ('leader', INVITE_LIST, 403),
-    ('member', INVITE_LIST, 403),
-    ('pastor', INVITE_CREATE, 200),
-    ('leader', INVITE_CREATE, 403),
-    ('member', INVITE_CREATE, 403),
-    # Segurança da conta: login-only, qualquer papel entra.
-    ('pastor', ACCOUNT_SECURITY, 200),
-    ('leader', ACCOUNT_SECURITY, 200),
-    ('member', ACCOUNT_SECURITY, 200),
-]
+
+def _admin(url):
+    """Pastor + Secretário liberados; Líder e Membro negados."""
+    return [
+        ('pastor', url, 200),
+        ('secretary', url, 200),
+        ('leader', url, 403),
+        ('member', url, 403),
+    ]
+
+
+def _staff_scoped(url):
+    """Pastor + Secretário + Líder/Coordenador liberados (escopo refinado no qs)."""
+    return [
+        ('pastor', url, 200),
+        ('secretary', url, 200),
+        ('leader', url, 200),
+        ('member', url, 403),
+    ]
+
+
+def _login_only(url):
+    return [(role, url, 200) for role in ('pastor', 'secretary', 'leader', 'member')]
+
+
+PERMISSION_CASES = (
+    _admin(USER_LIST)
+    + _admin(INVITE_LIST)
+    + _admin(INVITE_CREATE)
+    + _staff_scoped(PEOPLE_LIST)
+    + _admin(PEOPLE_CREATE)
+    + _admin(PEOPLE_IMPORT)
+    + _staff_scoped(COMM_LIST)
+    + _admin(COMM_CREATE)
+    + _staff_scoped(MIN_LIST)
+    + _admin(MIN_CREATE)
+    + _login_only(ACCOUNT_SECURITY)
+)
 
 
 @pytest.fixture

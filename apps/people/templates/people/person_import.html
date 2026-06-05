@@ -1,0 +1,30 @@
+{% comment %}
+Importação CSV de pessoas (RF-033 / Bloco 5a). Markup mínimo pt-BR. CSRF + enctype.
+Colunas: name (obrigatório), email, phone, status, consent. Linhas com email/telefone
+sem consent='sim' são puladas (LGPD/OPS-05). Processamento assíncrono (Celery).
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Importar pessoas (CSV)</title></head>
+<body>
+  <h1>Importar pessoas via CSV</h1>
+
+  {% if messages %}
+    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  <p>
+    Colunas: <code>name</code> (obrigatório), <code>email</code>, <code>phone</code>,
+    <code>status</code>, <code>consent</code>. Linhas com email/telefone exigem
+    <code>consent=sim</code> (LGPD) — caso contrário são puladas.
+  </p>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Importar</button>
+  </form>
+
+  <p><a href="{% url 'people:list' %}">Voltar</a></p>
+</body>
+</html>

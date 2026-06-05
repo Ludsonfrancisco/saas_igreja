@@ -23,16 +23,22 @@ import pytest
 from django.db import connection
 from django.test import Client
 from django.utils import timezone
+from django_tenants.utils import schema_context
 
 from apps.accounts.models import Invite, User
+from apps.people.models import Person
 
 GOOD_PASSWORD = 'Senha@123'
 
-# Views autenticadas tenant-scoped existentes na Sprint 2 (GET-áveis).
+# Views autenticadas tenant-scoped GET-áveis (Sprint 2 + Sprint 3 / OD-019).
 AUTHENTICATED_TENANT_URLS = [
     '/configuracoes/usuarios/',
     '/configuracoes/convites/',
     '/configuracoes/convites/novo/',
+    '/pessoas/',
+    '/pessoas/nova/',
+    '/comunidades/',
+    '/ministerios/',
 ]
 
 
@@ -105,6 +111,11 @@ def test_tenant_isolation_matrix(tenant_a_client, church_a, church_b):
     pastor_b = _make_user(church_b, 'pastor@b.com', ['pastor'])
     _make_invite(church_a, 'convidado@a.com', pastor_a)
     _make_invite(church_b, 'convidado@b.com', pastor_b)
+    # Pessoas (model de TENANT): cada uma só existe no schema da sua igreja.
+    with schema_context(church_a.schema_name):
+        Person.objects.create(name='Pessoa A')
+    with schema_context(church_b.schema_name):
+        Person.objects.create(name='Pessoa B')
 
     tenant_a_client.force_login(pastor_a)
 
@@ -122,3 +133,10 @@ def test_tenant_isolation_matrix(tenant_a_client, church_a, church_b):
     invite_emails = {i.email for i in resp.context['invites']}
     assert 'convidado@a.com' in invite_emails
     assert 'convidado@b.com' not in invite_emails
+
+    # Pessoas: o schema-per-tenant garante que A nunca veja a Pessoa B.
+    resp = tenant_a_client.get('/pessoas/')
+    assert resp.status_code == 200
+    person_names = {p.name for p in resp.context['persons']}
+    assert 'Pessoa A' in person_names
+    assert 'Pessoa B' not in person_names

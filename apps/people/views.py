@@ -11,8 +11,11 @@ Toda mutação passa pelo SERVICE (`apps.people.services`), nunca por `form.save
 A view só traduz o checkbox `consent_given` em `consent_given_at`.
 """
 
+import uuid
+
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.db import connection
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
@@ -30,8 +33,9 @@ from apps.core.mixins import (
 )
 from apps.ministries.models import Ministry
 from apps.people import services
-from apps.people.forms import PersonForm
+from apps.people.forms import PersonForm, PersonImportForm
 from apps.people.models import Person
+from apps.people.tasks import import_persons_csv
 
 
 class PersonListView(
@@ -222,3 +226,28 @@ class PersonExportView(TenantRequiredMixin, PastorRequiredMixin, View):
             filename = f'pessoa_{person.pk}.json'
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response
+
+
+class PersonImportView(TenantRequiredMixin, PastorOrSecretaryMixin, FormView):
+    """Importa pessoas de um CSV (RF-033). Pastor ou Secretário (ACCESS_MATRIX §3.3).
+
+    Lê o arquivo, gera um `import_id` (idempotência) e dispara a task Celery
+    `import_persons_csv` (assíncrona — AP-04: >500 linhas não pode síncrono). Em
+    dev/teste o Celery roda eager (inline). O consent e o limite de plano são
+    aplicados POR LINHA na task via `create_person` (OPS-04/05).
+    """
+
+    template_name = 'people/person_import.html'
+    form_class = PersonImportForm
+    success_url = reverse_lazy('people:list')
+
+    def form_valid(self, form):
+        upload = form.cleaned_data['file']
+        try:
+            content = upload.read().decode('utf-8')
+        except UnicodeDecodeError:
+            form.add_error('file', 'Arquivo nao e um CSV de texto (UTF-8) valido.')
+            return self.form_invalid(form)
+        import_persons_csv.delay(connection.schema_name, content, str(uuid.uuid4()))
+        messages.success(self.request, 'Importacao iniciada.')
+        return super().form_valid(form)
