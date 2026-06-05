@@ -277,11 +277,35 @@ USE_I18N = True
 USE_TZ = True
 
 # --- Arquivos estaticos e de midia ---
+# Storage de midia (Sprint 6 / OD-003a / OD-007 / RNF-018 / RISK-005):
+#   - dev/teste : FileSystemStorage local (MEDIA_ROOT abaixo). Sem dependencia
+#                 de R2 real — a suite e o `runserver` funcionam offline.
+#   - prod      : Cloudflare R2 (S3-compatible) via django-storages. A
+#                 configuracao do backend S3 vive em prod.py (STORAGES['default']),
+#                 com credenciais por env var (python-decouple, SEC-06 / AP-12).
+# Django 5.2 usa a API STORAGES (dict 'default' + 'staticfiles'); o antigo
+# DEFAULT_FILE_STORAGE/STATICFILES_STORAGE esta DEPRECADO e NAO e usado aqui.
+# O caminho logico do objeto e identico nos dois backends (apps.core.storage
+# .tenant_upload_path -> {tenant_schema}/{model}/{object_id}/{filename}); so o
+# backend muda por ambiente.
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_URL = 'media/'
+# Default de dev/teste; prod.py mantem MEDIA_ROOT irrelevante (backend e R2).
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Default comum: FileSystemStorage local. prod.py SOBRESCREVE STORAGES['default']
+# para o backend S3/R2. staticfiles permanece local (servido pelo container) em
+# todos os ambientes neste MVP.
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+    },
+}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

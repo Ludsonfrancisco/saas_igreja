@@ -459,12 +459,12 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### Storage (Cloudflare R2 — decisão OD-003a/OD-007)
 
-- [ ] (P0) Adicionar `django-storages[s3]` em `pyproject.toml`
-- [ ] (P0) Configurar bucket R2 `saas-igreja-media` em conta Cloudflare
-- [ ] (P0) Configurar `DEFAULT_FILE_STORAGE` no `prod.py` apontando para R2
-- [ ] (P0) Configurar `MEDIA_URL` e credenciais R2 via `python-decouple`
-- [ ] (P0) Em dev: opção A (mock local com `FileSystemStorage`) ou opção B (bucket R2 separado `saas-igreja-dev`). Decidir e documentar.
-- [ ] (P0) Path scheme por tenant: `{tenant_schema}/{model}/{object_id}/{filename}` (evita colisões cross-tenant)
+- [x] (P0) Adicionar `django-storages[s3]` em `pyproject.toml` (já no scaffold; storages 1.14.6 + boto3)
+- [ ] (P0) Configurar bucket R2 `saas-igreja-media` em conta Cloudflare — **AÇÃO DO DONO** (infra Cloudflare; `prod.py` já lê credenciais por env, preenchidas no deploy/Sprint 7)
+- [x] (P0) Configurar storage no `prod.py` apontando para R2 (API `STORAGES` do Django 5.2, não o deprecado `DEFAULT_FILE_STORAGE`)
+- [x] (P0) Configurar `MEDIA_URL` e credenciais R2 via `python-decouple`
+- [x] (P0) Em dev: **opção A (FileSystemStorage local)** — decidido e documentado (OD-003a + comentário em `base.py`)
+- [x] (P0) Path scheme por tenant: `{tenant_schema}/{model}/{object_id}/{filename}` — `apps/core/storage.py::tenant_upload_path` (+ `sanitize_filename`; 7 testes em `test_storage.py`)
 
 #### FileAsset
 

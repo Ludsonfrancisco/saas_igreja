@@ -19,6 +19,10 @@ requires-python = ">=3.12,<3.13"
 #                           TECH_SPEC Secao 10 (A4) marca WeasyPrint como Fase 2 (MVP usa browser
 #                           print via @media print). Declarado aqui, mas NAO deve ser usado no MVP
 #                           ate a Fase 2. Imagem Docker pesa ~200MB por causa dele.
+#   - django-storages[s3] : backend de storage S3-compatible para Cloudflare R2 (OD-003a / OD-007).
+#                           Usado SO em prod (prod.py -> STORAGES['default'] S3); dev/teste usam
+#                           FileSystemStorage local. O extra [s3] puxa boto3. Sprint 6 (storage de
+#                           midia, RNF-018 / RISK-005). 1.14.x usa a API STORAGES do Django 4.2+/5.x.
 dependencies = [
     "django>=5.2,<5.3",
     "django-tenants>=3.7",
@@ -31,6 +35,7 @@ dependencies = [
     "python-decouple>=3.8",
     "weasyprint>=62.0",
     "django-anymail[brevo]>=15.0",
+    "django-storages[s3]>=1.14",
 ]
 
 # Dependencias de desenvolvimento/CI (formato uv: PEP 735 dependency-groups).

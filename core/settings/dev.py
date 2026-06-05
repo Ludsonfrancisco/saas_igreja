@@ -18,6 +18,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+# Storage de midia (Sprint 6 / OD-003a / OD-007): dev e teste herdam o
+# STORAGES['default'] = FileSystemStorage de base.py (MEDIA_ROOT local). NAO
+# sobrescrevemos para R2 aqui de proposito — dev/CI nao podem depender de bucket
+# nem credenciais externas (RNF-018). O backend R2/S3 so entra em prod.py.
+
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Tasks Celery rodam INLINE em dev/teste (sem worker): `.delay()` executa na hora.

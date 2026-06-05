@@ -403,6 +403,31 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 
 ---
 
+### OD-021 — Mecanismo de download de arquivo (Sprint 6)
+
+| Campo | Valor |
+|---|---|
+| Status | ✅ Fechada (2026-06-05) |
+| Impacto | Médio (segurança de mídia, UX) |
+| Owner | Tech Lead + Segurança |
+| Decisão | **Streaming pela view autenticada** (a view checa tenant+papel e devolve os bytes), **não** redirect para URL assinada do R2 |
+
+**Contexto:** a `SPRINTS` Sprint 6 oferecia duas opções para download — (a) gerar URL temporária assinada do R2 (TTL 60s) e redirecionar, ou (b) fazer streaming do arquivo pela própria view. A escolha afeta a bateria de testes (`test_signed_url_expires_in_60s` vs testes de permissão/streaming) e o comportamento entre ambientes.
+
+**Decisão:** **(b) streaming pela view autenticada.** A view de download aplica `TenantRequiredMixin` + checagem de papel, resolve o `FileAsset` no escopo do tenant e faz streaming dos bytes a partir do `STORAGES['default']` (FS em dev, R2 em prod). O cliente nunca recebe uma URL direta do objeto.
+
+**Justificativa:**
+- **Mesma rota em dev e prod**: FileSystemStorage (dev) não emite URL assinada; streaming server-side funciona idêntico nos dois backends, sem `moto`/mock de S3 nos testes.
+- **Zero URL pública permanente** (RNF-018 / RISK-005 / `test_no_permanent_public_url`): o controle de acesso fica 100% na view, a cada request — não há janela de URL assinada vazável/compartilhável.
+- **Auditoria confiável**: todo download passa pela view → `AuditLog`/`SecurityLog` (Bloco 3) sem depender de o cliente realmente baixar via redirect.
+
+**Implicações:**
+- O teste `test_signed_url_expires_in_60s` da `SPRINTS` é **substituído** por testes de streaming/permissão (`test_download_requires_permission`, `test_download_unauthorized_returns_404`, `test_no_permanent_public_url`).
+- `STORAGES['default']` do R2 mantém `querystring_auth=True` como rede de segurança (mesmo que `.url()` seja chamado, nunca gera link público) — mas a view não expõe `.url()`.
+- Streaming síncrono é aceitável para arquivos ≤10MB (limite de upload do Bloco 2). Revisar se o limite crescer muito.
+
+---
+
 ## Histórico — decisões fechadas
 
 | ID | Decisão | Data | Resultado |
@@ -412,6 +437,7 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 | OD-004 | Membro/Pessoa tem login no MVP | 2026-06-01 | Não — Membro existe apenas como `Person`, sem login. Login de Membro fica para a Fase 2 |
 | OD-017 | Política de exclusão de tenant (Church) | 2026-06-01 | Igreja não é hard-deletável no MVP — apenas suspensa (RF-003). Exclusão definitiva fica para pós-MVP |
 | OD-018 | Camada canônica de enforcement LGPD (`consent_given_at`) | 2026-06-01 | Validação na camada de service (`create_person`/`import_csv`), espelhada no form. Cobre o caminho CSV |
+| OD-021 | Mecanismo de download de arquivo (Sprint 6) | 2026-06-05 | Streaming pela view autenticada (não URL assinada R2); substitui `test_signed_url_expires_in_60s` por testes de permissão/streaming |
 | OD-003a | Storage de mídia | 2026-05-27 | Cloudflare R2 (S3-compatible) desde Sprint 6 |
 | OD-006 | VPS definitivo | 2026-05-27 | Hostinger KVM 2 (8GB, 2 vCPU, 100GB NVMe) |
 | OD-007 | Storage offsite | 2026-05-27 | Cloudflare R2 (mesma conta de OD-003a) |
