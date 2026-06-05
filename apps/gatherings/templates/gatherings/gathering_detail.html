@@ -1,0 +1,26 @@
+{% comment %}Detalhe de Encontro (Sprint 4 / Frente 1). Markup mínimo pt-BR.{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>{{ gathering }}</title></head>
+<body>
+  <h1>{{ gathering }}</h1>
+
+  {% if messages %}
+    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  <dl>
+    <dt>Tipo</dt><dd>{{ gathering.get_gathering_type_display }}</dd>
+    <dt>Data</dt><dd>{{ gathering.date }}</dd>
+    <dt>Título</dt><dd>{{ gathering.title|default:'—' }}</dd>
+    <dt>Comunidade</dt><dd>{{ gathering.community.name|default:'—' }}</dd>
+    <dt>Descrição</dt><dd>{{ gathering.description|default:'—' }}</dd>
+  </dl>
+
+  <p>
+    <a href="{% url 'gatherings:update' pk=gathering.pk %}">Editar</a> ·
+    <a href="{% url 'gatherings:delete' pk=gathering.pk %}">Excluir</a> ·
+    <a href="{% url 'gatherings:list' %}">Voltar</a>
+  </p>
+</body>
+</html>

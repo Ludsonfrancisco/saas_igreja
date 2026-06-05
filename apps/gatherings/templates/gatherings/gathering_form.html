@@ -1,0 +1,16 @@
+{% comment %}Cadastro/edição de Encontro (Sprint 4 / Frente 1). CSRF obrigatório.{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Encontro</title></head>
+<body>
+  <h1>{% if form.instance.pk %}Editar encontro{% else %}Novo encontro{% endif %}</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Salvar</button>
+  </form>
+
+  <p><a href="{% url 'gatherings:list' %}">Voltar</a></p>
+</body>
+</html>

@@ -150,16 +150,18 @@ auditado (`role_change`); RN-004 (último Pastor) intacta.
 
 ### 3.6 Encontros e Presença
 
-| Ação | Platform Admin | Pastor | Líder Com. | Coord. Min. | Tesoureiro | Membro |
-|---|---|---|---|---|---|---|
-| Listar encontros da igreja | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Criar encontro (tipo WORSHIP) | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Criar encontro (tipo COMMUNITY) | ❌ | ✅ | 🟡 (sua) | ❌ | ❌ | ❌ |
-| Criar encontro (tipo EVENT/MEETING) | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Editar encontro | ❌ | ✅ | 🟡 (criador ou sua comunidade) | 🟡 (criador) | ❌ | ❌ |
-| Excluir encontro | ❌ | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
-| Marcar presença em lote | ❌ | ✅ | 🟡 (sua comunidade) | 🟡 (seu ministério) | ❌ | ❌ |
-| Editar presença individual | ❌ | ✅ | 🟡 (sua comunidade) | 🟡 (seu ministério) | ❌ | ❌ |
+> **OD-019 (Secretário) + decisão Sprint 4 (2026-06-04):** o Secretário é **admin como o Pastor** em Encontros/Presença — cria/edita **qualquer** encontro (todos os tipos, sem escopo) e marca presença. **Exceção:** **excluir encontro continua exclusivo do Pastor** (🔒, ação destrutiva). `created_by` (`user_id` do criador, TENANT-04) habilita a trava "editar pelo criador" para Líder/Coordenador.
+
+| Ação | Platform Admin | Pastor | Secretário | Líder Com. | Coord. Min. | Tesoureiro | Membro |
+|---|---|---|---|---|---|---|---|
+| Listar encontros da igreja | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Criar encontro (tipo WORSHIP) | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Criar encontro (tipo COMMUNITY) | ❌ | ✅ | ✅ | 🟡 (sua) | ❌ | ❌ | ❌ |
+| Criar encontro (tipo EVENT/MEETING) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Editar encontro | ❌ | ✅ | ✅ | 🟡 (criador ou sua comunidade) | 🟡 (criador) | ❌ | ❌ |
+| Excluir encontro | ❌ | ✅ 📝 | ❌ 🔒 | ❌ | ❌ | ❌ | ❌ |
+| Marcar presença em lote | ❌ | ✅ | ✅ | 🟡 (sua comunidade) | 🟡 (seu ministério) | ❌ | ❌ |
+| Editar presença individual | ❌ | ✅ | ✅ | 🟡 (sua comunidade) | 🟡 (seu ministério) | ❌ | ❌ |
 
 ### 3.7 Escalas e Voluntários
 

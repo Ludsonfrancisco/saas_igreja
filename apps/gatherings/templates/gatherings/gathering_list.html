@@ -1,0 +1,41 @@
+{% comment %}Lista de Encontros (Sprint 4 / Frente 1). Markup mínimo pt-BR.{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Encontros</title></head>
+<body>
+  <h1>Encontros</h1>
+
+  {% if messages %}
+    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  <p><a href="{% url 'gatherings:create' %}">Novo encontro</a></p>
+
+  <form method="get">
+    <label>Tipo:
+      <select name="type" onchange="this.form.submit()">
+        <option value="">Todos</option>
+        {% for value, label in type_choices %}
+          <option value="{{ value }}" {% if filters.type == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </form>
+
+  <table>
+    <thead><tr><th>Data</th><th>Tipo</th><th>Título</th><th>Comunidade</th></tr></thead>
+    <tbody>
+      {% for gathering in gatherings %}
+        <tr>
+          <td><a href="{% url 'gatherings:detail' pk=gathering.pk %}">{{ gathering.date }}</a></td>
+          <td>{{ gathering.get_gathering_type_display }}</td>
+          <td>{{ gathering.title|default:'—' }}</td>
+          <td>{{ gathering.community.name|default:'—' }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4">Nenhum encontro cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

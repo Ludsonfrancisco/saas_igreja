@@ -449,8 +449,14 @@ class Ministry(BaseModel, AuditLogMixin):
 
 ```python
 # apps/gatherings/models.py
-class Gathering(BaseModel):
-    """Encontro: culto, reunião de comunidade, evento ou reunião."""
+class Gathering(BaseModel, AuditLogMixin):
+    """Encontro: culto, reunião de comunidade, evento ou reunião.
+
+    Herda `AuditLogMixin`: create/update/delete auditados automaticamente (core
+    signals). `created_by` (Sprint 4) guarda o `user_id` do criador (TENANT-04 —
+    nunca FK para User) e habilita a trava "editar pelo criador" da §3.6 (Líder/
+    Coordenador editam encontros que criaram, além do escopo por comunidade).
+    """
     class Type(models.TextChoices):
         WORSHIP = 'worship', 'Culto'
         COMMUNITY = 'community', 'Reuniao de Comunidade'
@@ -467,6 +473,8 @@ class Gathering(BaseModel):
         blank=True,
     )
     description = models.TextField(blank=True, default='')
+    # user_id do criador (TENANT-04: id do User publico, NAO FK). Sprint 4 / §3.6.
+    created_by = models.IntegerField(null=True, blank=True, db_index=True)
 
 
 class Attendance(BaseModel):

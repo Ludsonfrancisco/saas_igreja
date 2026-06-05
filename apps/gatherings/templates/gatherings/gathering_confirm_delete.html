@@ -1,0 +1,14 @@
+{% comment %}Confirmação de exclusão de Encontro (Sprint 4 / Frente 1). CSRF.{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Excluir encontro</title></head>
+<body>
+  <h1>Excluir {{ gathering }}?</h1>
+  <p>Esta ação não pode ser desfeita.</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Excluir definitivamente</button>
+  </form>
+  <p><a href="{% url 'gatherings:detail' pk=gathering.pk %}">Cancelar</a></p>
+</body>
+</html>
