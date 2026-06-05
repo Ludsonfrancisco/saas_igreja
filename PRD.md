@@ -958,8 +958,8 @@ sequenceDiagram
 
 | Tela | Sprint | Notas |
 |---|---|---|
-| Landing pública | 1 | Schema `public`; cadastro de igreja |
-| Cadastro de igreja | 1 | Nome, slug, `leader_title`, `has_communities`, paleta |
+| Landing pública | pós-piloto | Schema `public`; go-to-market (após validar com Athos); marca Terracota & Âmbar |
+| Cadastro de igreja (self-service) | pós-piloto | Só se a aquisição deixar de ser convite direto; hoje signup público fechado. No MVP, tenant é provisionado por `create_church` |
 | Login | 2 | Email + senha; link de recuperação |
 | Recuperação de senha | 2 | Sem enumeração |
 | Aceitar convite | 2 | Define senha + termo |
@@ -1123,7 +1123,7 @@ Uma sprint só é considerada pronta quando:
 ### Sprint 1 — Fundação Django + PostgreSQL + django-tenants
 
 - **Objetivo:** projeto Django operacional com PostgreSQL e django-tenants funcionando em dev e em VPS beta.
-- **Escopo:** estrutura de apps; `BaseModel`; `Church(TenantMixin)`, `Domain`, `Plan`; `User(AbstractUser)` com email login; `TenantMiddleware`; landing pública.
+- **Escopo:** estrutura de apps; `BaseModel`; `Church(TenantMixin)`, `Domain`, `Plan`; `User(AbstractUser)` com email login; `TenantMiddleware`. _(Design base do app e landing pública **não** entram aqui — relocados em 2026-06-05: design do app → Sprint 6.5; landing → frente pós-piloto.)_
 - **Tarefas principais:** scaffold Django, settings split, allauth básico, criação de tenant via management command, subdomínio resolvendo schema.
 - **Dependências:** Sprint 0 concluída.
 - **Riscos:** SQLite em dev (proibido — AP-13).
@@ -1222,6 +1222,8 @@ gantt
   Sprint 6 Files+Dashboard   :a6, after a5, 14d
   Sprint 6.5 Design UI Athos :a65, after a6, 14d
   Sprint 7 Deploy+Piloto     :a7, after a65, 21d
+  section Go-to-Market
+  Landing pública (pós-piloto):a8, after a7, 10d
 ```
 
 ---
@@ -1406,7 +1408,7 @@ gantt
 1. Validar este PRD com líder principal do produto e Tech Lead.
 2. Extrair `TECH_SPEC.md`, `ACCESS_MATRIX.md`, `TEST_STRATEGY.md`, `SPRINTS.md`, `OPEN_DECISIONS.md` como arquivos próprios.
 3. Decisões críticas de infra/stack já fechadas (OD-002, OD-003, OD-003a, OD-006, OD-007, OD-012). Próximas a endereçar: OD-004 (login Membro), OD-008 (OAuth Google) e OD-013 (template de privacidade) na Sprint 2.
-4. Iniciar Sprint 1 com Definition of Ready aplicado: fundação Django + PostgreSQL + django-tenants + landing pública.
+4. Iniciar Sprint 1 com Definition of Ready aplicado: fundação Django + PostgreSQL + django-tenants. _(Design do app → Sprint 6.5; landing pública → frente pós-piloto.)_
 5. Manter este PRD como source of truth; toda mudança de escopo, decisão técnica ou risco é refletida aqui primeiro, no Notion depois.
 
 ---

@@ -119,12 +119,13 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 - [x] (P0) Criar management command `create_church` para provisionar tenant em dev
 - [x] (P0) Criar `apps/core/mixins.py` com `TenantRequiredMixin` (re-export do django-tenants)
 
-#### Landing pública
+#### Landing pública e design base → RELOCADOS (2026-06-05)
 
-- [ ] (P0) Criar template `base.html` com layout sidebar + header + content usando paleta Athos
-- [ ] (P0) Configurar TailwindCSS via `tailwind.config.js` com tokens Athos
-- [ ] (P0) Criar landing page pública no schema `public` (`/`, `/sobre`, `/cadastro-igreja`)
-- [ ] (P1) Form de cadastro de igreja (slug, leader_title, has_communities, paleta)
+> Este bloco foi **dividido e movido** (a Sprint 1 entregou só a fundação técnica; a camada visual veio depois). Não são mais tasks da Sprint 1:
+> - **Design base do app** (`base.html` + `tailwind.config` + paleta Athos) → **Sprint 6.5** (Design System & Experiência), Bloco 1.
+> - **Landing pública** (`/`, `/sobre`, `/cadastro-igreja`) + **form de cadastro de igreja** → frente **pós-piloto "Go-to-Market — Landing pública"** (ver após a Sprint 7).
+>
+> **Motivo (sequenciamento):** o Piloto Athos é convite direto (não precisa de landing); nome do produto e preços (OD-001) seguem em aberto; e a landing mostra screenshots do app — que só fica bonito após a 6.5.
 
 #### Observabilidade
 
@@ -699,6 +700,23 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 
 ---
 
+## Pós-MVP / Go-to-Market — Landing pública
+
+**Quando:** **depois** do Piloto Athos validar o produto (idealmente após fechar **nome do produto** + **OD-001/preços**). **Não bloqueia o MVP** — o piloto Athos é convite direto, cuja primeira impressão é o app, não a landing.
+**Decisão de sequenciamento (2026-06-05):** a landing vem **depois** do app polido (Sprint 6.5) — ela mostra **screenshots do app** e **reaproveita o pipeline Tailwind compilado** da 6.5. É a **marca** Terracota & Âmbar fixa (≠ tema neutro do app).
+
+### Tasks
+- [ ] (P1) Landing de venda completa (marca **Terracota & Âmbar fixa**, Fraunces/Inter): hero + proposta de valor + funcionalidades + app/mobile + planos + prova social + CTA + rodapé. Base no protótipo aprovado-para-revisão `referencias/prototipos/landing_terracota_v1.html`.
+- [ ] (P1) Páginas públicas `/`, `/sobre` no schema `public`.
+- [ ] (P2) Form de **cadastro de igreja (self-service)** `/cadastro-igreja` — **só** se o modelo de aquisição deixar de ser convite direto. Hoje o signup público está **fechado** (`allauth is_open_for_signup=False`); abrir self-service é decisão de produto à parte.
+- [ ] (P2) **Alternativa antecipável (opcional, a qualquer momento):** landing **"em breve" / waitlist** mínima (1 tela: hero + captura de e-mail), barata, para começar a juntar interesse **antes** da landing completa.
+
+### Dependências
+- **Nome do produto** decidido (hoje placeholder "Comunhão"); **OD-001** (preços) para a seção de planos.
+- **Sprint 6.5** concluída (screenshots do app + pipeline Tailwind compartilhado).
+
+---
+
 ## Visão consolidada
 
 ```mermaid
@@ -716,6 +734,8 @@ gantt
   Sprint 6 Files+Dashboard   :a6, after a5, 14d
   Sprint 6.5 Design UI Athos :a65, after a6, 14d
   Sprint 7 Deploy+Piloto     :a7, after a65, 21d
+  section Go-to-Market
+  Landing pública (pós-piloto):a8, after a7, 10d
 ```
 
 ## Gate de segurança entre sprints
