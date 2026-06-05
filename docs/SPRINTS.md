@@ -276,6 +276,7 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 ## Sprint 3 — Pessoas, Comunidades, Ministérios
 
+**Status:** ✅ **CONCLUÍDA (2026-06-04)** — inclui a expansão OD-019 (papel Secretário, M2M multi-líder/coordenador, Gestão de Acessos com travas RISK-015). Suíte 298 verdes; cobertura people 99% / communities 100% / ministries 100%.
 **Objetivo:** primeiro CRUD operacional com LGPD desde o nascimento.
 **Duração estimada:** 21 dias.
 **Dependências:** Sprint 2.
@@ -350,12 +351,12 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 ### Critério de conclusão da Sprint 3
 
-- [ ] Pastor consegue cadastrar, editar, anonimizar e exportar Pessoa
-- [ ] Líder consegue gerenciar Pessoas da sua comunidade
-- [ ] Comunidades e Ministérios criados, editados e vinculados
-- [ ] LGPD funcional (consentimento, anonimização, exportação)
-- [ ] Athos consegue cadastrar 100+ pessoas em dev sem erros
-- [ ] Cobertura de `people` ≥ 80%; `communities` e `ministries` ≥ 80%
+- [x] Pastor consegue cadastrar, editar, anonimizar e exportar Pessoa
+- [x] Líder consegue gerenciar Pessoas da sua comunidade (escopo via `ScopedToCommunityMixin`)
+- [x] Comunidades e Ministérios criados, editados e vinculados (M2M multi-líder/coordenador, OD-019)
+- [x] LGPD funcional (consentimento, anonimização com dupla confirmação OD-014, exportação)
+- [x] Athos consegue cadastrar 100+ pessoas em dev sem erros (import CSV RF-033 habilita; eager em dev)
+- [x] Cobertura de `people` ≥ 80%; `communities` e `ministries` ≥ 80% → 99% / 100% / 100%
 
 ---
 
