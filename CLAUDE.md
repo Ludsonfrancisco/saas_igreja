@@ -57,6 +57,8 @@ Conflito entre documentos: prevalece o mais específico e recente. Conflito não
 | Async | Celery + Redis (decidido OD-003: desde Sprint 1) |
 | Storage | Cloudflare R2 via `django-storages` (decidido OD-003a/OD-007: desde Sprint 6) |
 | Email | Brevo free tier via `django-anymail[brevo]` (decidido OD-012) |
+| Comunicação WhatsApp | **Evolution API** self-hosted (transacional/opt-in) — pós-MVP Sprint 9 (OD-025). Business Cloud API oficial **fora** |
+| Financeiro | `apps/finance` (dízimos/ofertas/lançamentos/recibos) — pós-MVP Sprint 8 (OD-024) |
 | Hosting | Hostinger KVM 2 (8GB, 2 vCPU) + EasyPanel Free + Cloudflare Free (decidido OD-006) |
 | Testes | pytest + pytest-django + pytest-cov + nplusone |
 | Lint/format | Ruff + Black |
@@ -66,7 +68,9 @@ Conflito entre documentos: prevalece o mais específico e recente. Conflito não
 
 ### Stack proibida
 
-SQLite (AP-13), Next.js/React SPA/Vue SPA, Prisma, Auth.js, FastAPI, SQLAlchemy, WhatsApp Business Cloud API, LangChain/LangGraph, Stripe, Prometheus/Grafana, `fields = '__all__'` em ModelForm, `@csrf_exempt`, raw SQL com f-strings.
+SQLite (AP-13), Next.js/React SPA/Vue SPA, Prisma, Auth.js, FastAPI, SQLAlchemy, WhatsApp **Business Cloud API** (a oficial da Meta), LangChain/LangGraph, Stripe, Prometheus/Grafana, `fields = '__all__'` em ModelForm, `@csrf_exempt`, raw SQL com f-strings.
+
+> **WhatsApp:** a Business Cloud API **oficial** permanece proibida; o canal WhatsApp do produto é via **Evolution API** self-hosted (transacional/opt-in), pós-MVP Sprint 9 — **OD-025** (com riscos de ToS/ban/LGPD documentados lá).
 
 ---
 
@@ -130,16 +134,21 @@ P-ARQ-01 App-per-Bounded-Context · P-ARQ-02 `BaseModel(created_at, updated_at)`
 
 ## Sprint progression (não pular foundation)
 
-Ordem obrigatória das 9 sprints:
+Ordem obrigatória (MVP = 0..7 + 6.5; pós-MVP = 8, 9; depois lançamento):
 
 ```
 Sprint 0 (docs) → 1 (Django+tenants+health) → 2 (auth+convites+autoriz+audit+SupportAccess+MFA opt-in)
 → 3 (Pessoas+Comunidades+Ministérios+LGPD) → 4 (Encontros+Presença) → 5 (Escalas+conflito)
 → 6 (Files R2+Dashboard) → 6.5 (Design System/UI Athos — base.html+Tailwind+tema por igreja, mobile-first, magic-link do voluntário OD-022)
-→ 7 (Deploy+Backup+Restore+MFA enforce+Pen test+Athos)
+→ 7 (Deploy+Backup+Restore+MFA enforce+Pen test+Piloto Athos)
+--- fim do MVP / pós-piloto ---
+→ 8 (Financeiro — apps/finance, ativa Tesoureiro, OD-024) → 9 (Comunicação/WhatsApp via Evolution API, OD-025)
+→ Lançamento público (landing + slogan completo)
 ```
 
 > **6.5 antes do Piloto:** a estilização das telas (design system Athos) e o Lighthouse mobile ≥90 saíram da Sprint 7 e viraram a Sprint 6.5 — o primeiro cliente (Athos) precisa ver o produto polido. Sem dependência de infra; pode correr em paralelo ao provisionamento da 7.
+>
+> **8 e 9 são pós-piloto:** Financeiro (DOR #1) e WhatsApp/Evolution (DOR #5) são grandes diferenciais, mas ficam **depois** do piloto para não estourar o MVP. O **MVP/piloto não tem divulgação de marca**; o **slogan/landing é do lançamento** (pós-Sprint 9), quando o produto já tem tudo.
 
 **Gate de segurança:** nenhuma sprint operacional (3+) fecha sem `test_tenant_isolation_matrix` e `test_permissions_matrix` aplicáveis passando. Detalhes em `docs/TEST_STRATEGY.md §9`.
 

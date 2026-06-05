@@ -125,7 +125,7 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 > - **Design base do app** (`base.html` + `tailwind.config` + paleta Athos) → **Sprint 6.5** (Design System & Experiência), Bloco 1.
 > - **Landing pública** (`/`, `/sobre`, `/cadastro-igreja`) + **form de cadastro de igreja** → frente **pós-piloto "Go-to-Market — Landing pública"** (ver após a Sprint 7).
 >
-> **Motivo (sequenciamento):** o Piloto Athos é convite direto (não precisa de landing); nome do produto e preços (OD-001) seguem em aberto; e a landing mostra screenshots do app — que só fica bonito após a 6.5.
+> **Motivo (sequenciamento):** o Piloto Athos é convite direto (não precisa de landing); o nome (**Oikonos**, OD-023) está definido mas o registro de domínio/INPI ainda é pendente, e os preços (OD-001) seguem em aberto; e a landing mostra screenshots do app — que só fica bonito após a 6.5.
 
 #### Observabilidade
 
@@ -608,7 +608,7 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 ### Decisões a registrar em `OPEN_DECISIONS.md`
 - **Tailwind compilado vs CDN** (recomendação: compilado, por Lighthouse/DS-05).
 - ✅ **Voluntário escalado** → resolvido: **OD-022** (magic-link read-only sem conta; ≠ Membro geral/OD-004).
-- **Nome do produto** (hoje placeholder "Comunhão" no protótipo) — afeta logo/título do app e da landing.
+- ✅ **Nome do produto** = **Oikonos** (OD-023; substitui o placeholder "Comunhão") — o **wordmark/logo do produto** entra nesta sprint. Slogan e história da marca em `docs/superpowers/specs/2026-06-05-nome-produto-design.md`.
 
 ---
 
@@ -700,10 +700,53 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 
 ---
 
-## Pós-MVP / Go-to-Market — Landing pública
+## Sprint 8 — Financeiro (`apps/finance`) — pós-piloto · OD-024
 
-**Quando:** **depois** do Piloto Athos validar o produto (idealmente após fechar **nome do produto** + **OD-001/preços**). **Não bloqueia o MVP** — o piloto Athos é convite direto, cuja primeira impressão é o app, não a landing.
-**Decisão de sequenciamento (2026-06-05):** a landing vem **depois** do app polido (Sprint 6.5) — ela mostra **screenshots do app** e **reaproveita o pipeline Tailwind compilado** da 6.5. É a **marca** Terracota & Âmbar fixa (≠ tema neutro do app).
+**Objetivo:** tesouraria da igreja — resolve a **DOR #1** do mercado. **Depois** do Piloto Athos.
+**Dependências:** Sprints 1–7. **Riscos:** escopo grande; LGPD de dado financeiro; carga de VPS (OD-006).
+**Detalhe operacional:** ainda em alto nível — vira tasks quando autorizado (G-01).
+
+### Tasks (alto nível)
+- [ ] (P0) `apps/finance` (tenant): `Transaction` (receita/despesa, categoria, data, valor, método), `Contribution` (dízimo/oferta; FK opcional a `Person` **SET_NULL**/LGPD), `Receipt`.
+- [ ] (P0) Service layer: lançamento, conciliação, fechamento mensal.
+- [ ] (P0) **Ativar papel `treasurer`** (hoje stub): CBV escopadas Pastor + Tesoureiro (ACCESS_MATRIX §3 financeiro); 3 camadas de permissão.
+- [ ] (P0) Relatórios: balancete / relatório para assembleia, exportável (CSV; PDF via browser print).
+- [ ] (P0) LGPD: contribuição vinculada a pessoa é PII; consentimento/anonimização; `AuditLog`.
+- [ ] (P1) KPIs financeiros no Dashboard (entradas/saídas/saldo) p/ Pastor/Tesoureiro.
+
+### Testes mínimos
+- [ ] `test_treasurer_scope`, `test_transaction_audited`, `test_contribution_person_set_null` (LGPD), `test_financial_report_totals`, `test_tenant_isolation_matrix`/`test_permissions_matrix` (atualizados).
+
+### Critério de conclusão
+- [ ] Tesouraria funcional (lançar, conciliar, relatório); Tesoureiro escopado; cobertura `finance` no gate; matrizes verdes.
+
+---
+
+## Sprint 9 — Comunicação / WhatsApp via Evolution API — pós-piloto · OD-025
+
+**Objetivo:** mensagens **transacionais opt-in** via WhatsApp (canal #1 da igreja BR, DOR #5). **Depois** da Sprint 8.
+**Dependências:** Sprints 1–8. **Riscos:** ToS/ban (Baileys não-oficial), LGPD, infra (sessão por tenant + VPS), reliability — ver **OD-025**.
+
+### Tasks (alto nível)
+- [ ] (P0) `apps/messaging` (tenant): `MessageTemplate`, `MessageLog`, `Consent` (opt-in/opt-out por `Person`/canal).
+- [ ] (P0) Integração **Evolution API** (self-hosted): sessão/número **por tenant** (pareamento QR); envio via **fila Celery**.
+- [ ] (P0) Casos transacionais: lembrete de escala, confirmação de encontro/presença, recibo de contribuição (liga com `finance`).
+- [ ] (P0) **LGPD:** consentimento obrigatório por canal; opt-out respeitado; auditoria; **sem disparo em massa** (trava).
+- [ ] (P0) Infra: Evolution no `compose/production.yml`; **upgrade de VPS** (OD-006); monitoramento de sessão.
+
+### Testes mínimos
+- [ ] `test_message_requires_consent`, `test_mass_send_blocked`, `test_opt_out_respected`, `test_message_audited`.
+
+### Critério de conclusão
+- [ ] Lembrete de escala enviado via WhatsApp **com consentimento**; opt-out funciona; auditado; Cloud API oficial segue fora.
+
+---
+
+## Lançamento público — Landing + Go-to-Market
+
+**Quando:** **depois das Sprints 8 (Financeiro) e 9 (WhatsApp)** — no **lançamento público** o produto já tem **financeiro + WhatsApp + design Athos**, então o **slogan e a landing podem contar a história completa**. **O MVP/piloto NÃO tem divulgação de marca** (Athos é convite direto) — por isso o slogan é **do lançamento**, não do MVP.
+**Slogan/posicionamento:** ver `docs/superpowers/specs/2026-06-05-nome-produto-design.md` (Oikonos, OD-023). Como o lançamento tem tudo, o slogan pode liderar com os diferenciais reais: **seguro/LGPD + financeiro + unificado célula-tradicional + WhatsApp + feito-pro-Brasil**.
+**Marca:** Terracota & Âmbar fixa (≠ tema neutro do app); reaproveita o pipeline Tailwind compilado da Sprint 6.5.
 
 ### Tasks
 - [ ] (P1) Landing de venda completa (marca **Terracota & Âmbar fixa**, Fraunces/Inter): hero + proposta de valor + funcionalidades + app/mobile + planos + prova social + CTA + rodapé. Base no protótipo aprovado-para-revisão `referencias/prototipos/landing_terracota_v1.html`.
@@ -712,8 +755,8 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 - [ ] (P2) **Alternativa antecipável (opcional, a qualquer momento):** landing **"em breve" / waitlist** mínima (1 tela: hero + captura de e-mail), barata, para começar a juntar interesse **antes** da landing completa.
 
 ### Dependências
-- **Nome do produto** decidido (hoje placeholder "Comunhão"); **OD-001** (preços) para a seção de planos.
-- **Sprint 6.5** concluída (screenshots do app + pipeline Tailwind compartilhado).
+- **Nome do produto** = **Oikonos** (OD-023) — registrar domínio/INPI antes da landing; **OD-001** (preços) para a seção de planos.
+- **Sprints 6.5, 8 e 9** concluídas — no lançamento o produto já tem **design + financeiro + WhatsApp**, então o slogan/landing contam a história completa.
 
 ---
 
@@ -734,8 +777,11 @@ gantt
   Sprint 6 Files+Dashboard   :a6, after a5, 14d
   Sprint 6.5 Design UI Athos :a65, after a6, 14d
   Sprint 7 Deploy+Piloto     :a7, after a65, 21d
-  section Go-to-Market
-  Landing pública (pós-piloto):a8, after a7, 10d
+  section Pós-MVP
+  Sprint 8 Financeiro        :a8, after a7, 21d
+  Sprint 9 Comunicacao WA    :a9, after a8, 14d
+  section Lançamento
+  Landing + Go-to-Market     :a10, after a9, 10d
 ```
 
 ## Gate de segurança entre sprints

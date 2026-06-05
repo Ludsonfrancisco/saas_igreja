@@ -5,6 +5,7 @@
 > **Status:** Aprovado para virar fonte de verdade de produto, arquitetura, escopo, backlog, testes e sprints do MVP.
 > **Fonte de verdade:** Este documento. Em caso de conflito com o `01_SDD`, `02_PRD v2`, `03_Technical Spec` ou `04_MVP Scope` do Notion, prevalece a fonte mais específica e mais recente; quando o conflito não for resolvível, registrar em `OPEN_DECISIONS` e aplicar a regra mais conservadora em segurança e multi-tenancy.
 > **Design system:** **marca ≠ tema** — a marca/landing é Terracota & Âmbar fixa; o **app** usa a Paleta Athos (TECH_SPEC §11) como base neutra **temável por igreja** (`Church.accent_color`/`hot_color`/`logo`). Referência de qualidade em `referencias/templates/igreja_saas_novo.html`. O design system é **consolidado na Sprint 6.5**; nenhuma tela final é construída sem consultar essa referência.
+> **Marca:** o produto chama-se **Oikonos** (OD-023; de *oikonómos*, o mordomo da casa). Tagline: ***"Organize a igreja, fortaleça o ministério."*** Arquitetura verbal completa (descritor *"Mordomia, gestão e cuidado"*, sub-tagline, manifesto, campanha), história e mapeamento de dores em `docs/superpowers/specs/2026-06-05-nome-produto-design.md`. A marca só é usada no **lançamento** (pós-Sprint 9); o MVP/piloto não tem divulgação.
 
 ---
 
@@ -158,7 +159,7 @@ Há aproximadamente 400 mil igrejas no Brasil. A maioria, na faixa de 50 a 2.000
 
 ### 6.5 Persona 5 — Tesoureiro (futuro, fora do MVP profundo)
 
-- Pós-MVP. No MVP, perfil existe como `User.Role.TREASURER` com permissões mínimas; financeiro avançado é Fase 2.
+- No MVP, perfil existe como `User.Role.TREASURER` com permissões mínimas (stub). O **módulo financeiro é a Sprint 8** (OD-024, pós-piloto): dízimos/ofertas, lançamentos, recibos, relatórios.
 
 ### 6.6 Persona 6 — Membro / Pessoa (acesso limitado)
 
@@ -599,7 +600,7 @@ X_FRAME_OPTIONS = 'DENY'
 | Pastor / Admin da Igreja (`pastor` in roles) | Tenant | Acesso total dentro da igreja; MFA obrigatório a partir Sprint 7 |
 | Líder de Comunidade (`leader` in roles) | Tenant, escopo da comunidade | CRUD limitado às suas pessoas e encontros via `ScopedToCommunityMixin` |
 | Coordenador de Ministério (`leader` in roles) | Tenant, escopo do ministério | Gerencia escalas/voluntários via `ScopedToMinistryMixin` |
-| Tesoureiro (`treasurer` in roles) | Tenant, escopo financeiro | Pós-MVP; pode ser combinado com `leader` |
+| Tesoureiro (`treasurer` in roles) | Tenant, escopo financeiro | **Sprint 8** (OD-024, pós-piloto); pode ser combinado com `leader` |
 | Voluntário | Tenant, escopo individual | Pessoa com `Schedule`; **sem login dedicado**. Acessa as próprias escalas/próximos encontros **read-only via magic-link** (token assinado, sem conta/senha/MFA) — **OD-022**. Distinto do Membro geral (sem acesso) |
 | Membro / Pessoa (`member` in roles) | Tenant, escopo individual | OD-004 (fechada): **sem login no MVP**; existe apenas como `Person`. Login de Membro fica para a Fase 2 |
 
@@ -1201,6 +1202,22 @@ Uma sprint só é considerada pronta quando:
 - **Critério de conclusão:** Athos com 100+ pessoas cadastradas; 0 vazamentos cross-tenant; restore validado.
 - **Testes mínimos:** RF-100, RF-101; CA-080, CA-081; smoke completo.
 
+### Sprint 8 — Financeiro (pós-piloto · OD-024)
+
+- **Objetivo:** tesouraria da igreja (resolve a **DOR #1** do mercado). **Depois** do piloto.
+- **Escopo:** `apps/finance` — dízimos/ofertas, lançamentos (receita/despesa), recibos, conciliação, relatório para assembleia, exportável; **ativa o papel `treasurer`** (hoje stub).
+- **Dependências:** Sprints 1–7. **Riscos:** escopo grande; LGPD de dado financeiro; carga de VPS (OD-006).
+- **Critério:** lançar/conciliar/relatar; Tesoureiro escopado; matrizes verdes.
+
+### Sprint 9 — Comunicação / WhatsApp via Evolution API (pós-piloto · OD-025)
+
+- **Objetivo:** mensagens **transacionais opt-in** via WhatsApp (canal #1 da igreja BR, **DOR #5**).
+- **Escopo:** `apps/messaging` — `MessageTemplate`/`MessageLog`/`Consent`; integração **Evolution API** self-hosted (sessão por tenant, fila Celery); lembrete de escala, confirmação, recibo. **Business Cloud API oficial fora.**
+- **Dependências:** Sprints 1–8. **Riscos (OD-025):** ToS/ban, LGPD (consentimento+opt-out), infra (sessão por tenant + VPS), reliability. **Sem disparo em massa.**
+- **Critério:** lembrete enviado com consentimento; opt-out funciona; auditado.
+
+> **Lançamento público** (landing + slogan completo) vem **depois da Sprint 9** — quando o produto já tem design + financeiro + WhatsApp. O **MVP/piloto não tem divulgação de marca**.
+
 ### 25.1 Gate de segurança entre sprints
 
 > Nenhuma sprint operacional (3 em diante) pode ser marcada como pronta sem `test_tenant_isolation_matrix` e `test_permissions_matrix` aplicáveis passando.
@@ -1222,8 +1239,11 @@ gantt
   Sprint 6 Files+Dashboard   :a6, after a5, 14d
   Sprint 6.5 Design UI Athos :a65, after a6, 14d
   Sprint 7 Deploy+Piloto     :a7, after a65, 21d
-  section Go-to-Market
-  Landing pública (pós-piloto):a8, after a7, 10d
+  section Pós-MVP
+  Sprint 8 Financeiro        :a8, after a7, 21d
+  Sprint 9 Comunicacao WA    :a9, after a8, 14d
+  section Lançamento
+  Landing + Go-to-Market     :a10, after a9, 10d
 ```
 
 ---
@@ -1354,6 +1374,9 @@ gantt
 | OD-012 | Email transacional | Brevo free tier (300/dia) via `django-anymail` |
 | OD-021 | Download de arquivo (Sprint 6) | Streaming pela view autenticada (não URL assinada R2); sem link público permanente (fechada 2026-06-05) |
 | OD-022 | Acesso do voluntário escalado | Magic-link read-only sem conta (não login, não MFA), exclusivo de quem tem `Schedule`; Membro geral (OD-004) segue sem acesso (fechada 2026-06-05) |
+| OD-023 | Nome do produto | **Oikonos** (marca) + CasaIgreja (reserva/descritivo); substitui placeholder "Comunhão"; registro de domínio + INPI pendentes do dono (2026-06-05) |
+| OD-024 | Módulo Financeiro entra no escopo | `apps/finance` (dízimos/ofertas/lançamentos/recibos/relatórios); ativa o papel Tesoureiro; **pós-piloto, Sprint 8** (2026-06-05) |
+| OD-025 | Comunicação WhatsApp | Via **Evolution API** self-hosted (transacional/opt-in); Business Cloud API oficial fora; **pós-piloto, Sprint 9**; riscos ToS/ban/LGPD documentados (2026-06-05) |
 | RN-MULTI-ROLE | Multi-role por usuário | `User.roles ArrayField`, permissões viram união |
 | RN-NO-CHURCH-MIGRATION | Migração entre igrejas | Não suportada — excluir conta e recriar |
 

@@ -167,6 +167,7 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 - Athos + 9 igrejas pequenas em piloto cabem sem aperto.
 - Backup offsite no R2 mitiga risco de provedor.
 - Gatilho de migração para DigitalOcean ou banco gerenciado: >10 igrejas com uso pesado ou CPU/RAM acima de 70% sustentado.
+- **Reforço do gatilho (pós-piloto):** Sprint 8 (Financeiro) e sobretudo Sprint 9 (**Evolution API** = +1 serviço Node + sessão por tenant) devem **exigir upgrade de VPS** — reavaliar dimensionamento antes da Sprint 9 (OD-024/OD-025).
 
 ---
 
@@ -453,6 +454,65 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 
 ---
 
+### OD-023 — Nome do produto
+
+| Campo | Valor |
+|---|---|
+| Status | ✅ Decidida (2026-06-05) — **registro de domínio + INPI pendentes de confirmação pelo dono** |
+| Impacto | Alto (marca, GTM, landing, logo) |
+| Owner | Produto + Dono |
+| Decisão | **Oikonos** (marca primária) + **CasaIgreja** (reserva + domínio descritivo/SEO). Substitui o placeholder "Comunhão" |
+
+**Contexto:** o app rodava com placeholder "Comunhão". Avaliados 5 candidatos do dono (Oikonos, Diakonis, Ministrae, Templaris, Celestra) + alternativas, com `.com.br` livre como filtro decisivo (verificado no RDAP do registro.br).
+
+**Decisão:** **Oikonos** — do grego *oîkos* (casa/lar) + *oikonómos* (mordomo da casa) → "administrar a casa da fé": gestão + acolhimento num só conceito, transdenominacional, brandável, `.com.br` livre. **CasaIgreja** como reserva e domínio descritivo (tradução transparente de *oîkos*; `.com.br` livre).
+
+**Justificativa resumida:** toda palavra cristã óbvia (ágape, comunhão, koinonia…) já está registrada no `.com.br` → disponibilidade vive em nomes cunhados. Oikonos é o único cujo significado descreve o produto (administrar a "casa"/comunidade). Descartados: Templaris (conotação templária vs marca acolhedora), Ministrae (pronúncia ambígua), Celestra (domínio tomado).
+
+**Pendências do dono (não automatizáveis):** confirmar disponibilidade e **registrar** `oikonos.com.br` + `casaigreja.com.br` (+ defensivas); **checar marca no INPI** (domínio livre ≠ marca livre).
+
+**Detalhe, história da marca e opções de slogan:** `docs/superpowers/specs/2026-06-05-nome-produto-design.md`.
+
+---
+
+### OD-024 — Módulo Financeiro entra no escopo (pós-piloto, Sprint 8)
+
+| Campo | Valor |
+|---|---|
+| Status | ✅ Decidida (2026-06-05) — roadmap **pós-piloto (Sprint 8)** |
+| Impacto | Alto (escopo, diferencial de mercado, infra) |
+| Owner | Produto + Dono |
+| Decisão | Construir **`apps/finance`**: dízimos/ofertas, lançamentos (receita/despesa), recibos, conciliação, relatório para assembleia, exportável. **Ativa o papel `treasurer`** (hoje stub). **Depois** do Piloto Athos |
+
+**Contexto:** a pesquisa de mercado (time de marketing) apontou **financeiro fraco/inexistente como a DOR #1** dos concorrentes. A spec marcava financeiro como "pós-MVP" genérico; agora vira **roadmap explícito (Sprint 8)**.
+
+**Justificativa:** é um diferencial forte (resolve a #1), mas mantido **pós-piloto** para não estourar o MVP nem atrasar o piloto (mitiga RISK-010 e o risco do PRD §"pressão para adicionar financeiro cedo").
+
+**Implicações:** novo app `finance` no schema do tenant; models financeiros + LGPD (dados financeiros são sensíveis na trilha); o papel `treasurer` ganha telas/escopo (ACCESS_MATRIX §3.x financeiro: Pastor + Tesoureiro); **provável upgrade de VPS** (ver OD-006) somado ao WhatsApp. Posicionamento: só entra no slogan/landing **depois de construído** ("construir antes de prometer").
+
+---
+
+### OD-025 — Comunicação WhatsApp via Evolution API (pós-piloto, Sprint 9)
+
+| Campo | Valor |
+|---|---|
+| Status | ✅ Decidida (2026-06-05) — roadmap **pós-piloto (Sprint 9)** |
+| Impacto | Alto (canal #1 da igreja BR; risco ToS/LGPD/infra) |
+| Owner | Produto + Segurança + Ops |
+| Decisão | Integração WhatsApp via **Evolution API** (gateway self-hosted) para mensagens **transacionais/opt-in** (ex.: lembrete de escala, confirmação). A **WhatsApp Business Cloud API oficial permanece FORA** (stack proibida mantida). **Sem disparo em massa/marketing** |
+
+**Contexto:** WhatsApp é o **canal #1** da igreja brasileira (DOR #5). A Business Cloud API oficial está proibida na stack (custo/complexidade); a **Evolution API** (self-hosted, normalmente via Baileys/WhatsApp Web) é a alternativa escolhida.
+
+**Riscos (documentados — decisão de olhos abertos):**
+- **ToS / ban:** automação não-oficial viola os termos da Meta; **disparo em massa** é o maior gatilho de bloqueio do número da igreja.
+- **LGPD:** dado de frequência religiosa é **sensível** (art. 5º); enviar por WhatsApp exige **consentimento + opt-out**; igreja = controladora, plataforma = operadora.
+- **Infra:** **uma sessão/número por tenant** (pareamento QR, reconexão); +1 serviço (Node + banco) no VPS → reforça o **upgrade de VPS** (OD-006).
+- **Reliability:** quebra quando o WhatsApp muda; precisa de monitoramento da sessão.
+
+**Mitigações:** uso **transacional/opt-in de baixo volume** (não marketing em massa); consentimento explícito; rate-limit; fila Celery; e caminho de migração para a **Cloud API oficial** depois (o Evolution também a suporta como backend).
+
+---
+
 ## Histórico — decisões fechadas
 
 | ID | Decisão | Data | Resultado |
@@ -466,6 +526,9 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 | OD-020 | `on_delete` de `Attendance.person` | 2026-06-05 | `SET_NULL` (alinha RN-007: presença preservada no purge da Pessoa); corrige `TECH_SPEC §5.6` que trazia `CASCADE` |
 | OD-021 | Mecanismo de download de arquivo (Sprint 6) | 2026-06-05 | Streaming pela view autenticada (não URL assinada R2); substitui `test_signed_url_expires_in_60s` por testes de permissão/streaming |
 | OD-022 | Acesso do voluntário escalado | 2026-06-05 | Magic-link read-only sem conta (não login, não MFA), exclusivo de quem tem `Schedule`; Membro geral (OD-004) segue sem acesso |
+| OD-023 | Nome do produto | 2026-06-05 | **Oikonos** (marca) + CasaIgreja (reserva/descritivo); substitui placeholder "Comunhão"; registro de domínio + INPI pendentes do dono |
+| OD-024 | Módulo Financeiro entra no escopo | 2026-06-05 | `apps/finance` (dízimos/ofertas/lançamentos/recibos/relatórios); ativa Tesoureiro; pós-piloto **Sprint 8** |
+| OD-025 | Comunicação WhatsApp | 2026-06-05 | Via **Evolution API** self-hosted (transacional/opt-in); Business Cloud API oficial fora; pós-piloto **Sprint 9**; riscos ToS/ban/LGPD documentados |
 | OD-003a | Storage de mídia | 2026-05-27 | Cloudflare R2 (S3-compatible) desde Sprint 6 |
 | OD-006 | VPS definitivo | 2026-05-27 | Hostinger KVM 2 (8GB, 2 vCPU, 100GB NVMe) |
 | OD-007 | Storage offsite | 2026-05-27 | Cloudflare R2 (mesma conta de OD-003a) |
