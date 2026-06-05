@@ -1,0 +1,73 @@
+/* Oikonos — Design System (Sprint 6.5, Bloco 1).
+   Tailwind v4 (CSS-first). Paleta Athos (TECH_SPEC §11) como BASE NEUTRA;
+   o acento (accent/hot) é TEMÁVEL POR IGREJA via CSS vars injetadas no base.html
+   a partir de Church.accent_color / Church.hot_color (DS-01, marca ≠ tema). */
+
+@import 'tailwindcss';
+
+/* Onde o Tailwind procura classes (Django templates + parciais). */
+@source '../../templates';
+@source '../../apps';
+
+@theme {
+  /* Acento temável por igreja (resolve para as CSS vars de :root abaixo) */
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-hot: var(--hot);
+
+  /* Base neutra Athos (fixa) */
+  --color-bg: #efe7da;
+  --color-bg-soft: #f6f0e5;
+  --color-paper: #ffffff;
+  --color-ink: #161412;
+  --color-ink-2: #2a2522;
+  --color-muted: #6f6557;
+  --color-muted-2: #94897a;
+  --color-hairline: #e6dece;
+  --color-line: #d9cfbf;
+  --color-success: #4d7c2f;
+  --color-danger: #c23a22;
+
+  /* Tipografia (TECH_SPEC §11): Inter corpo, Montserrat display, Instrument Serif destaque */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Montserrat', 'Inter', system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', 'Times New Roman', serif;
+
+  /* Raios e sombras suaves (DS-02 — emoção nos detalhes) */
+  --radius-xl2: 1.25rem;
+  --shadow-soft: 0 10px 25px rgba(22, 20, 18, 0.04);
+  --shadow-md2: 0 20px 40px rgba(22, 20, 18, 0.06);
+}
+
+/* Defaults do acento — SOBRESCRITOS por igreja no base.html (Church.accent/hot). */
+:root {
+  --accent: #7c3f06;
+  --accent-2: #5a2d04;
+  --hot: #ff9c1a;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Foco visível sempre (WCAG AA / DS-04) */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  /* Respeita prefers-reduced-motion (DS-04) */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}

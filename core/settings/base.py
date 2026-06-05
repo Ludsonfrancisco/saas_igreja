@@ -126,6 +126,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Tema visual da igreja atual (Sprint 6.5 / DS-01) — injeta
+                # accent/hot/logo da Church em CSS vars no base.html.
+                'apps.core.context_processors.church_theme',
             ],
         },
     },

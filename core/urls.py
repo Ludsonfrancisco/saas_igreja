@@ -46,5 +46,15 @@ urlpatterns: list[path] = [
 # para que prod (DEBUG=False, sem o app instalado) nunca tente importa-lo.
 if settings.DEBUG:
     import debug_toolbar
+    from django.views.generic import TemplateView
 
-    urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]
+    urlpatterns += [
+        path('__debug__/', include(debug_toolbar.urls)),
+        # Styleguide do design system (Sprint 6.5 / Bloco 1) — SÓ em dev.
+        # Vitrine de tokens/componentes Athos para revisão visual.
+        path(
+            'styleguide/',
+            TemplateView.as_view(template_name='styleguide.html'),
+            name='styleguide',
+        ),
+    ]

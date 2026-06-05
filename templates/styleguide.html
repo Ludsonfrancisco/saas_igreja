@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% comment %}Styleguide do design system Oikonos (Sprint 6.5 / Bloco 1). Dev-only.
+Vitrine de tokens e componentes para revisão visual. NÃO é tela de produto.{% endcomment %}
+{% block title %}Styleguide · Oikonos{% endblock %}
+
+{% block content %}
+  {% include 'components/page_header.html' with title='Design System — Oikonos' subtitle='Vitrine de tokens e componentes (Sprint 6.5). O acento muda por igreja (Church.accent/hot).' %}
+
+  {# ── Cores ── #}
+  <section class="mb-10">
+    <h2 class="mb-3 font-display text-lg font-semibold">Cores</h2>
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+      <div class="rounded-xl2 border border-hairline bg-accent p-4 text-paper shadow-soft"><span class="text-xs">accent (igreja)</span></div>
+      <div class="rounded-xl2 border border-hairline bg-accent-2 p-4 text-paper shadow-soft"><span class="text-xs">accent-2</span></div>
+      <div class="rounded-xl2 border border-hairline bg-hot p-4 text-ink shadow-soft"><span class="text-xs">hot (igreja)</span></div>
+      <div class="rounded-xl2 border border-hairline bg-bg p-4 text-ink"><span class="text-xs">bg</span></div>
+      <div class="rounded-xl2 border border-hairline bg-bg-soft p-4 text-ink"><span class="text-xs">bg-soft</span></div>
+      <div class="rounded-xl2 border border-hairline bg-paper p-4 text-ink shadow-soft"><span class="text-xs">paper</span></div>
+    </div>
+  </section>
+
+  {# ── Tipografia ── #}
+  <section class="mb-10">
+    <h2 class="mb-3 font-display text-lg font-semibold">Tipografia</h2>
+    <div class="space-y-2 rounded-xl2 border border-hairline bg-paper p-6 shadow-soft">
+      <p class="font-display text-3xl font-bold">Montserrat — display / títulos</p>
+      <p class="font-sans text-base">Inter — corpo de texto. Organize a igreja, fortaleça o ministério.</p>
+      <p class="font-serif text-2xl italic">Instrument Serif — destaques editoriais</p>
+    </div>
+  </section>
+
+  {# ── Botões ── #}
+  <section class="mb-10">
+    <h2 class="mb-3 font-display text-lg font-semibold">Botões</h2>
+    <div class="flex flex-wrap items-center gap-3">
+      <button class="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-paper hover:bg-accent-2">Primário</button>
+      <button class="rounded-lg border border-line bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-bg-soft">Secundário</button>
+      <button class="rounded-lg bg-danger px-4 py-2 text-sm font-medium text-paper hover:opacity-90">Destrutivo</button>
+      <button class="rounded-lg px-4 py-2 text-sm font-medium text-accent hover:bg-accent/10">Texto</button>
+    </div>
+  </section>
+
+  {# ── Badges ── #}
+  <section class="mb-10">
+    <h2 class="mb-3 font-display text-lg font-semibold">Badges</h2>
+    <div class="flex flex-wrap items-center gap-2">
+      {% include 'components/badge.html' with text='Acento' variant='accent' %}
+      {% include 'components/badge.html' with text='Ativo' variant='success' %}
+      {% include 'components/badge.html' with text='Removido' variant='danger' %}
+      {% include 'components/badge.html' with text='Rascunho' variant='muted' %}
+    </div>
+  </section>
+
+  {# ── Card + Tabela responsiva ── #}
+  <section class="mb-10">
+    <h2 class="mb-3 font-display text-lg font-semibold">Card &amp; tabela</h2>
+    <div class="overflow-hidden rounded-xl2 border border-hairline bg-paper shadow-soft">
+      <table class="w-full text-sm">
+        <thead class="bg-bg-soft text-left text-muted">
+          <tr><th class="px-4 py-3 font-medium">Pessoa</th><th class="px-4 py-3 font-medium">Comunidade</th><th class="px-4 py-3 font-medium">Situação</th></tr>
+        </thead>
+        <tbody class="divide-y divide-hairline">
+          <tr><td class="px-4 py-3">Ana Souza</td><td class="px-4 py-3 text-muted">Célula Central</td><td class="px-4 py-3">{% include 'components/badge.html' with text='Membro' variant='success' %}</td></tr>
+          <tr><td class="px-4 py-3">Beto Lima</td><td class="px-4 py-3 text-muted">—</td><td class="px-4 py-3">{% include 'components/badge.html' with text='Visitante' variant='muted' %}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {# ── Form field ── #}
+  <section class="mb-10">
+    <h2 class="mb-3 font-display text-lg font-semibold">Campo de formulário</h2>
+    <div class="max-w-sm space-y-1">
+      <label for="sg-nome" class="block text-sm font-medium text-ink">Nome</label>
+      <input id="sg-nome" type="text" placeholder="Ex.: Ana Souza"
+             class="w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink placeholder:text-muted-2 focus:border-accent focus:ring-2 focus:ring-accent/30">
+      <p class="text-xs text-muted">Texto de ajuda do campo.</p>
+    </div>
+  </section>
+
+  {# ── Empty state ── #}
+  <section class="mb-10">
+    <h2 class="mb-3 font-display text-lg font-semibold">Estado vazio</h2>
+    {% include 'components/empty_state.html' with title='Nenhum lançamento ainda' message='Quando registrar a primeira entrada, ela aparece aqui.' cta_label='Novo lançamento' %}
+  </section>
+{% endblock %}

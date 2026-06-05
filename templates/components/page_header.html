@@ -1,0 +1,8 @@
+{% comment %}Cabeçalho de página (título + subtítulo). Uso:
+  {% include 'components/page_header.html' with title='Pessoas' subtitle='...' %}
+Props: title (obrigatório), subtitle. Ações da página vêm no próprio template
+(ao lado, via flex) — este parcial cobre só o título.{% endcomment %}
+<div class="mb-6">
+  <h1 class="font-display text-2xl font-bold tracking-tight text-ink">{{ title }}</h1>
+  {% if subtitle %}<p class="mt-1 text-sm text-muted">{{ subtitle }}</p>{% endif %}
+</div>

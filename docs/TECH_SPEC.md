@@ -734,41 +734,28 @@ Regressão coberta por `test_list_users_requires_login` e
 - **Customização por tenant:** `Church.accent_color` e `Church.hot_color` (defaults `#7C3F06`/`#FF9C1A`) + `Church.logo` injetados em CSS variables no `<html>` — base neutra + acento por igreja.
 - **Mobile-first (DS-03):** papéis operacionais (Líder/Coordenador/voluntário) priorizam mobile (bottom-nav); admin (Pastor/Secretário/Tesoureiro) cobrem desktop **e** mobile. Acessibilidade WCAG AA; Lighthouse mobile ≥ 90 (Sprint 6.5).
 
-### 11.1 TailwindCSS config
+### 11.1 TailwindCSS — build (v4, CSS-first; **implementado Sprint 6.5/Bloco 1**)
 
-```js
-// tailwind.config.js
-module.exports = {
-    content: [
-        './apps/**/templates/**/*.html',
-        './templates/**/*.html',
-    ],
-    theme: {
-        extend: {
-            colors: {
-                athos: {
-                    accent: '#7C3F06',
-                    'accent-2': '#5A2D04',
-                    hot: '#FF9C1A',
-                    bg: '#EFE7DA',
-                    'bg-soft': '#F6F0E5',
-                    ink: '#161412',
-                    'ink-2': '#2A2522',
-                    paper: '#FFFFFF',
-                    hairline: '#E6DECE',
-                    line: '#D9CFBF',
-                    muted: '#6F6557',
-                    'muted-2': '#94897A',
-                },
-            },
-            fontFamily: {
-                body: ['Inter', 'system-ui', 'sans-serif'],
-                display: ['Montserrat', 'Inter', 'system-ui', 'sans-serif'],
-                serif: ['Instrument Serif', 'Times New Roman', 'serif'],
-            },
-        },
-    },
-};
+Tailwind **v4** (config no CSS via `@theme`, sem `tailwind.config.js`). Compilado pelo **CLI standalone** via `pytailwindcss` (pip, **sem Node/node_modules**).
+
+- **Fonte:** `static/src/input.css` (`@import 'tailwindcss'` + `@theme` com a Paleta Athos + `@source` apontando para `templates/` e `apps/`).
+- **Acento temável por igreja:** no `@theme`, `--color-accent: var(--accent)` / `--color-hot: var(--hot)`; os defaults ficam em `:root` e são **sobrescritos por igreja** no `base.html` (`apps.core.context_processors.church_theme` lê `Church.accent_color`/`hot_color`/`logo`). A base neutra (bg/ink/paper/…) é fixa.
+- **Build:** `uv run tailwindcss -i static/src/input.css -o static/css/app.css --minify` → `app.css` servido via `{% static %}` (compilado/purgado, não CDN → DS-05/Lighthouse).
+- **Tipografia (Google Fonts):** Inter (corpo), Montserrat (display), Instrument Serif (destaque).
+
+```css
+/* static/src/input.css (trecho) */
+@import 'tailwindcss';
+@source '../../templates';
+@source '../../apps';
+@theme {
+  --color-accent: var(--accent);   /* Church.accent_color */
+  --color-hot: var(--hot);         /* Church.hot_color */
+  --color-bg: #efe7da; --color-paper: #fff; --color-ink: #161412; /* … base neutra fixa */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Montserrat', 'Inter', sans-serif;
+}
+:root { --accent: #7c3f06; --hot: #ff9c1a; }  /* defaults; base.html sobrescreve por igreja */
 ```
 
 ---

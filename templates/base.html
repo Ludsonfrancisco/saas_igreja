@@ -1,0 +1,88 @@
+{% load static %}<!DOCTYPE html>
+{% comment %}Oikonos — base.html do app (Sprint 6.5 / Bloco 1).
+Esqueleto do documento + tema por igreja (DS-01) + header de marca + área de
+mensagens (toasts Alpine) + skip-link (a11y). O shell de navegação por papel
+(sidebar desktop / bottom-nav mobile) entra no Bloco 2.{% endcomment %}
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}Oikonos{% endblock %}</title>
+
+  {# Tema por igreja (DS-01): base neutra Athos + acento de Church.accent/hot #}
+  <style>
+    :root {
+      --accent: {{ theme_accent }};
+      --accent-2: {{ theme_accent_2 }};
+      --hot: {{ theme_hot }};
+    }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+
+  <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
+  {% block head_extra %}{% endblock %}
+</head>
+<body class="min-h-screen bg-bg text-ink font-sans antialiased">
+
+  <a href="#conteudo"
+     class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-paper focus:px-4 focus:py-2 focus:shadow-md2">
+    Pular para o conteúdo
+  </a>
+
+  {# ── Header de marca ── #}
+  <header class="sticky top-0 z-30 border-b border-hairline bg-paper/90 backdrop-blur">
+    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+      <a href="/" class="flex items-center gap-3" aria-label="Oikonos — início">
+        {% if theme_logo_url %}
+          <img src="{{ theme_logo_url }}" alt="{{ church_name }}" class="h-9 w-9 rounded-full object-cover ring-1 ring-hairline">
+        {% else %}
+          <span class="grid h-9 w-9 place-items-center rounded-full bg-accent text-paper font-display font-bold">O</span>
+        {% endif %}
+        <span class="font-display text-lg font-bold tracking-tight text-ink">
+          {{ church_name }}
+        </span>
+      </a>
+      <div class="flex items-center gap-2">
+        {% block header_actions %}{% endblock %}
+        {% if request.user.is_authenticated %}
+          <a href="/contas/seguranca/" class="text-sm text-muted hover:text-ink">Conta</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  {# ── Mensagens → toasts (Alpine, auto-dismiss) ── #}
+  {% if messages %}
+    <div class="pointer-events-none fixed inset-x-0 top-20 z-40 flex flex-col items-center gap-2 px-4" aria-live="polite">
+      {% for message in messages %}
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
+             x-transition.opacity
+             class="pointer-events-auto w-full max-w-md rounded-xl border border-hairline bg-paper px-4 py-3 shadow-md2
+                    {% if message.tags == 'error' %}border-l-4 border-l-danger{% elif message.tags == 'success' %}border-l-4 border-l-success{% else %}border-l-4 border-l-accent{% endif %}">
+          <div class="flex items-start justify-between gap-3">
+            <p class="text-sm text-ink">{{ message }}</p>
+            <button type="button" @click="show = false" class="text-muted hover:text-ink" aria-label="Fechar">&times;</button>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {# ── Conteúdo ── #}
+  <main id="conteudo" class="mx-auto max-w-6xl px-4 py-6">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="mx-auto max-w-6xl px-4 py-8 text-center text-xs text-muted-2">
+    {{ church_name }} · Oikonos
+  </footer>
+
+  {% block body_extra %}{% endblock %}
+</body>
+</html>

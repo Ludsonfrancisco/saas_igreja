@@ -60,6 +60,10 @@ dev = [
     "safety>=3.2",
     "nplusone>=1.0",
     "django-debug-toolbar>=4.4",
+    # pytailwindcss: wrapper do CLI standalone do Tailwind (baixa o binário, sem
+    # Node/node_modules). Build do CSS do design system (Sprint 6.5):
+    #   uv run tailwindcss -i static/src/input.css -o static/css/app.css --minify
+    "pytailwindcss>=0.3",
 ]
 
 # ----------------------------------------------------------------------------
