@@ -1,0 +1,30 @@
+{% comment %}Lista de Escalas (Sprint 5 / Frente 1). Markup mínimo pt-BR.{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Escalas</title></head>
+<body>
+  <h1>Escalas</h1>
+
+  {% if messages %}
+    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  <p><a href="{% url 'schedules:create' %}">Nova escala</a></p>
+
+  <table>
+    <thead><tr><th>Encontro</th><th>Ministério</th><th>Voluntário</th><th>Função</th></tr></thead>
+    <tbody>
+      {% for schedule in schedules %}
+        <tr>
+          <td><a href="{% url 'schedules:detail' pk=schedule.pk %}">{{ schedule.gathering }}</a></td>
+          <td>{{ schedule.ministry.name }}</td>
+          <td>{{ schedule.person.name|default:'(removida)' }}</td>
+          <td>{{ schedule.role|default:'—' }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4">Nenhuma escala cadastrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

@@ -159,6 +159,32 @@ def test_export_person_data_returns_json_and_csv(in_tenant_a):
 
 
 @pytest.mark.django_db(transaction=True)
+def test_export_person_data_includes_attendance(in_tenant_a):
+    """Direito de acesso LGPD: export traz a frequência (não só o registro)."""
+    import datetime
+
+    from apps.gatherings.models import Attendance, Gathering
+
+    person = services.create_person(church=in_tenant_a, name='Léo')
+    gathering = Gathering.objects.create(
+        gathering_type=Gathering.Type.WORSHIP,
+        title='Culto',
+        date=datetime.date(2026, 6, 10),
+    )
+    Attendance.objects.create(gathering=gathering, person=person, is_present=True)
+
+    result = services.export_person_data(person=person)
+    parsed = json.loads(result['json'])
+
+    assert len(parsed['attendances']) == 1
+    assert '2026-06-10' in parsed['attendances'][0]
+    assert 'presente' in parsed['attendances'][0]
+    # CSV achata a lista com '; ' (frase legível, sem quebrar o writer).
+    rows = list(csv.reader(io.StringIO(result['csv'])))
+    assert rows[0] == list(parsed.keys())
+
+
+@pytest.mark.django_db(transaction=True)
 def test_export_person_data_audited(in_tenant_a):
     person = services.create_person(church=in_tenant_a, name='Rui')
     services.export_person_data(person=person)

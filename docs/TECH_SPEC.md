@@ -502,10 +502,17 @@ class Attendance(BaseModel):
 
 ```python
 # apps/schedules/models.py
-class Schedule(BaseModel):
-    """Escala de voluntário em ministério para um Gathering."""
+class Schedule(BaseModel, AuditLogMixin):
+    """Escala de voluntário em ministério para um Gathering.
+
+    Herda `AuditLogMixin` (create/update/delete auditados). `person` é
+    `on_delete=SET_NULL` por RN-007 / OD-020 (FKs para Person preservam o
+    histórico — corrige o CASCADE original desta spec, alinhando ao Attendance).
+    """
     ministry = models.ForeignKey('ministries.Ministry', on_delete=models.CASCADE)
-    person = models.ForeignKey('people.Person', on_delete=models.CASCADE)
+    person = models.ForeignKey(
+        'people.Person', on_delete=models.SET_NULL, null=True, blank=True
+    )
     gathering = models.ForeignKey('gatherings.Gathering', on_delete=models.CASCADE)
     role = models.CharField(max_length=60, blank=True, default='')
     notes = models.TextField(blank=True, default='')

@@ -165,14 +165,16 @@ auditado (`role_change`); RN-004 (último Pastor) intacta.
 
 ### 3.7 Escalas e Voluntários
 
-| Ação | Platform Admin | Pastor | Líder Com. | Coord. Min. | Tesoureiro | Membro |
-|---|---|---|---|---|---|---|
-| Listar escalas | ❌ | ✅ | ❌ | 🟡 (seu ministério) | ❌ | ❌ |
-| Criar escala | ❌ | ✅ | ❌ | 🟡 (seu ministério) | ❌ | ❌ |
-| Editar escala | ❌ | ✅ | ❌ | 🟡 (seu ministério) | ❌ | ❌ |
-| Excluir escala | ❌ | ✅ | ❌ | 🟡 (seu ministério) | ❌ | ❌ |
-| Aprovar exceção de conflito | ❌ | ✅ 📝 | ❌ | 🟡 📝 (seu ministério) | ❌ | ❌ |
-| Ver próprias escalas | — | ✅ | ✅ | ✅ | ✅ | ✅ |
+> **OD-019 (Secretário) + decisão Sprint 5 (2026-06-05):** o Secretário é **admin no CRUD** de escalas (lista/cria/edita/exclui em qualquer ministério, como o Pastor). **Exceção:** **não aprova exceção de conflito** (❌ 🔒) — o override de conflito fica restrito ao **Pastor + Coordenador competente** (coordenador do `Schedule.ministry`), preservando o controle de quem autoriza furar a regra.
+
+| Ação | Platform Admin | Pastor | Secretário | Líder Com. | Coord. Min. | Tesoureiro | Membro |
+|---|---|---|---|---|---|---|---|
+| Listar escalas | ❌ | ✅ | ✅ | ❌ | 🟡 (seu ministério) | ❌ | ❌ |
+| Criar escala | ❌ | ✅ | ✅ | ❌ | 🟡 (seu ministério) | ❌ | ❌ |
+| Editar escala | ❌ | ✅ | ✅ | ❌ | 🟡 (seu ministério) | ❌ | ❌ |
+| Excluir escala | ❌ | ✅ | ✅ | ❌ | 🟡 (seu ministério) | ❌ | ❌ |
+| Aprovar exceção de conflito | ❌ | ✅ 📝 | ❌ 🔒 | ❌ | 🟡 📝 (seu ministério) | ❌ | ❌ |
+| Ver próprias escalas | — | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ### 3.8 Arquivos e PDFs
 

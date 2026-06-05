@@ -1,0 +1,15 @@
+{% comment %}Confirmação de exclusão de Escala (Sprint 5 / Frente 1). CSRF.{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Excluir escala</title></head>
+<body>
+  <h1>Excluir esta escala?</h1>
+  <p>{{ schedule.person.name|default:'(removida)' }} — {{ schedule.ministry.name }} @ {{ schedule.gathering }}</p>
+  <p>Esta ação não pode ser desfeita.</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Excluir definitivamente</button>
+  </form>
+  <p><a href="{% url 'schedules:detail' pk=schedule.pk %}">Cancelar</a></p>
+</body>
+</html>

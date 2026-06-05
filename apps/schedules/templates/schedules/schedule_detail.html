@@ -1,0 +1,26 @@
+{% comment %}Detalhe de Escala (Sprint 5 / Frente 1). Markup mínimo pt-BR.{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Escala</title></head>
+<body>
+  <h1>Escala</h1>
+
+  {% if messages %}
+    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  <dl>
+    <dt>Encontro</dt><dd>{{ schedule.gathering }}</dd>
+    <dt>Ministério</dt><dd>{{ schedule.ministry.name }}</dd>
+    <dt>Voluntário</dt><dd>{{ schedule.person.name|default:'(removida)' }}</dd>
+    <dt>Função</dt><dd>{{ schedule.role|default:'—' }}</dd>
+    <dt>Observações</dt><dd>{{ schedule.notes|default:'—' }}</dd>
+  </dl>
+
+  <p>
+    <a href="{% url 'schedules:update' pk=schedule.pk %}">Editar</a> ·
+    <a href="{% url 'schedules:delete' pk=schedule.pk %}">Excluir</a> ·
+    <a href="{% url 'schedules:list' %}">Voltar</a>
+  </p>
+</body>
+</html>

@@ -175,7 +175,20 @@ def export_person_data(*, person):
     (payload sem PII). Como não há escrita no banco, o `record_audit` é explícito
     (o signal de auditoria só cobre save/delete). Retorna
     `{'data': dict, 'json': str, 'csv': str}`.
+
+    Inclui os DADOS RELACIONADOS à pessoa (direito de acesso LGPD não se limita aos
+    campos do registro): hoje, a frequência (`attendances`). Escalas (Sprint 5) e
+    arquivos (Sprint 6) entram aqui quando existirem. Frase legível por linha para
+    o CSV achatar sem perda (`'; '.join`). `select_related('gathering')` evita N+1.
     """
+    attendances = [
+        f"{att.gathering.date.isoformat()} "
+        f"{att.gathering.get_gathering_type_display()}"
+        f" - {'presente' if att.is_present else 'ausente'}"
+        for att in person.attendances.select_related('gathering').order_by(
+            '-gathering__date'
+        )
+    ]
     data = {
         'id': person.pk,
         'name': person.name,
@@ -189,6 +202,7 @@ def export_person_data(*, person):
             person.consent_given_at.isoformat() if person.consent_given_at else None
         ),
         'notes': person.notes,
+        'attendances': attendances,
         'created_at': person.created_at.isoformat(),
     }
 
