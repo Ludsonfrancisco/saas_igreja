@@ -58,7 +58,7 @@ Conflito entre documentos: prevalece o mais específico e recente. Conflito não
 | Storage | Cloudflare R2 via `django-storages` (decidido OD-003a/OD-007: desde Sprint 6) |
 | Email | Brevo free tier via `django-anymail[brevo]` (decidido OD-012) |
 | Comunicação WhatsApp | **Evolution API** self-hosted (transacional/opt-in) — pós-MVP Sprint 9 (OD-025). Business Cloud API oficial **fora** |
-| Financeiro | `apps/finance` (dízimos/ofertas/lançamentos/recibos) — pós-MVP Sprint 8 (OD-024) |
+| Financeiro | `apps/finance` — **básico no MVP** (lançamentos/dízimos/saldo/**dashboard**, Sprint 6.7, OD-024a); avançado (recibos PDF/conciliação/relatório/doação online) Sprint 8 (OD-024b) |
 | Hosting | Hostinger KVM 2 (8GB, 2 vCPU) + EasyPanel Free + Cloudflare Free (decidido OD-006) |
 | Testes | pytest + pytest-django + pytest-cov + nplusone |
 | Lint/format | Ruff + Black |
@@ -134,15 +134,16 @@ P-ARQ-01 App-per-Bounded-Context · P-ARQ-02 `BaseModel(created_at, updated_at)`
 
 ## Sprint progression (não pular foundation)
 
-Ordem obrigatória (MVP = 0..7 + 6.5; pós-MVP = 8, 9; depois lançamento):
+Ordem obrigatória (MVP = 0..7 + 6.5 + 6.7; pós-MVP = 8, 9; depois lançamento):
 
 ```
 Sprint 0 (docs) → 1 (Django+tenants+health) → 2 (auth+convites+autoriz+audit+SupportAccess+MFA opt-in)
 → 3 (Pessoas+Comunidades+Ministérios+LGPD) → 4 (Encontros+Presença) → 5 (Escalas+conflito)
 → 6 (Files R2+Dashboard) → 6.5 (Design System/UI Athos — base.html+Tailwind+tema por igreja, mobile-first, magic-link do voluntário OD-022)
+→ 6.7 (Financeiro Básico — apps/finance: lançamentos/dízimos/saldo/dashboard, ativa Tesoureiro, OD-024a — produto nasceu de necessidade financeira)
 → 7 (Deploy+Backup+Restore+MFA enforce+Pen test+Piloto Athos)
 --- fim do MVP / pós-piloto ---
-→ 8 (Financeiro — apps/finance, ativa Tesoureiro, OD-024) → 9 (Comunicação/WhatsApp via Evolution API, OD-025)
+→ 8 (Financeiro Avançado — recibos/conciliação/relatório/doação online, OD-024b) → 9 (Comunicação/WhatsApp via Evolution API, OD-025)
 → Lançamento público (landing + slogan completo)
 ```
 

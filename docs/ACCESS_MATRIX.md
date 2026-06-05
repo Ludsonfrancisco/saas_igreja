@@ -19,7 +19,7 @@ Matriz detalhada de permissões por módulo, ação e papel. Toda barreira efeti
 | Secretário | Admin da igreja, sem financeiro | `'secretary' in user.roles` — cadastra/edita pessoas, grupos e escalas e **concede acessos (com teto)**; NÃO faz financeiro nem ações irreversíveis (anonimizar/excluir) |
 | Líder de Comunidade | Sua(s) comunidade(s) | `'leader' in user.roles` + comunidades onde é `Community.leader` |
 | Coordenador de Ministério | Seu(s) ministério(s) | `'leader' in user.roles` + ministérios onde é `Ministry.coordinator` |
-| Tesoureiro | Escopo financeiro (**Sprint 8**, OD-024) | `'treasurer' in user.roles` |
+| Tesoureiro | Escopo financeiro — **ativo no MVP** (básico, Sprint 6.7); avançado Sprint 8 (OD-024) | `'treasurer' in user.roles` |
 | Voluntário escalado | Suas escalas (read-only) | Pessoa com `Schedule`; **sem login** — acessa as próprias escalas/próximos encontros via **magic-link** (token assinado, read-only, sem conta/senha/MFA), **OD-022**. Distinto do Membro geral |
 | Membro / Pessoa | — (sem acesso no MVP) | `'member' in user.roles` — **OD-004 (fechada):** sem login no MVP; existe apenas como `Person`. Sem acesso (≠ Voluntário escalado, que tem magic-link) |
 
@@ -242,7 +242,7 @@ class LeaderOrPastorMixin(RoleRequiredMixin):
 
 
 class TreasurerOrPastorMixin(RoleRequiredMixin):
-    """Pastor ou Tesoureiro (Sprint 8, OD-024)."""
+    """Pastor ou Tesoureiro (financeiro básico no MVP, Sprint 6.7, OD-024a)."""
     required_roles = ('pastor', 'treasurer')
 
 
@@ -344,7 +344,7 @@ Toda ação marcada com 📝 nesta matriz exige `SecurityLog` além do `AuditLog
 | Pastor não pode remover o último Pastor da igreja | Validação no service `change_roles`: se removendo `pastor` e ninguém mais tem `pastor in roles`, rejeita (RN-004) |
 | Líder/Coordenador só vê dados do seu escopo | Mixins `ScopedToCommunityMixin` e `ScopedToMinistryMixin` + filtros em service |
 | Membro/Pessoa só acessa próprio perfil | Pendente OD-004 |
-| Tesoureiro só atua em escopo financeiro | Sprint 8 (OD-024) |
+| Tesoureiro só atua em escopo financeiro | Básico no MVP (Sprint 6.7); avançado Sprint 8 (OD-024) |
 | Convite usa token UUID único, expira em 7 dias | Service `accept_invite` valida |
 | Multi-role: permissões são união | `user.has_any_role(*roles)` retorna `True` se interseção não-vazia |
 | Migração entre igrejas não é suportada | Para mudar de igreja: excluir conta + recriar via novo convite |

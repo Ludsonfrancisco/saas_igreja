@@ -167,7 +167,7 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 - Athos + 9 igrejas pequenas em piloto cabem sem aperto.
 - Backup offsite no R2 mitiga risco de provedor.
 - Gatilho de migração para DigitalOcean ou banco gerenciado: >10 igrejas com uso pesado ou CPU/RAM acima de 70% sustentado.
-- **Reforço do gatilho (pós-piloto):** Sprint 8 (Financeiro) e sobretudo Sprint 9 (**Evolution API** = +1 serviço Node + sessão por tenant) devem **exigir upgrade de VPS** — reavaliar dimensionamento antes da Sprint 9 (OD-024/OD-025).
+- **Reforço do gatilho (pós-piloto):** Sprint 8 (Financeiro Avançado) e sobretudo Sprint 9 (**Evolution API** = +1 serviço Node + sessão por tenant) devem **exigir upgrade de VPS** — reavaliar dimensionamento antes da Sprint 9 (OD-024/OD-025).
 
 ---
 
@@ -475,20 +475,20 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 
 ---
 
-### OD-024 — Módulo Financeiro entra no escopo (pós-piloto, Sprint 8)
+### OD-024 — Módulo Financeiro: **básico no MVP (Sprint 6.7)** + avançado (Sprint 8)
 
 | Campo | Valor |
 |---|---|
-| Status | ✅ Decidida (2026-06-05) — roadmap **pós-piloto (Sprint 8)** |
-| Impacto | Alto (escopo, diferencial de mercado, infra) |
+| Status | ✅ Decidida (2026-06-05) — **revisada no mesmo dia**: financeiro **básico entra no MVP** (Sprint 6.7, pré-piloto); avançado fica na Sprint 8 |
+| Impacto | Alto (DNA do produto, escopo, diferencial, infra) |
 | Owner | Produto + Dono |
-| Decisão | Construir **`apps/finance`**: dízimos/ofertas, lançamentos (receita/despesa), recibos, conciliação, relatório para assembleia, exportável. **Ativa o papel `treasurer`** (hoje stub). **Depois** do Piloto Athos |
+| Decisão | `apps/finance` dividido: **(a) Básico — MVP/Sprint 6.7:** lançamentos (entrada/saída + categorias), dízimos/ofertas (FK opcional a `Person`, **SET_NULL**/LGPD), saldo/totais, **página Financeiro + Dashboard**, export CSV, **papel `treasurer` ativado**. **(b) Avançado — Sprint 8 (pós-piloto):** recibos PDF, conciliação, relatório contábil para assembleia, fechamento, **doação online** (giving via gateway) |
 
-**Contexto:** a pesquisa de mercado (time de marketing) apontou **financeiro fraco/inexistente como a DOR #1** dos concorrentes. A spec marcava financeiro como "pós-MVP" genérico; agora vira **roadmap explícito (Sprint 8)**.
+**Contexto:** o dono esclareceu que **o produto nasceu de uma necessidade financeira** — financeiro é **gênese, não add-on**. A 1ª versão desta OD jogava todo o financeiro pós-piloto; **revisada**: o **básico é MVP** (o piloto Athos precisa de tesouraria). A pesquisa de mercado já apontava financeiro como **DOR #1**.
 
-**Justificativa:** é um diferencial forte (resolve a #1), mas mantido **pós-piloto** para não estourar o MVP nem atrasar o piloto (mitiga RISK-010 e o risco do PRD §"pressão para adicionar financeiro cedo").
+**Justificativa:** financeiro básico no MVP valida o DNA do produto e dá tesouraria ao piloto; o avançado (recibo fiscal, conciliação, giving online) fica pós-piloto para não estourar o prazo. O básico é **recorte cirúrgico**: lançar + categorizar + saldo + dashboard + CSV.
 
-**Implicações:** novo app `finance` no schema do tenant; models financeiros + LGPD (dados financeiros são sensíveis na trilha); o papel `treasurer` ganha telas/escopo (ACCESS_MATRIX §3.x financeiro: Pastor + Tesoureiro); **provável upgrade de VPS** (ver OD-006) somado ao WhatsApp. Posicionamento: só entra no slogan/landing **depois de construído** ("construir antes de prometer").
+**Implicações:** novo app `finance` no tenant (**Sprint 6.7**); o papel `treasurer` **deixa de ser stub** e ganha telas **no MVP** (Pastor + Tesoureiro, ACCESS_MATRIX); dado financeiro entra na trilha LGPD/AuditLog; **doação online (avançado) exige decisão de gateway** (Stripe proibido → Pix/Mercado Pago/Asaas — futura OD). Marca: financeiro no MVP dá **lastro** a "Mordomia / Honramos o que é de Deus".
 
 ---
 
@@ -527,7 +527,7 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 | OD-021 | Mecanismo de download de arquivo (Sprint 6) | 2026-06-05 | Streaming pela view autenticada (não URL assinada R2); substitui `test_signed_url_expires_in_60s` por testes de permissão/streaming |
 | OD-022 | Acesso do voluntário escalado | 2026-06-05 | Magic-link read-only sem conta (não login, não MFA), exclusivo de quem tem `Schedule`; Membro geral (OD-004) segue sem acesso |
 | OD-023 | Nome do produto | 2026-06-05 | **Oikonos** (marca) + CasaIgreja (reserva/descritivo); substitui placeholder "Comunhão"; registro de domínio + INPI pendentes do dono |
-| OD-024 | Módulo Financeiro entra no escopo | 2026-06-05 | `apps/finance` (dízimos/ofertas/lançamentos/recibos/relatórios); ativa Tesoureiro; pós-piloto **Sprint 8** |
+| OD-024 | Módulo Financeiro (básico MVP + avançado) | 2026-06-05 | **Básico no MVP — Sprint 6.7** (lançamentos/dízimos/saldo/**dashboard**/CSV + Tesoureiro ativo); **avançado — Sprint 8** (recibos PDF/conciliação/relatório assembleia/doação online). Produto nasceu de necessidade financeira |
 | OD-025 | Comunicação WhatsApp | 2026-06-05 | Via **Evolution API** self-hosted (transacional/opt-in); Business Cloud API oficial fora; pós-piloto **Sprint 9**; riscos ToS/ban/LGPD documentados |
 | OD-003a | Storage de mídia | 2026-05-27 | Cloudflare R2 (S3-compatible) desde Sprint 6 |
 | OD-006 | VPS definitivo | 2026-05-27 | Hostinger KVM 2 (8GB, 2 vCPU, 100GB NVMe) |

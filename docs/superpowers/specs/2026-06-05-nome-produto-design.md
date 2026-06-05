@@ -83,7 +83,10 @@ No Novo Testamento, a "casa de Deus" não é o prédio — é o **povo**, a **fa
 - **manter as comunidades e células** vivas e conectadas;
 - **organizar ministérios, encontros e a presença** de cada um;
 - **montar escalas** sem sobrecarregar ninguém;
+- **zelar pelas finanças com mordomia** (dízimos, ofertas, lançamentos e saldo — *honrar o que é de Deus*);
 - **enxergar a casa inteira** num só lugar (o painel).
+
+Não por acaso: o Oikonos **nasceu de uma necessidade financeira**. Por isso a **mordomia dos recursos** está no coração do produto **desde o MVP** (financeiro básico, Sprint 6.7) — não como acessório. É o lastro real do nome (*oikonómos* = o administrador) e do manifesto ("Honramos o que é de Deus").
 
 E porque é "casa", é de **todos**: Oikonos é **transdenominacional** — *oîkos* é família, não denominação. Cada igreja tem a **sua própria casa** na plataforma (dados isolados, só seus). A identidade visual reforça o nome: **terracota e âmbar** — o barro, a mesa, o calor do lar.
 
@@ -122,4 +125,4 @@ E porque é "casa", é de **todos**: Oikonos é **transdenominacional** — *oî
 **Pitch de 30s (lançamento):**
 > "No Brasil, a igreja vive corrida e a planilha some. **Oikonos** — do grego *oikonómos*, o mordomo que **põe a casa em ordem** — **organiza a sua igreja para você fortalecer o ministério**: pessoas, comunidades, finanças e comunicação no WhatsApp, **tudo num só lugar**, simples no celular e seguro de verdade (LGPD desde o primeiro dia). Administramos com propósito, cuidamos com amor e honramos o que é de Deus. **Menos planilha, mais pastoreio.**"
 
-**Regra de honestidade (vendas/landing):** só comunicar o que o **lançamento** entrega. Financeiro (Sprint 8) e WhatsApp/Evolution (Sprint 9) só entram no discurso quando construídos — o que, por timing, coincide com o lançamento. **Itens ainda em decisão** (app do membro/doação online, preço OD-001, suporte de migração) **não** entram no discurso até resolvidos.
+**Regra de honestidade (vendas/landing):** só comunicar o que o **lançamento** entrega. Financeiro **básico já é MVP** (Sprint 6.7); financeiro avançado (Sprint 8) e WhatsApp/Evolution (Sprint 9) entram no discurso quando construídos — o que, por timing, coincide com o lançamento. **Itens ainda em decisão** (app do membro, **doação online**, preço OD-001, suporte de migração) **não** entram no discurso até resolvidos.

@@ -44,7 +44,7 @@ Aplicáveis a qualquer agente de IA, dev externo ou colaborador que opere neste 
 
 O SaaS Igreja é uma plataforma multi-tenant que centraliza a operação pastoral e administrativa de igrejas brasileiras, substituindo planilhas, cadernos e fluxos descentralizados de WhatsApp por uma base única, rastreável e segura. O MVP atende dois modelos de igreja — em células (comunidades) e tradicional (sem comunidades) — usando o mesmo código e nomenclatura configurável (campo `has_communities` na tenant), reduzindo custo de manutenção e curva de adoção.
 
-O produto é construído com Django 5.2, HTMX, Alpine.js, TailwindCSS, PostgreSQL 15+ e `django-tenants` em modelo schema-per-tenant. O MVP é deliberadamente enxuto: tenant, autenticação por email, convites, papéis, auditoria, SecurityLog, Pessoas, Comunidades, Ministérios, Encontros, Presença, Escalas básicas, Arquivos/PDFs, Dashboard mínimo e administração de usuários. Tudo o que não cabe no MVP — billing automatizado, financeiro avançado, relatórios complexos em PDF, app móvel, WhatsApp automatizado em massa, alta disponibilidade de produção — é explicitamente pós-MVP.
+O produto é construído com Django 5.2, HTMX, Alpine.js, TailwindCSS, PostgreSQL 15+ e `django-tenants` em modelo schema-per-tenant. O MVP é deliberadamente enxuto: tenant, autenticação por email, convites, papéis, auditoria, SecurityLog, Pessoas, Comunidades, Ministérios, Encontros, Presença, Escalas básicas, **Financeiro básico (lançamentos, dízimos/ofertas, saldo e dashboard — o produto nasceu de uma necessidade financeira; OD-024a/Sprint 6.7)**, Arquivos/PDFs, Dashboard mínimo e administração de usuários. Tudo o que não cabe no MVP — billing automatizado, **financeiro avançado (recibo fiscal, conciliação, relatório p/ assembleia, doação online)**, relatórios complexos em PDF, app móvel, WhatsApp automatizado em massa, alta disponibilidade de produção — é explicitamente pós-MVP.
 
 Segurança, isolamento entre tenants, autorização backend, auditoria e LGPD são tratados como **fundação**, não acabamento. Nenhum módulo operacional pode avançar antes da base estar testada com testes automatizados de isolamento e permissões. Precificação está deliberadamente em aberto; valores históricos (R\$49, R\$99, R\$199) são tratados como hipótese e exigem estudo formal antes do lançamento comercial. O piloto Athos pode operar gratuitamente ou com cobrança manual durante a validação.
 
@@ -159,7 +159,7 @@ Há aproximadamente 400 mil igrejas no Brasil. A maioria, na faixa de 50 a 2.000
 
 ### 6.5 Persona 5 — Tesoureiro (futuro, fora do MVP profundo)
 
-- No MVP, perfil existe como `User.Role.TREASURER` com permissões mínimas (stub). O **módulo financeiro é a Sprint 8** (OD-024, pós-piloto): dízimos/ofertas, lançamentos, recibos, relatórios.
+- **Ativo no MVP** com o **financeiro básico** (Sprint 6.7, OD-024a): lançamentos, dízimos/ofertas, saldo e dashboard. O **financeiro avançado** (recibos PDF, conciliação, relatório p/ assembleia, doação online) é a **Sprint 8** (OD-024b, pós-piloto).
 
 ### 6.6 Persona 6 — Membro / Pessoa (acesso limitado)
 
@@ -600,7 +600,7 @@ X_FRAME_OPTIONS = 'DENY'
 | Pastor / Admin da Igreja (`pastor` in roles) | Tenant | Acesso total dentro da igreja; MFA obrigatório a partir Sprint 7 |
 | Líder de Comunidade (`leader` in roles) | Tenant, escopo da comunidade | CRUD limitado às suas pessoas e encontros via `ScopedToCommunityMixin` |
 | Coordenador de Ministério (`leader` in roles) | Tenant, escopo do ministério | Gerencia escalas/voluntários via `ScopedToMinistryMixin` |
-| Tesoureiro (`treasurer` in roles) | Tenant, escopo financeiro | **Sprint 8** (OD-024, pós-piloto); pode ser combinado com `leader` |
+| Tesoureiro (`treasurer` in roles) | Tenant, escopo financeiro | **Ativo no MVP** (financeiro básico, Sprint 6.7); avançado na Sprint 8 (OD-024); pode ser combinado com `leader` |
 | Voluntário | Tenant, escopo individual | Pessoa com `Schedule`; **sem login dedicado**. Acessa as próprias escalas/próximos encontros **read-only via magic-link** (token assinado, sem conta/senha/MFA) — **OD-022**. Distinto do Membro geral (sem acesso) |
 | Membro / Pessoa (`member` in roles) | Tenant, escopo individual | OD-004 (fechada): **sem login no MVP**; existe apenas como `Person`. Login de Membro fica para a Fase 2 |
 
@@ -1192,6 +1192,14 @@ Uma sprint só é considerada pronta quando:
 - **Critério de conclusão:** 100% das telas no design system; Lighthouse mobile ≥ 90; WCAG AA; fluxos HTMX/Alpine verdes (zero regressão); **aprovação visual do dono**.
 - **Detalhe operacional:** ver `docs/SPRINTS.md` (princípios DS-01..08, matriz persona × dispositivo, 6 blocos). Marca ≠ tema (OD da direção Terracota & Âmbar) e acesso do voluntário (OD-022).
 
+### Sprint 6.7 — Financeiro Básico (MVP · OD-024a)
+
+- **Objetivo:** tesouraria básica **dentro do MVP** — o produto **nasceu de uma necessidade financeira**; o piloto Athos entra com financeiro.
+- **Escopo:** `apps/finance` — lançamentos (entrada/saída + categorias), dízimos/ofertas (FK opcional a `Person`, SET_NULL/LGPD), saldo/totais, **página Financeiro + Dashboard** (KPIs, saldo, por categoria), export CSV; **ativa o papel `treasurer`**.
+- **Dependências:** Sprints 1–6 + 6.5. **Depois** da 6.5 (Design), **antes** da 7 (Piloto).
+- **Critério:** Tesoureiro lança/categoriza/vê saldo+dashboard/exporta; escopado e auditado; matrizes verdes.
+- **Fora (→ Sprint 8):** recibos PDF, conciliação, relatório p/ assembleia, doação online.
+
 ### Sprint 7 — Deploy Beta, Backup, Restore, Hardening, Piloto Athos
 
 - **Objetivo:** entrar em produção controlada com piloto Athos.
@@ -1202,12 +1210,12 @@ Uma sprint só é considerada pronta quando:
 - **Critério de conclusão:** Athos com 100+ pessoas cadastradas; 0 vazamentos cross-tenant; restore validado.
 - **Testes mínimos:** RF-100, RF-101; CA-080, CA-081; smoke completo.
 
-### Sprint 8 — Financeiro (pós-piloto · OD-024)
+### Sprint 8 — Financeiro Avançado (pós-piloto · OD-024b)
 
-- **Objetivo:** tesouraria da igreja (resolve a **DOR #1** do mercado). **Depois** do piloto.
-- **Escopo:** `apps/finance` — dízimos/ofertas, lançamentos (receita/despesa), recibos, conciliação, relatório para assembleia, exportável; **ativa o papel `treasurer`** (hoje stub).
-- **Dependências:** Sprints 1–7. **Riscos:** escopo grande; LGPD de dado financeiro; carga de VPS (OD-006).
-- **Critério:** lançar/conciliar/relatar; Tesoureiro escopado; matrizes verdes.
+- **Objetivo:** completar a tesouraria sobre o **financeiro básico** já entregue na Sprint 6.7. **Depois** do piloto.
+- **Escopo:** **recibos PDF**, **conciliação** bancária, **relatório contábil para assembleia**, fechamento mensal, **doação online** (giving — exige decisão de gateway: Pix/Mercado Pago/Asaas; Stripe proibido), relatórios complexos.
+- **Dependências:** Sprints 1–7 + 6.7. **Riscos:** escopo grande; LGPD; gateway de pagamento; carga de VPS (OD-006).
+- **Critério:** recibo/conciliação/relatório p/ assembleia funcionais; (doação online se o gateway for decidido).
 
 ### Sprint 9 — Comunicação / WhatsApp via Evolution API (pós-piloto · OD-025)
 
@@ -1238,9 +1246,10 @@ gantt
   Sprint 5 Escalas           :a5, after a4, 21d
   Sprint 6 Files+Dashboard   :a6, after a5, 14d
   Sprint 6.5 Design UI Athos :a65, after a6, 14d
-  Sprint 7 Deploy+Piloto     :a7, after a65, 21d
+  Sprint 6.7 Financeiro Basico:a67, after a65, 14d
+  Sprint 7 Deploy+Piloto     :a7, after a67, 21d
   section Pós-MVP
-  Sprint 8 Financeiro        :a8, after a7, 21d
+  Sprint 8 Financeiro Avancado:a8, after a7, 21d
   Sprint 9 Comunicacao WA    :a9, after a8, 14d
   section Lançamento
   Landing + Go-to-Market     :a10, after a9, 10d
@@ -1375,7 +1384,7 @@ gantt
 | OD-021 | Download de arquivo (Sprint 6) | Streaming pela view autenticada (não URL assinada R2); sem link público permanente (fechada 2026-06-05) |
 | OD-022 | Acesso do voluntário escalado | Magic-link read-only sem conta (não login, não MFA), exclusivo de quem tem `Schedule`; Membro geral (OD-004) segue sem acesso (fechada 2026-06-05) |
 | OD-023 | Nome do produto | **Oikonos** (marca) + CasaIgreja (reserva/descritivo); substitui placeholder "Comunhão"; registro de domínio + INPI pendentes do dono (2026-06-05) |
-| OD-024 | Módulo Financeiro entra no escopo | `apps/finance` (dízimos/ofertas/lançamentos/recibos/relatórios); ativa o papel Tesoureiro; **pós-piloto, Sprint 8** (2026-06-05) |
+| OD-024 | Módulo Financeiro (básico MVP + avançado) | **Básico no MVP — Sprint 6.7** (lançamentos/dízimos/saldo/dashboard/CSV + Tesoureiro ativo); **avançado — Sprint 8** (recibos PDF/conciliação/relatório/doação online). Produto nasceu de necessidade financeira (2026-06-05) |
 | OD-025 | Comunicação WhatsApp | Via **Evolution API** self-hosted (transacional/opt-in); Business Cloud API oficial fora; **pós-piloto, Sprint 9**; riscos ToS/ban/LGPD documentados (2026-06-05) |
 | RN-MULTI-ROLE | Multi-role por usuário | `User.roles ArrayField`, permissões viram união |
 | RN-NO-CHURCH-MIGRATION | Migração entre igrejas | Não suportada — excluir conta e recriar |

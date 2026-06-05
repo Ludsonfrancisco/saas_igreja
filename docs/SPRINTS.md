@@ -612,6 +612,34 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 
 ---
 
+## Sprint 6.7 — Financeiro Básico (`apps/finance`) — MVP · OD-024(a)
+
+**Objetivo:** dar **tesouraria básica** à igreja **dentro do MVP** — o produto **nasceu de uma necessidade financeira**, então financeiro é gênese, não add-on. O **piloto Athos entra com financeiro**.
+**Posição:** **depois da 6.5 (Design)** — usa o design system; **antes da 7 (Deploy+Piloto)**.
+**Dependências:** Sprints 1–6 + 6.5. **Riscos:** escopo crescer além do "básico"; LGPD de dado financeiro.
+**Recorte (decidido OD-024):** básico aqui; avançado (recibo PDF, conciliação, relatório p/ assembleia, doação online) → **Sprint 8**.
+
+### Tasks
+- [ ] (P0) `apps/finance` (tenant): `Category` (entrada/saída), `Transaction` (tipo, categoria, data, valor, descrição, forma de pagamento), e dízimos/ofertas como entrada com **FK opcional a `Person` (`SET_NULL`/LGPD)**.
+- [ ] (P0) Service layer: criar/editar lançamento; **saldo e totais** por período e por categoria (agregação no banco, P-ARQ-09).
+- [ ] (P0) **Ativar papel `treasurer`** (hoje stub): CBV escopadas **Pastor + Tesoureiro** (ACCESS_MATRIX §3 financeiro); 3 camadas de permissão; `TenantRequiredMixin`.
+- [ ] (P0) **Página Financeiro + Dashboard:** KPIs (entradas/saídas/**saldo** do mês), por categoria, lista filtrável de lançamentos (por período/categoria). Estilo design system Athos (6.5).
+- [ ] (P0) **Exportar CSV** dos lançamentos.
+- [ ] (P0) LGPD + `AuditLog` (lançamentos auditados); isolamento de tenant.
+
+### Testes mínimos
+- [ ] (P0) `test_treasurer_scope` (Pastor+Tesoureiro acessam; demais 403)
+- [ ] (P0) `test_transaction_create_and_balance` (saldo = entradas − saídas)
+- [ ] (P0) `test_contribution_person_set_null` (LGPD: purge da Pessoa preserva o lançamento)
+- [ ] (P0) `test_finance_dashboard_totals` (KPIs corretos por período/categoria)
+- [ ] (P0) `test_finance_export_csv`
+- [ ] (P0) `test_tenant_isolation_matrix` / `test_permissions_matrix` (atualizados com `/financeiro/*`)
+
+### Critério de conclusão
+- [ ] Tesoureiro lança entrada/saída, categoriza, vê **saldo e dashboard**, exporta CSV — tudo escopado e auditado; matrizes verdes; cobertura `finance` no gate.
+
+---
+
 ## Sprint 7 — Deploy Beta, Backup, Restore, Hardening, Piloto Athos
 
 **Objetivo:** entrar em produção controlada com piloto Athos.
@@ -700,25 +728,24 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 
 ---
 
-## Sprint 8 — Financeiro (`apps/finance`) — pós-piloto · OD-024
+## Sprint 8 — Financeiro Avançado (`apps/finance`) — pós-piloto · OD-024(b)
 
-**Objetivo:** tesouraria da igreja — resolve a **DOR #1** do mercado. **Depois** do Piloto Athos.
-**Dependências:** Sprints 1–7. **Riscos:** escopo grande; LGPD de dado financeiro; carga de VPS (OD-006).
-**Detalhe operacional:** ainda em alto nível — vira tasks quando autorizado (G-01).
+**Objetivo:** completar a tesouraria **sobre o financeiro básico já entregue na Sprint 6.7**. **Depois** do Piloto Athos.
+**Dependências:** Sprints 1–7 + 6.7. **Riscos:** escopo grande; LGPD; gateway de pagamento; carga de VPS (OD-006).
+**Detalhe operacional:** alto nível — vira tasks quando autorizado (G-01). _Lançamentos/categorias/saldo/dashboard/CSV/Tesoureiro já vieram na 6.7._
 
-### Tasks (alto nível)
-- [ ] (P0) `apps/finance` (tenant): `Transaction` (receita/despesa, categoria, data, valor, método), `Contribution` (dízimo/oferta; FK opcional a `Person` **SET_NULL**/LGPD), `Receipt`.
-- [ ] (P0) Service layer: lançamento, conciliação, fechamento mensal.
-- [ ] (P0) **Ativar papel `treasurer`** (hoje stub): CBV escopadas Pastor + Tesoureiro (ACCESS_MATRIX §3 financeiro); 3 camadas de permissão.
-- [ ] (P0) Relatórios: balancete / relatório para assembleia, exportável (CSV; PDF via browser print).
-- [ ] (P0) LGPD: contribuição vinculada a pessoa é PII; consentimento/anonimização; `AuditLog`.
-- [ ] (P1) KPIs financeiros no Dashboard (entradas/saídas/saldo) p/ Pastor/Tesoureiro.
+### Tasks (alto nível) — só o que NÃO está no básico
+- [ ] (P0) **Recibos formais** (PDF) de contribuições/lançamentos.
+- [ ] (P0) **Conciliação** bancária + **fechamento mensal**.
+- [ ] (P0) **Relatório contábil para assembleia** (balancete completo, exportável).
+- [ ] (P1) **Doação online** (giving) — exige **decisão de gateway** (Pix/Mercado Pago/Asaas; **Stripe proibido**) → futura OD.
+- [ ] (P1) Relatórios avançados / categorias hierárquicas / centros de custo.
 
 ### Testes mínimos
-- [ ] `test_treasurer_scope`, `test_transaction_audited`, `test_contribution_person_set_null` (LGPD), `test_financial_report_totals`, `test_tenant_isolation_matrix`/`test_permissions_matrix` (atualizados).
+- [ ] `test_receipt_pdf_generated`, `test_reconciliation_closes_month`, `test_assembly_report_totals`, (`test_online_giving_*` se gateway decidido); matrizes atualizadas.
 
 ### Critério de conclusão
-- [ ] Tesouraria funcional (lançar, conciliar, relatório); Tesoureiro escopado; cobertura `finance` no gate; matrizes verdes.
+- [ ] Recibo + conciliação + relatório para assembleia funcionais; (doação online se gateway decidido); cobertura no gate; matrizes verdes.
 
 ---
 
@@ -776,9 +803,10 @@ gantt
   Sprint 5 Escalas           :a5, after a4, 21d
   Sprint 6 Files+Dashboard   :a6, after a5, 14d
   Sprint 6.5 Design UI Athos :a65, after a6, 14d
-  Sprint 7 Deploy+Piloto     :a7, after a65, 21d
+  Sprint 6.7 Financeiro Basico:a67, after a65, 14d
+  Sprint 7 Deploy+Piloto     :a7, after a67, 21d
   section Pós-MVP
-  Sprint 8 Financeiro        :a8, after a7, 21d
+  Sprint 8 Financeiro Avancado:a8, after a7, 21d
   Sprint 9 Comunicacao WA    :a9, after a8, 14d
   section Lançamento
   Landing + Go-to-Market     :a10, after a9, 10d
