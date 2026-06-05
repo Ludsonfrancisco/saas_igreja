@@ -37,6 +37,10 @@ GATHERING_CREATE = '/encontros/novo/'
 SCHEDULE_LIST = '/escalas/'
 SCHEDULE_CREATE = '/escalas/nova/'
 SCHEDULE_EXCEPTION = '/escalas/excecao/nova/'
+FILES_LIST = '/arquivos/'
+DASHBOARD_PASTOR = '/painel/'
+DASHBOARD_LEADER = '/painel/comunidade/'
+DASHBOARD_COORDINATOR = '/painel/ministerio/'
 ACCOUNT_SECURITY = '/contas/seguranca/'
 
 
@@ -75,6 +79,36 @@ def _pastor_or_coordinator(url):
     ]
 
 
+def _files_access(url):
+    """Acesso a arquivos (ACCESS_MATRIX §3.8): Pastor/Secretário/Líder/Tesoureiro
+    liberados (escopo fino por contexto refinado no queryset); Membro → 403.
+
+    Inclui `treasurer` — único da matriz de Arquivos (contexto financeiro). O gate
+    é só de papel; o recorte por comunidade/ministério/financeiro é testado em
+    apps/files/tests.
+    """
+    return [
+        ('pastor', url, 200),
+        ('secretary', url, 200),
+        ('leader', url, 200),
+        ('treasurer', url, 200),
+        ('member', url, 403),
+    ]
+
+
+def _pastor_only(url):
+    """Pastor exclusivo (ACCESS_MATRIX §3.9 "Dashboard completo"): só Pastor 200.
+
+    Difere de `_admin`: aqui o Secretário também é NEGADO (`PastorRequiredMixin`,
+    não `LeaderOrPastorMixin`)."""
+    return [
+        ('pastor', url, 200),
+        ('secretary', url, 403),
+        ('leader', url, 403),
+        ('member', url, 403),
+    ]
+
+
 def _login_only(url):
     return [(role, url, 200) for role in ('pastor', 'secretary', 'leader', 'member')]
 
@@ -102,6 +136,15 @@ PERMISSION_CASES = (
     + _staff_scoped(SCHEDULE_LIST)
     + _staff_scoped(SCHEDULE_CREATE)
     + _pastor_or_coordinator(SCHEDULE_EXCEPTION)
+    # Arquivos (§3.8): Listar liberado a Pastor/Secretário/Líder/Tesoureiro (escopo
+    # por contexto no qs). Download/Excluir são rotas com `pk` (escopo fino + Pastor-
+    # only) → testadas em apps/files/tests, não nesta matriz de rotas sem objeto.
+    + _files_access(FILES_LIST)
+    # Dashboard (§3.9): completo = SÓ Pastor; simplificados (comunidade/ministério)
+    # = Pastor/Secretário/Líder-Coordenador (escopo no service). Membro → 403.
+    + _pastor_only(DASHBOARD_PASTOR)
+    + _staff_scoped(DASHBOARD_LEADER)
+    + _staff_scoped(DASHBOARD_COORDINATOR)
     + _login_only(ACCOUNT_SECURITY)
 )
 

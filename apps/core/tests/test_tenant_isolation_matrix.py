@@ -20,20 +20,25 @@ o public no teardown.
 """
 
 import pytest
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.test import Client
 from django.utils import timezone
 from django_tenants.utils import schema_context
 
 from apps.accounts.models import Invite, User
+from apps.files import services as files_services
 from apps.gatherings.models import Gathering
 from apps.ministries.models import Ministry
 from apps.people.models import Person
 from apps.schedules.models import Schedule
 
 GOOD_PASSWORD = 'Senha@123'
+PDF_BYTES = b'%PDF-1.4\n%\xe2\xe3\xcf\xd3\n1 0 obj\n<< >>\nendobj\n'
 
-# Views autenticadas tenant-scoped GET-áveis (Sprint 2 + Sprint 3 + Sprint 4 + 5).
+# Views autenticadas tenant-scoped GET-áveis (Sprint 2..6). `/painel/` é Pastor-only,
+# mas as duas baterias abaixo testam anônimo (→ login) e schema public (→ 404), que
+# valem para qualquer gate de papel.
 AUTHENTICATED_TENANT_URLS = [
     '/configuracoes/usuarios/',
     '/configuracoes/convites/',
@@ -47,6 +52,10 @@ AUTHENTICATED_TENANT_URLS = [
     '/escalas/',
     '/escalas/nova/',
     '/escalas/excecao/nova/',
+    '/arquivos/',
+    '/painel/',
+    '/painel/comunidade/',
+    '/painel/ministerio/',
 ]
 
 
@@ -148,6 +157,18 @@ def test_tenant_isolation_matrix(tenant_a_client, church_a, church_b):
             ministry=ministry_b, person=volunteer_b, gathering=gathering_b
         )
 
+    # Arquivos (Sprint 6): um FileAsset em cada schema; o storage isola por tenant.
+    with schema_context(church_a.schema_name):
+        files_services.upload_file(
+            uploaded_file=SimpleUploadedFile('ata-a.pdf', PDF_BYTES, 'application/pdf'),
+            uploaded_by_id=pastor_a.id,
+        )
+    with schema_context(church_b.schema_name):
+        files_services.upload_file(
+            uploaded_file=SimpleUploadedFile('ata-b.pdf', PDF_BYTES, 'application/pdf'),
+            uploaded_by_id=pastor_b.id,
+        )
+
     tenant_a_client.force_login(pastor_a)
 
     # Usuários: só os da igreja A.
@@ -185,3 +206,10 @@ def test_tenant_isolation_matrix(tenant_a_client, church_a, church_b):
     schedule_ministries = {s.ministry.name for s in resp.context['schedules']}
     assert 'Louvor A' in schedule_ministries
     assert 'Louvor B' not in schedule_ministries
+
+    # Arquivos: o Pastor de A só enxerga o arquivo da própria igreja (Sprint 6).
+    resp = tenant_a_client.get('/arquivos/')
+    assert resp.status_code == 200
+    file_names = {f.filename for f in resp.context['file_assets']}
+    assert 'ata-a.pdf' in file_names
+    assert 'ata-b.pdf' not in file_names

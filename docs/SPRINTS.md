@@ -502,16 +502,16 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [x] (P0) `test_dashboard_scoped_no_leak`
 - [x] (P0) `test_dashboard_leader_sees_only_own_community`
 - [x] (P0) `test_dashboard_coordinator_sees_only_own_ministry`
-- [ ] (P0) `test_tenant_isolation_matrix` (atualizado)
-- [ ] (P0) `test_permissions_matrix` (atualizado)
+- [x] (P0) `test_tenant_isolation_matrix` (atualizado — rotas `/arquivos/` + 3 `/painel/*`; no-leak de FileAsset)
+- [x] (P0) `test_permissions_matrix` (atualizado — `_files_access` §3.8 inclui Tesoureiro; `_pastor_only` p/ dashboard completo; simplificados staff-scoped)
 
 ### Critério de conclusão da Sprint 6
 
-- [ ] Upload de PDF/PNG/JPG funcional com validação de MIME e tamanho
-- [ ] Download exige permissão; nenhum link público permanente
-- [ ] Pentest manual em URLs de download sem vazamento
-- [ ] Dashboards funcionais com escopo correto
-- [ ] Cobertura de `files` ≥ 90%; `dashboard` ≥ 70%
+- [x] Upload de PDF/PNG/JPG funcional com validação de MIME e tamanho — `upload_file` + `MagicValidator` (Bloco 2)
+- [x] Download exige permissão; nenhum link público permanente — streaming via view escopada (OD-021); `test_no_permanent_public_url`
+- [~] Pentest manual em URLs de download sem vazamento — **equivalente automatizado feito** (sem URL pública, 404 cross-tenant/IDOR intra-tenant, anônimo→login, escopo por papel); **pentest manual contra o R2 real fica para a Sprint 7** (dev usa FileSystemStorage)
+- [x] Dashboards funcionais com escopo correto — 3 views escopadas (Bloco 5); `test_dashboard_*`
+- [x] Cobertura de `files` ≥ 90%; `dashboard` ≥ 70% — **files 98% · dashboard 99%**
 
 ---
 

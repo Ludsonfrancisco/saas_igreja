@@ -79,6 +79,22 @@ def test_download_requires_permission(tenant_client, church_a, roles, expected):
 
 
 @pytest.mark.django_db(transaction=True)
+def test_download_anonymous_redirects_to_login(tenant_client, church_a):
+    """Anônimo NÃO baixa: a view exige login (TenantRequiredMixin) → 302 p/ o login.
+
+    Hardening de download (pentest automatizado): sem sessão, o arquivo nunca é
+    servido — o request é redirecionado para o login do allauth, não retorna 200
+    nem os bytes.
+    """
+    with schema_context(church_a.schema_name):
+        asset = _upload(uploaded_by_id=1)
+    resp = tenant_client.get(_download_url(asset.pk))
+    assert resp.status_code == 302
+    assert resp.url.startswith('/contas/login/')
+    assert not resp.get('Content-Disposition')
+
+
+@pytest.mark.django_db(transaction=True)
 def test_download_unauthorized_returns_404(tenant_client, church_a, church_b):
     """Arquivo de OUTRO tenant => 404 (nao 403): nao vazamos a existencia.
 
