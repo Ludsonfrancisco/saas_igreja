@@ -32,6 +32,8 @@ COMM_LIST = '/comunidades/'
 COMM_CREATE = '/comunidades/nova/'
 MIN_LIST = '/ministerios/'
 MIN_CREATE = '/ministerios/novo/'
+GATHERING_LIST = '/encontros/'
+GATHERING_CREATE = '/encontros/novo/'
 ACCOUNT_SECURITY = '/contas/seguranca/'
 
 
@@ -70,6 +72,12 @@ PERMISSION_CASES = (
     + _admin(COMM_CREATE)
     + _staff_scoped(MIN_LIST)
     + _admin(MIN_CREATE)
+    # Encontros (§3.6): Listar e Criar liberados a Pastor/Secretário/Líder
+    # (Líder/Coord criam EVENT/MEETING; o tipo fino é filtrado no form/service).
+    # Membro → 403. O escopo por encontro (detalhe/editar/presença, com pk) é
+    # coberto em apps/gatherings/tests.
+    + _staff_scoped(GATHERING_LIST)
+    + _staff_scoped(GATHERING_CREATE)
     + _login_only(ACCOUNT_SECURITY)
 )
 

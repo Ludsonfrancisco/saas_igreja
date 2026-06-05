@@ -362,6 +362,7 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 ## Sprint 4 — Encontros, Cultos, Presença
 
+**Status:** ✅ **CONCLUÍDA (2026-06-05)** — Encontros (CRUD com escopo tipo×papel, Secretário admin) + Presença em lote (`update_or_create`, RN-009). Inclui **OD-020** (`Attendance.person on_delete=SET_NULL` por RN-007; sem auditoria por linha — aceita pelo dono). Suíte 359 verdes; cobertura `gatherings` 98%. Pendência não-bloqueante: validação manual "presença <2 min no celular com usuário real".
 **Objetivo:** registrar presença em lote sem duplicação e com auditoria.
 **Duração estimada:** 14 dias.
 **Dependências:** Sprint 3.
@@ -371,37 +372,37 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### Gathering
 
-- [ ] (P0) Criar `apps/gatherings/models.py` com `Gathering` (Type TextChoices: WORSHIP, COMMUNITY, EVENT, MEETING)
-- [ ] (P0) Esconder tipo COMMUNITY no form quando `Church.has_communities=False` (RN-010)
-- [ ] (P0) CRUD CBV: `GatheringListView`, `GatheringDetailView`, `GatheringCreateView`, `GatheringUpdateView`
-- [ ] (P0) Aplicar mixins de papel e escopo (Pastor cria qualquer tipo; Líder cria COMMUNITY da sua; Coordenador cria EVENT/MEETING)
-- [ ] (P0) `apps/gatherings/signals.py` com `AuditLog` em create/update/delete
+- [x] (P0) Criar `apps/gatherings/models.py` com `Gathering` (Type TextChoices: WORSHIP, COMMUNITY, EVENT, MEETING) — `+ created_by` (Sprint 4, TENANT-04)
+- [x] (P0) Esconder tipo COMMUNITY no form quando `Church.has_communities=False` (RN-010)
+- [x] (P0) CRUD CBV: `GatheringListView`, `GatheringDetailView`, `GatheringCreateView`, `GatheringUpdateView` (+ `GatheringDeleteView`, só Pastor)
+- [x] (P0) Aplicar mixins de papel e escopo (Pastor/Secretário qualquer tipo; Líder cria COMMUNITY da sua; Coordenador cria EVENT/MEETING) — barreira fina em `services.create_gathering`/`allowed_types`
+- [x] (P0) ~~`apps/gatherings/signals.py`~~ → `AuditLog` em create/update/delete via **`AuditLogMixin`** (signals centralizados do core, padrão Person/Community/Ministry)
 
 #### Attendance
 
-- [ ] (P0) Criar `apps/gatherings/models.py` com `Attendance` (unique `(person, gathering)`)
-- [ ] (P0) Criar `apps/gatherings/services.py` com `mark_attendance_bulk` usando `update_or_create`
-- [ ] (P0) View de marcação em lote (checkbox por Pessoa elegível)
-- [ ] (P0) Pessoas elegíveis: se `gathering.community` definido, apenas membros da comunidade; caso contrário, todas as Pessoas da igreja com status ≠ INACTIVE
-- [ ] (P0) Auditoria de cada alteração de presença
+- [x] (P0) Criar `apps/gatherings/models.py` com `Attendance` (unique `(person, gathering)`) — `person on_delete=SET_NULL` por **OD-020** (RN-007)
+- [x] (P0) Criar `apps/gatherings/services.py` com `mark_attendance_bulk` usando `update_or_create`
+- [x] (P0) View de marcação em lote (checkbox por Pessoa elegível) — `AttendanceMarkView`, escopada por `can_mark_attendance` (§3.6)
+- [x] (P0) Pessoas elegíveis: se `gathering.community` definido, apenas membros da comunidade; caso contrário, todas as Pessoas da igreja com status ≠ INACTIVE (`attendance_roster`)
+- [ ] (P0) ~~Auditoria de cada alteração de presença~~ → **revisto em OD-020**: `Attendance` NÃO é auditada por linha (operação de alta frequência; marcação em lote geraria ruído). ⚠️ decisão do dono
 
 ### Testes mínimos da Sprint 4
 
-- [ ] (P0) `test_gathering_create`
-- [ ] (P0) `test_gathering_type_hidden_when_no_communities`
-- [ ] (P0) `test_attendance_bulk_no_duplicate` (chamar 2× cria 1 registro)
-- [ ] (P0) `test_attendance_update_audited`
-- [ ] (P0) `test_leader_marks_attendance_only_in_own_community`
-- [ ] (P0) `test_coordinator_marks_attendance_only_in_own_ministry_events`
-- [ ] (P0) `test_tenant_isolation_matrix` (atualizado)
-- [ ] (P0) `test_permissions_matrix` (atualizado)
+- [x] (P0) `test_gathering_create` → `test_pastor_creates_worship` / `test_leader_creates_community_gathering_of_own_community`
+- [x] (P0) `test_gathering_type_hidden_when_no_communities` → `test_community_type_hidden_when_no_communities`
+- [x] (P0) `test_attendance_bulk_no_duplicate` (chamar 2× cria 1 registro) → `test_bulk_mark_idempotent_no_duplicate`
+- [ ] (P0) ~~`test_attendance_update_audited`~~ → removido por OD-020 (sem auditoria por linha); no lugar: `test_gathering_create_audited` + `test_person_hard_delete_preserves_attendance_set_null` (RN-007)
+- [x] (P0) `test_leader_marks_attendance_only_in_own_community` → `test_leader_own_community_gathering_ok` + `test_leader_foreign_gathering_404`
+- [x] (P0) `test_coordinator_marks_attendance_only_in_own_ministry_events` → `test_can_mark_leader_own_creation_and_own_community` (coord = `created_by`; encontros não têm FK a ministério)
+- [x] (P0) `test_tenant_isolation_matrix` (atualizado — `/encontros/` + vazamento de Gathering)
+- [x] (P0) `test_permissions_matrix` (atualizado — Listar/Criar encontros)
 
 ### Critério de conclusão da Sprint 4
 
-- [ ] Pastor, Líder e Coordenador conseguem criar encontros conforme seu escopo
-- [ ] Líder marca presença em lote pelo celular em <2 min (validar com usuário real)
-- [ ] Zero duplicação de Attendance
-- [ ] Cobertura de `gatherings` ≥ 80%
+- [x] Pastor, Líder e Coordenador conseguem criar encontros conforme seu escopo (Secretário = admin, OD-019/decisão Sprint 4)
+- [ ] Líder marca presença em lote pelo celular em <2 min (validar com usuário real) — ⚠️ validação manual (dogfooding) pendente do dono
+- [x] Zero duplicação de Attendance (`unique_together` + `update_or_create`)
+- [x] Cobertura de `gatherings` ≥ 80% — **98%** (suíte completa: 359 verdes)
 
 ---
 

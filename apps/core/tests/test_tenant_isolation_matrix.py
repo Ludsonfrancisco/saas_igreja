@@ -26,11 +26,12 @@ from django.utils import timezone
 from django_tenants.utils import schema_context
 
 from apps.accounts.models import Invite, User
+from apps.gatherings.models import Gathering
 from apps.people.models import Person
 
 GOOD_PASSWORD = 'Senha@123'
 
-# Views autenticadas tenant-scoped GET-áveis (Sprint 2 + Sprint 3 / OD-019).
+# Views autenticadas tenant-scoped GET-áveis (Sprint 2 + Sprint 3 + Sprint 4).
 AUTHENTICATED_TENANT_URLS = [
     '/configuracoes/usuarios/',
     '/configuracoes/convites/',
@@ -39,6 +40,8 @@ AUTHENTICATED_TENANT_URLS = [
     '/pessoas/nova/',
     '/comunidades/',
     '/ministerios/',
+    '/encontros/',
+    '/encontros/novo/',
 ]
 
 
@@ -114,8 +117,18 @@ def test_tenant_isolation_matrix(tenant_a_client, church_a, church_b):
     # Pessoas (model de TENANT): cada uma só existe no schema da sua igreja.
     with schema_context(church_a.schema_name):
         Person.objects.create(name='Pessoa A')
+        Gathering.objects.create(
+            gathering_type=Gathering.Type.WORSHIP,
+            title='Culto A',
+            date=timezone.now().date(),
+        )
     with schema_context(church_b.schema_name):
         Person.objects.create(name='Pessoa B')
+        Gathering.objects.create(
+            gathering_type=Gathering.Type.WORSHIP,
+            title='Culto B',
+            date=timezone.now().date(),
+        )
 
     tenant_a_client.force_login(pastor_a)
 
@@ -140,3 +153,10 @@ def test_tenant_isolation_matrix(tenant_a_client, church_a, church_b):
     person_names = {p.name for p in resp.context['persons']}
     assert 'Pessoa A' in person_names
     assert 'Pessoa B' not in person_names
+
+    # Encontros: idem — A só enxerga o culto da própria igreja (Sprint 4).
+    resp = tenant_a_client.get('/encontros/')
+    assert resp.status_code == 200
+    gathering_titles = {g.title for g in resp.context['gatherings']}
+    assert 'Culto A' in gathering_titles
+    assert 'Culto B' not in gathering_titles
