@@ -55,15 +55,21 @@ def _download_url(pk):
 @pytest.mark.parametrize(
     'roles,expected',
     [
+        # Pastor/Secretario veem tudo -> baixam o arquivo geral (sem contexto).
         (['pastor'], 200),
         (['secretary'], 200),
-        (['leader'], 200),
-        (['treasurer'], 200),
+        # Bloco 4: o escopo fino por contexto agora vale tambem no download. Um
+        # arquivo GERAL (sem related_model) esta FORA do escopo de Lider/Tesoureiro
+        # -> 404 (nao 403: nao revelamos a existencia, RISK-001). O 403 de papel so
+        # sobra para quem nao tem papel de igreja algum (membro).
+        (['leader'], 404),
+        (['treasurer'], 404),
         (['member'], 403),
     ],
 )
 def test_download_requires_permission(tenant_client, church_a, roles, expected):
-    """Gate de papel (ACCESS_MATRIX §3.8): so papeis de igreja baixam; membro nao."""
+    """Gate de papel + escopo (ACCESS_MATRIX §3.8): membro 403; Lider/Tesoureiro
+    sem contexto autorizado nao alcancam o arquivo geral (404, Bloco 4)."""
     user = _user(church_a, f'{roles[0]}@a.com', roles)
     with schema_context(church_a.schema_name):
         asset = _upload(uploaded_by_id=user.id)

@@ -1,0 +1,16 @@
+{% comment %}Confirmação de exclusão de Arquivo (Sprint 6 / Bloco 4). Só Pastor
+alcança esta view (ACCESS_MATRIX §3.8). CSRF + POST confirma. Markup mínimo pt-BR.{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Excluir arquivo</title></head>
+<body>
+  <h1>Excluir este arquivo?</h1>
+  <p>{{ file_asset.filename }} ({{ file_asset.mime_type }}, {{ file_asset.size_bytes|filesizeformat }})</p>
+  <p>Esta ação não pode ser desfeita.</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Excluir definitivamente</button>
+  </form>
+  <p><a href="{% url 'files:list' %}">Cancelar</a></p>
+</body>
+</html>

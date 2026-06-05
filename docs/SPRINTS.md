@@ -475,17 +475,17 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [x] (P0) View de download autenticada com checagem por tenant + papel — **streaming pela view** (OD-021): `FileDownloadView` (`TenantRequiredMixin` + `FileDownloadRoleMixin` §3.8) + `stream_file_asset` (`FileResponse`, sem `.url()`). Cross-tenant/inexistente → 404. _Escopo fino "(autorizado)" por contexto → Bloco 4._
 - [x] (P0) `apps/files/signals.py` com `AuditLog` em upload/download/delete — upload(create)/delete via `AuditLogMixin` global; download(read) via signal custom `file_downloaded`
 - [x] (P0) `SecurityLog` para upload/download de arquivos sensíveis — `sensitive_file_upload` (post_save) + `sensitive_file_download` (signal de download)
-- [ ] (P0) View de listagem de arquivos com filtros por contexto (Person, Community, Ministry)
-- [ ] (P1) View de exclusão de arquivo (apenas Pastor/Secretaria)
+- [x] (P0) View de listagem de arquivos com filtros por contexto (Person, Community, Ministry) — `FileAssetListView` + `ScopedFileQuerysetMixin` (escopo por papel; filtro `?related_model=&related_object_id=`); fecha a pendência "(autorizado)" do Bloco 3 (download agora também escopado). Templates mínimos pt-BR (`file_list.html`); aplicação do design system Athos fica para passo posterior (Sprint 7)
+- [x] (P1) View de exclusão de arquivo (**apenas Pastor** — resolvido 2026-06-05 a favor da ACCESS_MATRIX §3.8, regra do mais conservador; Secretário NÃO exclui) — `FileDeleteView` (`PastorRequiredMixin`) + `file_confirm_delete.html`
 
 #### Dashboard
 
-- [ ] (P0) Criar `apps/dashboard/services.py` com `church_metrics` (totais por status, presença último mês, comunidades/ministérios ativos)
-- [ ] (P0) Criar `apps/dashboard/views.py` com `DashboardPastorView` (acesso completo)
-- [ ] (P0) Criar `apps/dashboard/views.py` com `DashboardLeaderView` (escopo da comunidade)
-- [ ] (P0) Criar `apps/dashboard/views.py` com `DashboardCoordinatorView` (escopo do ministério)
-- [ ] (P1) Charts simples com Chart.js (sem biblioteca paga)
-- [ ] (P0) Templates respeitando design system
+- [x] (P0) Criar `apps/dashboard/services.py` com `church_metrics` (totais por status, presença último mês, comunidades/ministérios ativos) — agregação no banco (P-ARQ-09); escopo `community_ids`/`ministry_ids`, vazio = zerado (conservador)
+- [x] (P0) Criar `apps/dashboard/views.py` com `DashboardPastorView` (acesso completo) — `PastorRequiredMixin`
+- [x] (P0) Criar `apps/dashboard/views.py` com `DashboardLeaderView` (escopo da comunidade) — `Community.leaders__user_id`; Pastor curto-circuita p/ completo
+- [x] (P0) Criar `apps/dashboard/views.py` com `DashboardCoordinatorView` (escopo do ministério) — `Ministry.coordinators__user_id`
+- [x] (P1) Charts simples com Chart.js (sem biblioteca paga) — CDN + `json_script` (pessoas por situação); degrada para a tabela sem JS
+- [x] (P0) Templates respeitando design system — markup mínimo pt-BR (partial `_metrics.html` + 3 páginas), **consistente com as demais telas**; aplicação do design system Athos fica para a Sprint 7 (Piloto Athos)
 
 ### Testes mínimos da Sprint 6
 
@@ -499,9 +499,9 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [x] (P0) `test_file_upload_security_logged`
 - [x] (P0) `test_r2_path_isolated_per_tenant` (upload em tenant A não vaza em tenant B)
 - [x] (P0) ~~`test_signed_url_expires_in_60s`~~ — **N/A por OD-021** (download é streaming pela view, não URL assinada); substituído por `test_no_permanent_public_url` + `test_download_happy_path_audited`
-- [ ] (P0) `test_dashboard_scoped_no_leak`
-- [ ] (P0) `test_dashboard_leader_sees_only_own_community`
-- [ ] (P0) `test_dashboard_coordinator_sees_only_own_ministry`
+- [x] (P0) `test_dashboard_scoped_no_leak`
+- [x] (P0) `test_dashboard_leader_sees_only_own_community`
+- [x] (P0) `test_dashboard_coordinator_sees_only_own_ministry`
 - [ ] (P0) `test_tenant_isolation_matrix` (atualizado)
 - [ ] (P0) `test_permissions_matrix` (atualizado)
 

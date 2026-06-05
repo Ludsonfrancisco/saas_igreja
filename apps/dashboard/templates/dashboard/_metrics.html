@@ -1,0 +1,57 @@
+{% comment %}Bloco de métricas do dashboard (Sprint 6 / Bloco 5). Partial incluído
+pelas 3 páginas (pastor/líder/coordenador) — recebe `metrics` do contexto da view.
+Markup mínimo pt-BR. Chart.js via CDN (P1, "charts simples sem biblioteca paga"):
+os números também aparecem na tabela, então a página funciona mesmo sem JS.{% endcomment %}
+<section>
+  <ul>
+    <li>Pessoas (total): <strong>{{ metrics.people_total }}</strong></li>
+    <li>Presenças no último mês: <strong>{{ metrics.attendance_last_month }}</strong></li>
+    <li>Comunidades ativas: <strong>{{ metrics.active_communities }}</strong></li>
+    <li>Ministérios ativos: <strong>{{ metrics.active_ministries }}</strong></li>
+  </ul>
+
+  <h2>Pessoas por situação</h2>
+  <table>
+    <thead><tr><th>Situação</th><th>Total</th></tr></thead>
+    <tbody>
+      {% for status, count in metrics.people_by_status.items %}
+        <tr>
+          <td>
+            {% if status == 'visitor' %}Visitante
+            {% elif status == 'congregant' %}Congregante
+            {% elif status == 'member' %}Membro
+            {% elif status == 'leader' %}Líder
+            {% elif status == 'inactive' %}Inativo
+            {% else %}{{ status }}{% endif %}
+          </td>
+          <td>{{ count }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {# Dados para o gráfico: json_script escapa com segurança (sem XSS). #}
+  {{ metrics.people_by_status|json_script:"people-by-status-data" }}
+  <canvas id="people-by-status-chart" height="120" aria-label="Gráfico de pessoas por situação" role="img"></canvas>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script>
+    (function () {
+      var el = document.getElementById('people-by-status-chart');
+      var raw = document.getElementById('people-by-status-data');
+      if (!el || !raw || typeof Chart === 'undefined') { return; }
+      var data = JSON.parse(raw.textContent);
+      var labels = {
+        visitor: 'Visitante', congregant: 'Congregante', member: 'Membro',
+        leader: 'Líder', inactive: 'Inativo'
+      };
+      new Chart(el, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(data).map(function (k) { return labels[k] || k; }),
+          datasets: [{ label: 'Pessoas', data: Object.values(data) }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+      });
+    })();
+  </script>
+</section>
