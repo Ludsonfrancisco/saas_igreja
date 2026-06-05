@@ -32,6 +32,8 @@ urlpatterns: list[path] = [
     path('', include('apps.gatherings.urls')),
     # App schedules: CRUD de Escalas sob `escalas/` (namespace 'schedules').
     path('', include('apps.schedules.urls')),
+    # App files: download seguro de arquivos sob `arquivos/` (namespace 'files').
+    path('', include('apps.files.urls')),
     # Fluxos de autenticacao do allauth (login, logout, reset/confirm de senha)
     # sob prefixo pt-BR. O cadastro publico esta fechado (AccountAdapter), mas a
     # rota de signup ainda e incluida pelo allauth — ela responde fechada.

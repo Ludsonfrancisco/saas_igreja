@@ -472,9 +472,9 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [x] (P0) Criar `apps/core/validators.py` com `MagicValidator` (valida MIME via `python-magic`; `@deconstructible`)
 - [x] (P0) Criar `apps/files/services.py` com `upload_file` (valida MIME, tamanho ≤10MB, tipos PDF/PNG/JPG; grava no `STORAGES['default']`)
 - [x] (P0) Rejeitar SVG (vetor XSS) — `EXPLICITLY_DENIED_MIME_TYPES`
-- [ ] (P0) Criar view de download autenticada com checagem de permissão por tenant + papel — gera URL temporária assinada R2 (TTL 60s) ou faz streaming pela view
-- [ ] (P0) `apps/files/signals.py` com `AuditLog` em upload/download/delete
-- [ ] (P0) `SecurityLog` para upload/download de arquivos sensíveis
+- [x] (P0) View de download autenticada com checagem por tenant + papel — **streaming pela view** (OD-021): `FileDownloadView` (`TenantRequiredMixin` + `FileDownloadRoleMixin` §3.8) + `stream_file_asset` (`FileResponse`, sem `.url()`). Cross-tenant/inexistente → 404. _Escopo fino "(autorizado)" por contexto → Bloco 4._
+- [x] (P0) `apps/files/signals.py` com `AuditLog` em upload/download/delete — upload(create)/delete via `AuditLogMixin` global; download(read) via signal custom `file_downloaded`
+- [x] (P0) `SecurityLog` para upload/download de arquivos sensíveis — `sensitive_file_upload` (post_save) + `sensitive_file_download` (signal de download)
 - [ ] (P0) View de listagem de arquivos com filtros por contexto (Person, Community, Ministry)
 - [ ] (P1) View de exclusão de arquivo (apenas Pastor/Secretaria)
 
@@ -492,13 +492,13 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [x] (P0) `test_upload_validates_mime_via_magic`
 - [x] (P0) `test_upload_rejects_file_above_10mb`
 - [x] (P0) `test_upload_rejects_svg`
-- [ ] (P0) `test_download_requires_permission`
-- [ ] (P0) `test_download_unauthorized_returns_404`
-- [ ] (P0) `test_no_permanent_public_url`
-- [ ] (P0) `test_delete_file_audited`
-- [ ] (P0) `test_file_upload_security_logged`
+- [x] (P0) `test_download_requires_permission`
+- [x] (P0) `test_download_unauthorized_returns_404`
+- [x] (P0) `test_no_permanent_public_url`
+- [x] (P0) `test_delete_file_audited`
+- [x] (P0) `test_file_upload_security_logged`
 - [x] (P0) `test_r2_path_isolated_per_tenant` (upload em tenant A não vaza em tenant B)
-- [ ] (P0) `test_signed_url_expires_in_60s`
+- [x] (P0) ~~`test_signed_url_expires_in_60s`~~ — **N/A por OD-021** (download é streaming pela view, não URL assinada); substituído por `test_no_permanent_public_url` + `test_download_happy_path_audited`
 - [ ] (P0) `test_dashboard_scoped_no_leak`
 - [ ] (P0) `test_dashboard_leader_sees_only_own_community`
 - [ ] (P0) `test_dashboard_coordinator_sees_only_own_ministry`
