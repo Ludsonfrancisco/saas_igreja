@@ -20,8 +20,8 @@ Matriz detalhada de permissões por módulo, ação e papel. Toda barreira efeti
 | Líder de Comunidade | Sua(s) comunidade(s) | `'leader' in user.roles` + comunidades onde é `Community.leader` |
 | Coordenador de Ministério | Seu(s) ministério(s) | `'leader' in user.roles` + ministérios onde é `Ministry.coordinator` |
 | Tesoureiro | Escopo financeiro (pós-MVP) | `'treasurer' in user.roles` |
-| Voluntário | Suas escalas | Pessoa com `Schedule`; não tem login dedicado no MVP |
-| Membro / Pessoa | Próprio perfil | `'member' in user.roles` — **Decisão aberta** OD-004 |
+| Voluntário escalado | Suas escalas (read-only) | Pessoa com `Schedule`; **sem login** — acessa as próprias escalas/próximos encontros via **magic-link** (token assinado, read-only, sem conta/senha/MFA), **OD-022**. Distinto do Membro geral |
+| Membro / Pessoa | — (sem acesso no MVP) | `'member' in user.roles` — **OD-004 (fechada):** sem login no MVP; existe apenas como `Person`. Sem acesso (≠ Voluntário escalado, que tem magic-link) |
 
 ### 1.1 Multi-role com união de permissões
 

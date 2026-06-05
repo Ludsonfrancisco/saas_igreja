@@ -428,6 +428,31 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 
 ---
 
+### OD-022 — Acesso do voluntário escalado (magic-link, não login)
+
+| Campo | Valor |
+|---|---|
+| Status | ✅ Fechada (2026-06-05) |
+| Impacto | Médio (escopo + auth + UX) |
+| Owner | Produto + Segurança |
+| Decisão | **Voluntário escalado** (Pessoa com `Schedule`) acessa "minhas escalas / próximos encontros" **read-only** via **magic-link sem conta** (token assinado, sem senha, sem MFA). **Distinto do Membro geral** (OD-004, que segue sem acesso) |
+
+**Contexto:** ao planejar a UI (Sprint 6.5), o dono esclareceu que **quem é escalado como voluntário deve poder ver o próprio compromisso** — e que isso é um tipo específico de pessoa, **não** o Membro geral. A spec vigente negava ambos: PRD §papéis traz *"Voluntário: Pessoa com `Schedule`, sem login dedicado"* e OD-004 tira o login do Membro.
+
+**Decisão:** criar um acesso de **baixíssima fricção, exclusivo do voluntário escalado**: um **magic-link** (token assinado, TTL configurável) entregue ao ser escalado (email/WhatsApp), abrindo uma visão **read-only mobile** das próprias escalas/próximos encontros. **Não é login** (sem conta, sem senha, sem MFA).
+
+**Justificativa:**
+- Quem assume um compromisso (foi escalado) merece visibilidade dele; o **membro passivo** não precisa de acesso — daí a distinção.
+- Magic-link **não infla** a app `accounts` (sem `User`/convite/permissões novas), **não reabre OD-004** (Membro geral segue sem acesso) e **não entra no enforce de MFA** da Sprint 7.
+- Mantém o PRD coerente: *"sem login dedicado"* continua verdadeiro — magic-link não é login.
+
+**Implicações:**
+- **Backend (feature pequena, não só UI):** gerar token assinado escopado à `Person` (TTL); view tokenizada **read-only** que só mostra os dados da própria pessoa; disparo do link na notificação de escala. Entra como sub-tarefa de backend na frente "Voluntário" da Sprint 6.5.
+- **Segurança:** token com TTL + escopo individual + somente leitura; nunca expor PII de terceiros; avaliar `SecurityLog` no acesso (leitura sensível).
+- **Membro geral (OD-004):** inalterado — sem acesso.
+
+---
+
 ## Histórico — decisões fechadas
 
 | ID | Decisão | Data | Resultado |
@@ -437,7 +462,10 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 | OD-004 | Membro/Pessoa tem login no MVP | 2026-06-01 | Não — Membro existe apenas como `Person`, sem login. Login de Membro fica para a Fase 2 |
 | OD-017 | Política de exclusão de tenant (Church) | 2026-06-01 | Igreja não é hard-deletável no MVP — apenas suspensa (RF-003). Exclusão definitiva fica para pós-MVP |
 | OD-018 | Camada canônica de enforcement LGPD (`consent_given_at`) | 2026-06-01 | Validação na camada de service (`create_person`/`import_csv`), espelhada no form. Cobre o caminho CSV |
+| OD-019 | Modelo de papéis e Gestão de Acessos | 2026-06-04 | Papel `secretary` (admin sem financeiro); `leader` unificado (comunidade/ministério = vínculo); M2M `Community.leaders`/`Ministry.coordinators`; Gestão de Acessos concede funções+escopo (Pastor+Secretário); travas RISK-015 |
+| OD-020 | `on_delete` de `Attendance.person` | 2026-06-05 | `SET_NULL` (alinha RN-007: presença preservada no purge da Pessoa); corrige `TECH_SPEC §5.6` que trazia `CASCADE` |
 | OD-021 | Mecanismo de download de arquivo (Sprint 6) | 2026-06-05 | Streaming pela view autenticada (não URL assinada R2); substitui `test_signed_url_expires_in_60s` por testes de permissão/streaming |
+| OD-022 | Acesso do voluntário escalado | 2026-06-05 | Magic-link read-only sem conta (não login, não MFA), exclusivo de quem tem `Schedule`; Membro geral (OD-004) segue sem acesso |
 | OD-003a | Storage de mídia | 2026-05-27 | Cloudflare R2 (S3-compatible) desde Sprint 6 |
 | OD-006 | VPS definitivo | 2026-05-27 | Hostinger KVM 2 (8GB, 2 vCPU, 100GB NVMe) |
 | OD-007 | Storage offsite | 2026-05-27 | Cloudflare R2 (mesma conta de OD-003a) |

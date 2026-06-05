@@ -4,7 +4,7 @@
 > **Data:** 2026-05-27
 > **Método:** Spec Driven Development (SDD).
 
-Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Marcar `[x]` quando concluída.
+Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Design/UI Athos** entre a 6 e a 7). Cada task tem checkbox `[ ]`. Marcar `[x]` quando concluída.
 
 ## Regras de execução
 
@@ -515,12 +515,110 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 ---
 
+## Sprint 6.5 — Design System & Experiência (UI Athos)
+
+**Objetivo:** transformar as telas funcionais (hoje em markup mínimo) numa **experiência que gera emoção e beleza** — acolhimento e comunidade, não "tech frio" — sem perder a robustez já testada (HTMX/Alpine, isolamento, auditoria). Mobile-first para papéis operacionais; desktop **e** mobile para papéis administrativos.
+**Duração estimada:** 14 dias.
+**Dependências:** Sprints 1–6 (todas as features existem). **Sem dependência de infra** — pode rodar em paralelo ao provisionamento da Sprint 7. **Deve estar pronta ANTES do Piloto Athos** (o primeiro cliente precisa ver um produto polido).
+**Riscos:** estilizar quebrar fluxos HTMX/Alpine testados; CDN do Tailwind derrubar o Lighthouse; "beleza" virar inconsistência sem design system; over-design atrasar o piloto.
+**Decisão de escopo (2026-06-05):** formalizada como sprint dedicada (opção 2) a pedido do dono — o trabalho de UI é grande demais para ser espremido na sprint de produção, e telas prontas são pré-requisito de um piloto que impressione.
+
+### Princípios de Design (DS-01..DS-08)
+
+- **DS-01 — Marca ≠ tema.** A **marca do produto** (landing) é **Terracota & Âmbar FIXA** (`#B4502E`/`#F2A93B`, fontes Fraunces+Inter). A **área logada** é **base NEUTRA temável por igreja**: as cores de acento vêm de `Church.accent_color` (#7C3F06) e `Church.hot_color` (#FF9C1A) + `Church.logo`, injetadas como CSS vars por tenant. NUNCA cravar terracota nas telas do app.
+- **DS-02 — Emoção com sobriedade.** Tipografia do app conforme **TECH_SPEC §11** (Inter no corpo, Montserrat display, Instrument Serif em destaques — Fraunces é da landing, não do app); cantos suaves, sombras leves, microinterações Alpine discretas, e **estados ricos obrigatórios** (vazio acolhedor, loading, sucesso, erro) — a emoção mora nos detalhes, não em ornamento.
+- **DS-03 — Mobile-first real.** Layout desenhado a partir de ≥360px; alvos de toque ≥44px; navegação inferior (bottom-nav) no mobile para papéis operacionais; nada de "desktop encolhido".
+- **DS-04 — Acessibilidade WCAG AA.** Contraste AA, foco visível, navegação por teclado, `aria`/labels, respeito a `prefers-reduced-motion`. Beleza que exclui não serve a uma igreja.
+- **DS-05 — Performance (Lighthouse mobile ≥ 90).** Tailwind **compilado e purgado** (CLI standalone, sem exigir Node/cadeia npm), não CDN; sem JS pesado; imagens/logo otimizados. (Decisão a registrar: compilado vs CDN — recomendação **compilado**.)
+- **DS-06 — Não quebrar o que funciona.** HTMX (swaps, filtros, paginação) e Alpine (modais, confirmações) já testados permanecem verdes; o design é camada sobre os fluxos, não reescrita deles.
+- **DS-07 — Uma fonte de verdade.** `base.html` + biblioteca de componentes parciais (`{% include %}`); as telas estendem/incluem — fim do markup standalone duplicado.
+- **DS-08 — Inspirar sem plagiar.** Conceitos de mercado, identidade própria; **evitar verde/teal** (assinatura dos concorrentes InChurch/Eklesia). Ver `referencias/` e a direção [[design-direction-terracota]].
+
+### Matriz de foco: persona × dispositivo (pedido do dono)
+
+| Persona | Foco de dispositivo | Telas-chave a encantar |
+|---|---|---|
+| **Pastor** | **Desktop + Mobile** | Dashboard completo (KPIs+gráfico), Pessoas, Comunidades, Ministérios, Gestão de Acessos, Escalas, Arquivos, Segurança/MFA |
+| **Secretário** | **Desktop + Mobile** | Pessoas (CRUD/import/anonimizar), Convites, Comunidades/Ministérios, Encontros, Arquivos |
+| **Tesoureiro** | **Desktop + Mobile** | Dashboard do seu escopo, Arquivos (contexto financeiro — pós-MVP), Pessoas (leitura) |
+| **Líder (Comunidade)** | **Mobile-first** | Dashboard da comunidade, Encontros + **marcar presença** (fluxo-estrela), minha escala, pessoas da comunidade |
+| **Coordenador (Ministério)** | **Mobile-first** | Dashboard do ministério, escalas do ministério, **aprovação de exceção**, pessoas do ministério |
+| **Voluntário escalado** (Pessoa com `Schedule`) | **Mobile-first (mínimo)** | "Minhas escalas" / "próximos encontros" (read-only) via **magic-link sem conta** (**OD-022**). **É este o "membro com acesso"** — distinto do Membro geral (OD-004, sem acesso). Ver Bloco 5. |
+
+### Tasks
+
+#### Bloco 1 — Fundação do Design System
+- [ ] (P0) Pipeline de build do Tailwind **compilado** (CLI standalone, sem Node) + purga; integrar ao `collectstatic`/Docker. **Decisão a registrar:** compilado vs CDN (recomendado: compilado, DS-05).
+- [ ] (P0) `tailwind.config` com tokens: **base neutra** (slate/creme) + **cores de acento como CSS vars** lidas de `Church.accent_color`/`hot_color`. Fontes Inter (corpo) + Fraunces (títulos seletivos).
+- [ ] (P0) `templates/base.html` (app): head, fontes, `<meta viewport>`, slot de conteúdo, área de mensagens (toasts), skip-link a11y, injeção das CSS vars do tema da `Church` atual.
+- [ ] (P0) **Tema por tenant**: context processor / template tag que injeta `--accent`/`--hot`/logo da `Church` atual em `:root` (base neutra + acento dinâmico, DS-01).
+- [ ] (P0) Biblioteca de componentes parciais (`templates/components/`): top-header, sidebar (desktop), bottom-nav (mobile), card, tabela responsiva (tabela→cards no mobile), badge, button, form-field, modal/confirm destrutivo, pagination, **empty-state acolhedor**, loading (`hx-indicator`/skeleton), avatar, toast.
+- [ ] (P0) Páginas de erro estilizadas (404, 403, 500).
+
+#### Bloco 2 — Shell de navegação por papel (desktop + mobile)
+- [ ] (P0) Shell de layout: **desktop** = sidebar + top-header; **mobile** = top-header + **bottom-nav** (papéis operacionais) ou drawer.
+- [ ] (P0) Navegação adaptada por papel (`user.roles`): admin (Pastor/Secretário/Tesoureiro) vê o conjunto de gestão; Líder/Coordenador vê o escopo deles; itens condicionados por permissão (espelha ACCESS_MATRIX).
+- [ ] (P0) Home pós-login = Dashboard do papel (roteamento por papel).
+
+#### Bloco 3 — Telas ADMIN (Pastor / Secretário / Tesoureiro) — desktop + mobile
+- [ ] (P0) Dashboard completo (Pastor): cards de KPI + gráfico Chart.js estilizado ao tema.
+- [ ] (P0) Pessoas: lista (tabela densa no desktop / cards no mobile), detalhe, form, import CSV, anonimizar (confirmação dupla — OD-014).
+- [ ] (P0) Comunidades e Ministérios: lista/detalhe/form.
+- [ ] (P0) Gestão de Acessos / Usuários / Convites / SupportAccess.
+- [ ] (P0) Segurança da conta / setup de MFA (prepara o enforce da Sprint 7).
+- [ ] (P0) Arquivos: lista/filtros/confirm-delete (estiliza o que o Bloco 4 da Sprint 6 entregou cru).
+
+#### Bloco 4 — Telas OPERACIONAIS (Líder / Coordenador) — mobile-first
+- [ ] (P0) Dashboard simplificado (comunidade/ministério) em cards mobile.
+- [ ] (P0) **Marcar presença** — o fluxo-estrela do Líder: lista de pessoas, marcação em lote, HTMX swap, feedback imediato, otimizado para uma mão. (Tela mais usada do produto.)
+- [ ] (P0) Encontros: lista/detalhe mobile.
+- [ ] (P0) Escalas: minha escala / escalas do ministério; **aprovação de exceção** (Coordenador) com justificativa.
+- [ ] (P0) Pessoas no escopo (comunidade/ministério) em cards mobile.
+
+#### Bloco 5 — Auth, polish transversal e Voluntário escalado (OD-022)
+- [ ] (P0) Telas de autenticação (login, reset de senha, **aceite de convite**) — primeira impressão da marca; aqui a identidade pode beirar a marca Terracota.
+- [ ] (P0) Estados globais consistentes: vazio/erro/sucesso, toasts, skeletons de loading.
+- [ ] (P1) **Voluntário escalado — magic-link (OD-022):** acesso read-only "minhas escalas"/"próximos encontros", mobile, **sem conta/senha/MFA**. Distinto do Membro geral (OD-004, sem acesso). Inclui **sub-tarefa de backend** (não é só UI): gerar token assinado escopado à `Person` (TTL); view tokenizada read-only que só mostra os dados da própria pessoa; disparar o link na notificação de escala; avaliar `SecurityLog` no acesso.
+- [ ] (P2) Dark mode — fora do MVP (registrar como ideia futura).
+
+#### Bloco 6 — QA visual, acessibilidade e performance
+- [ ] (P0) E2E com **Playwright** dos fluxos-chave por papel (login, marcar presença mobile, criar pessoa, aprovar exceção) — `qa-pytest-playwright`.
+- [ ] (P0) Snapshots visuais **mobile (360×640) + desktop** das telas principais.
+- [ ] (P0) Auditoria de acessibilidade (axe / checagens WCAG AA): contraste, foco, teclado.
+- [ ] (P0) **Lighthouse mobile ≥ 90** nas telas principais (este é o critério que estava na Sprint 7 — passa a ser entregue aqui).
+- [ ] (P0) Regressão: suíte existente (HTMX/Alpine flows) continua verde após a estilização.
+
+### Testes mínimos da Sprint 6.5
+- [ ] (P0) `test_base_template_renders_church_theme` (CSS vars do tema da Church na resposta)
+- [ ] (P0) E2E Playwright: `login`, `marcar_presenca_mobile`, `criar_pessoa_desktop`, `aprovar_excecao`
+- [ ] (P0) Snapshot visual mobile+desktop das telas principais (sem regressão visual)
+- [ ] (P0) a11y (axe) sem violações críticas nas telas principais
+- [ ] (P0) Lighthouse mobile ≥ 90 (telas principais)
+- [ ] (P0) Suíte de regressão (pytest) inteira verde — fluxos HTMX/Alpine preservados
+
+### Critério de conclusão da Sprint 6.5
+- [ ] `base.html` + design system + tema por igreja aplicados a **100% das telas** (zero markup mínimo restante)
+- [ ] Mobile-first validado nos papéis operacionais (Líder/Coordenador); desktop **e** mobile nos papéis admin (Pastor/Secretário/Tesoureiro)
+- [ ] **Lighthouse mobile ≥ 90** e **WCAG AA** nas telas principais
+- [ ] Fluxos HTMX/Alpine preservados (suíte verde) — zero regressão funcional
+- [ ] **Aprovação visual do dono** (preview por papel, mobile + desktop)
+- [ ] Voluntário escalado: magic-link read-only (OD-022) implementado e funcional no mobile
+
+### Decisões a registrar em `OPEN_DECISIONS.md`
+- **Tailwind compilado vs CDN** (recomendação: compilado, por Lighthouse/DS-05).
+- ✅ **Voluntário escalado** → resolvido: **OD-022** (magic-link read-only sem conta; ≠ Membro geral/OD-004).
+- **Nome do produto** (hoje placeholder "Comunhão" no protótipo) — afeta logo/título do app e da landing.
+
+---
+
 ## Sprint 7 — Deploy Beta, Backup, Restore, Hardening, Piloto Athos
 
 **Objetivo:** entrar em produção controlada com piloto Athos.
 **Duração estimada:** 21 dias.
-**Dependências:** Sprints 1–6.
+**Dependências:** Sprints 1–6 + **Sprint 6.5 (Design UI Athos) concluída antes do Piloto Athos** (o primeiro cliente precisa ver o produto polido).
 **Riscos:** Restore não testado; MFA não obrigatório para Pastor; Sentry vazando PII; VPS subdimensionado.
+
+> **Nota de escopo:** a estilização das telas e o critério **Lighthouse mobile ≥ 90** saíram desta sprint e passaram para a **Sprint 6.5 — Design System & Experiência (UI Athos)**. Aqui ficam Deploy, Backup/Restore, Hardening, MFA enforce, Monitoramento, Docs operacionais e o Piloto.
 
 ### Tasks
 
@@ -597,7 +695,7 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 - [ ] MFA obrigatório para Pastor e Platform Admin
 - [ ] Threat model formal aprovado
 - [ ] 100% das views autenticadas com `TenantRequiredMixin`
-- [ ] Lighthouse mobile ≥ 90 nas telas principais
+- [ ] ~~Lighthouse mobile ≥ 90 nas telas principais~~ → **movido para a Sprint 6.5** (UI Athos); aqui só se confirma que o build de produção preserva o score
 
 ---
 
@@ -616,7 +714,8 @@ gantt
   Sprint 4 Encontros+Presença:a4, after a3, 14d
   Sprint 5 Escalas           :a5, after a4, 21d
   Sprint 6 Files+Dashboard   :a6, after a5, 14d
-  Sprint 7 Deploy+Piloto     :a7, after a6, 21d
+  Sprint 6.5 Design UI Athos :a65, after a6, 14d
+  Sprint 7 Deploy+Piloto     :a7, after a65, 21d
 ```
 
 ## Gate de segurança entre sprints

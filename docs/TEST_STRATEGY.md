@@ -319,6 +319,16 @@ def test_permissions_matrix(role, url_name, method, expected, ...):
 | `test_schedule_exception_requires_competent_coordinator` | RF-072 |
 | `test_schedule_exception_creates_approval_and_audits` | RF-072 |
 
+### 6.7a Voluntário escalado (magic-link — OD-022, Sprint 6.5)
+
+| Teste | Cobre |
+|---|---|
+| `test_volunteer_magic_link_grants_readonly_own_schedules` | OD-022 |
+| `test_volunteer_magic_link_scoped_to_self_no_leak` | OD-022, RISK-001 |
+| `test_volunteer_magic_link_token_expires` | OD-022 |
+
+> Acesso **read-only** por **token assinado** (sem conta/senha/MFA), escopado à própria `Person`. Distinto do Membro geral (OD-004, sem acesso). Implementado na Sprint 6.5 (frente "Voluntário").
+
 ### 6.8 Arquivos
 
 | Teste | Cobre |
@@ -328,10 +338,13 @@ def test_permissions_matrix(role, url_name, method, expected, ...):
 | `test_upload_rejects_svg` (XSS) | SEC-05 |
 | `test_download_requires_permission` | RF-081, RN-013 |
 | `test_download_unauthorized_returns_404` | RF-081 |
-| `test_no_permanent_public_url` | RNF-018 |
+| `test_download_anonymous_redirects_to_login` | RF-081, SEC |
+| `test_no_permanent_public_url` | RNF-018, OD-021 |
 | `test_delete_file_audited` | RF-082 |
+| `test_file_upload_security_logged` | §12.3 |
 | `test_r2_path_isolated_per_tenant` | OD-003a, RISK-001 |
-| `test_signed_url_expires_in_60s` | OD-003a |
+
+> **OD-021:** download é **streaming pela view** (não URL assinada R2) → o antigo `test_signed_url_expires_in_60s` foi **substituído** por `test_no_permanent_public_url` + testes de permissão/escopo.
 
 ### 6.9 Dashboard
 
@@ -373,6 +386,20 @@ def test_permissions_matrix(role, url_name, method, expected, ...):
 | `test_no_n_plus_one_in_listings` (varre cada `ListView` com `nplusone.Middleware`) | RNF-024, P-ARQ-09 |
 | `test_listings_paginated` (lista com 30 registros retorna 25 por página) | RNF-021 |
 | `test_list_performance` (500 registros < 500ms) | RNF-011 |
+
+### 6.14 Design / UI (Sprint 6.5 — UI Athos)
+
+E2E com **Playwright** (Django test client não roda JS), snapshots visuais e acessibilidade. Mobile 360×640 + desktop.
+
+| Teste | Cobre |
+|---|---|
+| `test_base_template_renders_church_theme` (CSS vars de `accent_color`/`hot_color`) | DS-01 |
+| E2E `login`, `marcar_presenca_mobile`, `criar_pessoa_desktop`, `aprovar_excecao` | DS-06 |
+| Snapshot visual mobile+desktop das telas principais (sem regressão) | DS-02/DS-03 |
+| a11y (axe) sem violações críticas nas telas principais | DS-04 |
+| Lighthouse mobile ≥ 90 (telas principais) | DS-05 |
+
+> Gate da Sprint 6.5: fluxos HTMX/Alpine existentes seguem verdes (zero regressão), WCAG AA e Lighthouse mobile ≥ 90.
 
 ---
 

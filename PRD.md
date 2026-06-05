@@ -4,7 +4,7 @@
 > **Data:** 2026-05-27
 > **Status:** Aprovado para virar fonte de verdade de produto, arquitetura, escopo, backlog, testes e sprints do MVP.
 > **Fonte de verdade:** Este documento. Em caso de conflito com o `01_SDD`, `02_PRD v2`, `03_Technical Spec` ou `04_MVP Scope` do Notion, prevalece a fonte mais específica e mais recente; quando o conflito não for resolvível, registrar em `OPEN_DECISIONS` e aplicar a regra mais conservadora em segurança e multi-tenancy.
-> **Design system:** `referencias/templates/index.html` é a fonte viva de paleta, tipografia e componentes. Nenhuma tela final pode ser construída sem consultar essa referência.
+> **Design system:** **marca ≠ tema** — a marca/landing é Terracota & Âmbar fixa; o **app** usa a Paleta Athos (TECH_SPEC §11) como base neutra **temável por igreja** (`Church.accent_color`/`hot_color`/`logo`). Referência de qualidade em `referencias/templates/igreja_saas_novo.html`. O design system é **consolidado na Sprint 6.5**; nenhuma tela final é construída sem consultar essa referência.
 
 ---
 
@@ -600,7 +600,7 @@ X_FRAME_OPTIONS = 'DENY'
 | Líder de Comunidade (`leader` in roles) | Tenant, escopo da comunidade | CRUD limitado às suas pessoas e encontros via `ScopedToCommunityMixin` |
 | Coordenador de Ministério (`leader` in roles) | Tenant, escopo do ministério | Gerencia escalas/voluntários via `ScopedToMinistryMixin` |
 | Tesoureiro (`treasurer` in roles) | Tenant, escopo financeiro | Pós-MVP; pode ser combinado com `leader` |
-| Voluntário | Tenant, escopo individual | Pessoa com `Schedule`; sem login dedicado |
+| Voluntário | Tenant, escopo individual | Pessoa com `Schedule`; **sem login dedicado**. Acessa as próprias escalas/próximos encontros **read-only via magic-link** (token assinado, sem conta/senha/MFA) — **OD-022**. Distinto do Membro geral (sem acesso) |
 | Membro / Pessoa (`member` in roles) | Tenant, escopo individual | OD-004 (fechada): **sem login no MVP**; existe apenas como `Person`. Login de Membro fica para a Fase 2 |
 
 **Multi-role:** um usuário pode ter `roles=['treasurer', 'leader']` e acumula permissões dos dois. Pastor sempre domina (adicionar outras roles a Pastor é redundante).
@@ -806,7 +806,7 @@ saas_igreja/
 ├── pyproject.toml
 ├── tailwind.config.js
 ├── package.json
-├── referencias/templates/index.html
+├── referencias/templates/igreja_saas_novo.html
 ├── PRD.md
 ├── TECH_SPEC.md
 ├── ACCESS_MATRIX.md
@@ -937,8 +937,8 @@ sequenceDiagram
 
 ### 22.1 Design System
 
-- Fonte viva: `referencias/templates/index.html`.
-- Paleta Athos: `#7C3F06` (accent), `#5A2D04` (accent-2), `#FF9C1A` (hot), `#EFE7DA` (bg), `#F6F0E5` (bg-soft), `#FFF` (paper), `#161412` (ink), `#2A2522` (ink-2), `#6F6557` (muted).
+- Referência viva: `referencias/templates/igreja_saas_novo.html` (padrão de qualidade do app) + `referencias/` (direção da marca). Implementação consolidada na **Sprint 6.5**.
+- Paleta Athos (app, base neutra temável por igreja): `#7C3F06` (accent), `#5A2D04` (accent-2), `#FF9C1A` (hot), `#EFE7DA` (bg), `#F6F0E5` (bg-soft), `#FFF` (paper), `#161412` (ink), `#2A2522` (ink-2), `#6F6557` (muted).
 - Tipografia: Inter (body), Montserrat (display), Instrument Serif (destaques).
 - Cores customizáveis por tenant via `Church.accent_color` e `Church.hot_color` injetadas em CSS variables.
 - TailwindCSS configurado em `tailwind.config.js` com tokens Athos.
@@ -1181,6 +1181,16 @@ Uma sprint só é considerada pronta quando:
 - **Critério de conclusão:** Pentest manual em URLs de download; dashboard sem vazamento.
 - **Testes mínimos:** RF-080 a RF-090; CA-060, CA-061, CA-070.
 
+### Sprint 6.5 — Design System & Experiência (UI Athos)
+
+- **Objetivo:** dar identidade visual e UX (emoção + beleza, acolhimento) às telas funcionais, **antes do Piloto Athos**. Mobile-first nos papéis operacionais (Líder/Coordenador/voluntário); desktop **e** mobile nos administrativos (Pastor/Secretário/Tesoureiro).
+- **Escopo:** `base.html` + Tailwind **compilado** + design system; **tema por igreja** (`Church.accent_color`/`hot_color`/`logo` como CSS vars sobre base neutra); biblioteca de componentes; estilizar **100% das telas**; **magic-link read-only do voluntário escalado** (OD-022); QA visual (Playwright), acessibilidade WCAG AA, Lighthouse mobile ≥ 90.
+- **Dependências:** Sprints 1–6. **Sem dependência de infra** (corre em paralelo ao provisionamento da Sprint 7).
+- **Riscos:** estilização quebrar fluxos HTMX/Alpine testados; CDN do Tailwind derrubar Lighthouse; over-design atrasar o piloto.
+- **Entregáveis:** app com identidade Athos, mobile-first, acessível, performático; voluntário escalado vê as próprias escalas via magic-link.
+- **Critério de conclusão:** 100% das telas no design system; Lighthouse mobile ≥ 90; WCAG AA; fluxos HTMX/Alpine verdes (zero regressão); **aprovação visual do dono**.
+- **Detalhe operacional:** ver `docs/SPRINTS.md` (princípios DS-01..08, matriz persona × dispositivo, 6 blocos). Marca ≠ tema (OD da direção Terracota & Âmbar) e acesso do voluntário (OD-022).
+
 ### Sprint 7 — Deploy Beta, Backup, Restore, Hardening, Piloto Athos
 
 - **Objetivo:** entrar em produção controlada com piloto Athos.
@@ -1210,7 +1220,8 @@ gantt
   Sprint 4 Encontros+Presença:a4, after a3, 14d
   Sprint 5 Escalas           :a5, after a4, 21d
   Sprint 6 Files+Dashboard   :a6, after a5, 14d
-  Sprint 7 Deploy+Piloto     :a7, after a6, 21d
+  Sprint 6.5 Design UI Athos :a65, after a6, 14d
+  Sprint 7 Deploy+Piloto     :a7, after a65, 21d
 ```
 
 ---
@@ -1333,10 +1344,14 @@ gantt
 | OD-004 | Membro/Pessoa tem login no MVP | Não — Membro existe apenas como `Person`, sem login. Login de Membro fica para a Fase 2 (fechada 2026-06-01) |
 | OD-017 | Política de exclusão de tenant (Church) | Igreja não é hard-deletável no MVP — apenas suspensa (RF-003). Exclusão definitiva fica para pós-MVP (fechada 2026-06-01) |
 | OD-018 | Camada canônica de enforcement LGPD (`consent_given_at`) | Validação na camada de service (`create_person`/`import_csv`), espelhada no form (fechada 2026-06-01) |
+| OD-019 | Modelo de papéis e Gestão de Acessos | Papel `secretary` (admin sem financeiro); `leader` unificado; M2M `Community.leaders`/`Ministry.coordinators`; Gestão de Acessos concede funções+escopo (Pastor+Secretário); travas RISK-015 (fechada 2026-06-04) |
+| OD-020 | `on_delete` de `Attendance.person` | `SET_NULL` (alinha RN-007); corrige `TECH_SPEC §5.6` que trazia `CASCADE` (fechada 2026-06-05) |
 | OD-003a | Storage de mídia | Cloudflare R2 (S3-compatible) desde Sprint 6 |
 | OD-006 | VPS definitivo | Hostinger KVM 2 (8GB RAM, 2 vCPU, 100GB NVMe) |
 | OD-007 | Storage offsite | Cloudflare R2 (mesma conta do storage de mídia) |
 | OD-012 | Email transacional | Brevo free tier (300/dia) via `django-anymail` |
+| OD-021 | Download de arquivo (Sprint 6) | Streaming pela view autenticada (não URL assinada R2); sem link público permanente (fechada 2026-06-05) |
+| OD-022 | Acesso do voluntário escalado | Magic-link read-only sem conta (não login, não MFA), exclusivo de quem tem `Schedule`; Membro geral (OD-004) segue sem acesso (fechada 2026-06-05) |
 | RN-MULTI-ROLE | Multi-role por usuário | `User.roles ArrayField`, permissões viram união |
 | RN-NO-CHURCH-MIGRATION | Migração entre igrejas | Não suportada — excluir conta e recriar |
 
@@ -1384,7 +1399,7 @@ gantt
 - Notion `09_Design System — Prompt e Referência Visual`
 - Notion `18_Infraestrutura e Deploy`
 - Notion `23_Go-to-Market e Landing Page`
-- `referencias/templates/index.html` (design system vivo)
+- `referencias/templates/igreja_saas_novo.html` (referência de qualidade do app; design system consolidado na Sprint 6.5)
 
 ### 30.3 Próximos passos imediatos
 

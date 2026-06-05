@@ -65,7 +65,8 @@ saas_igreja/
 ├── PRD.md                         # Source of truth de produto
 ├── docs/                          # Esta pasta
 ├── referencias/
-│   └── templates/index.html       # Design system vivo
+│   ├── templates/igreja_saas_novo.html  # Referência de qualidade do app (DS na Sprint 6.5)
+│   └── design_system/                    # Direção de marca + análise de concorrentes
 │
 ├── core/
 │   ├── settings/
@@ -725,10 +726,13 @@ Regressão coberta por `test_list_users_requires_login` e
 
 ## 11. Design System
 
-- **Fonte viva:** `referencias/templates/index.html`.
-- **Paleta Athos:** `#7C3F06` (accent), `#5A2D04` (accent-2), `#FF9C1A` (hot), `#EFE7DA` (bg), `#F6F0E5` (bg-soft), `#FFF` (paper), `#161412` (ink), `#2A2522` (ink-2), `#6F6557` (muted).
-- **Tipografia:** Inter (body), Montserrat (display), Instrument Serif (destaques).
-- **Customização por tenant:** `Church.accent_color` e `Church.hot_color` injetadas em CSS variables no `<html>`.
+> **Implementação:** especificado aqui; **consolidado na Sprint 6.5** (`base.html` + `tailwind.config` compilado + biblioteca de componentes + estilização de 100% das telas). Até a 6.5, as telas operacionais usam markup mínimo pt-BR. Detalhe operacional em `docs/SPRINTS.md` (Sprint 6.5, princípios DS-01..08).
+
+- **Referência viva:** `referencias/templates/igreja_saas_novo.html` (padrão de qualidade do app) + `referencias/` (direção da marca). **Marca ≠ tema:** a marca/landing é **Terracota & Âmbar fixa** (Fraunces/Inter); o **app** usa a Paleta Athos abaixo como **base neutra temável por igreja**.
+- **Paleta Athos (app):** `#7C3F06` (accent), `#5A2D04` (accent-2), `#FF9C1A` (hot), `#EFE7DA` (bg), `#F6F0E5` (bg-soft), `#FFF` (paper), `#161412` (ink), `#2A2522` (ink-2), `#6F6557` (muted).
+- **Tipografia (app):** Inter (body), Montserrat (display), Instrument Serif (destaques).
+- **Customização por tenant:** `Church.accent_color` e `Church.hot_color` (defaults `#7C3F06`/`#FF9C1A`) + `Church.logo` injetados em CSS variables no `<html>` — base neutra + acento por igreja.
+- **Mobile-first (DS-03):** papéis operacionais (Líder/Coordenador/voluntário) priorizam mobile (bottom-nav); admin (Pastor/Secretário/Tesoureiro) cobrem desktop **e** mobile. Acessibilidade WCAG AA; Lighthouse mobile ≥ 90 (Sprint 6.5).
 
 ### 11.1 TailwindCSS config
 

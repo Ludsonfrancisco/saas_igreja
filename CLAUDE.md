@@ -37,7 +37,7 @@ Em caso de dúvida sobre escopo: **pergunte ao dono em vez de assumir.**
 | `docs/TECH_SPEC.md` | Stack, models completos, princípios P-ARQ-01..09, anti-padrões AP-01..13, healthcheck, CI/CD |
 | `docs/ACCESS_MATRIX.md` | Matriz papel × módulo × ação; mixins; multi-role; SupportAccess |
 | `docs/TEST_STRATEGY.md` | Fixtures, gates de cobertura, testes obrigatórios por categoria |
-| `docs/SPRINTS.md` | 8 sprints (0–7) com tasks `[ ]/[x]`, testes mínimos, critérios de conclusão |
+| `docs/SPRINTS.md` | 9 sprints (0–7, com **6.5 Design/UI Athos** entre 6 e 7) com tasks `[ ]/[x]`, testes mínimos, critérios de conclusão |
 | `docs/OPEN_DECISIONS.md` | Decisões fechadas (histórico) e abertas (tracking) |
 
 Conflito entre documentos: prevalece o mais específico e recente. Conflito não resolvível → registrar em `OPEN_DECISIONS.md` e aplicar regra mais conservadora em segurança.
@@ -130,13 +130,16 @@ P-ARQ-01 App-per-Bounded-Context · P-ARQ-02 `BaseModel(created_at, updated_at)`
 
 ## Sprint progression (não pular foundation)
 
-Ordem obrigatória das 8 sprints:
+Ordem obrigatória das 9 sprints:
 
 ```
 Sprint 0 (docs) → 1 (Django+tenants+health) → 2 (auth+convites+autoriz+audit+SupportAccess+MFA opt-in)
 → 3 (Pessoas+Comunidades+Ministérios+LGPD) → 4 (Encontros+Presença) → 5 (Escalas+conflito)
-→ 6 (Files R2+Dashboard) → 7 (Deploy+Backup+Restore+MFA enforce+Pen test+Athos)
+→ 6 (Files R2+Dashboard) → 6.5 (Design System/UI Athos — base.html+Tailwind+tema por igreja, mobile-first, magic-link do voluntário OD-022)
+→ 7 (Deploy+Backup+Restore+MFA enforce+Pen test+Athos)
 ```
+
+> **6.5 antes do Piloto:** a estilização das telas (design system Athos) e o Lighthouse mobile ≥90 saíram da Sprint 7 e viraram a Sprint 6.5 — o primeiro cliente (Athos) precisa ver o produto polido. Sem dependência de infra; pode correr em paralelo ao provisionamento da 7.
 
 **Gate de segurança:** nenhuma sprint operacional (3+) fecha sem `test_tenant_isolation_matrix` e `test_permissions_matrix` aplicáveis passando. Detalhes em `docs/TEST_STRATEGY.md §9`.
 

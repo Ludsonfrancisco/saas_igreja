@@ -17,7 +17,7 @@ Esta pasta contém os documentos derivados que aprofundam áreas específicas do
 | [`TECH_SPEC.md`](TECH_SPEC.md) | Stack, modelos, estrutura de apps, princípios arquiteturais (P-ARQ-01..08, TENANT-01..07, STYLE-01..05, SEC-01..07, OPS-01..04) e anti-padrões (AP-01..13) | Antes de codar qualquer feature; durante revisão de PR |
 | [`ACCESS_MATRIX.md`](ACCESS_MATRIX.md) | Matriz detalhada de permissões por módulo × ação × papel | Ao criar view, service ou queryset sensível; ao adicionar novo papel |
 | [`TEST_STRATEGY.md`](TEST_STRATEGY.md) | Estratégia de testes, fixtures, factories, gates de cobertura e Definition of Done | Ao escrever testes; ao fechar sprint |
-| [`SPRINTS.md`](SPRINTS.md) | Detalhamento operacional das 8 sprints do MVP (Sprint 0 → 7) | No planejamento e na execução de sprint |
+| [`SPRINTS.md`](SPRINTS.md) | Detalhamento operacional das 9 sprints do MVP (Sprint 0 → 7, com **6.5 Design/UI Athos** entre 6 e 7) | No planejamento e na execução de sprint |
 | [`OPEN_DECISIONS.md`](OPEN_DECISIONS.md) | Decisões em aberto com owner, prazo, impacto e status | Antes de tomar decisão que afete áreas em aberto; revisão semanal |
 
 ## Regras de governança (inviolável)
@@ -45,7 +45,7 @@ Estas regras aparecem em vários documentos. Em caso de dúvida, valem.
 9. **PostgreSQL sempre.** SQLite é proibido (AP-13).
 10. **LGPD desde o cadastro.** `consent_given_at` obrigatório quando há PII (RN-005).
 11. **Storage de mídia em Cloudflare R2** desde Sprint 6 (sem volume local em prod).
-12. **Design system inviolável.** Nenhuma cor, fonte ou componente fora de `referencias/templates/index.html`.
+12. **Design system inviolável.** Marca (landing) = **Terracota & Âmbar fixa**; app (área logada) = **base neutra temável por igreja** (`Church.accent_color`/`hot_color`/`logo`). O design system (base.html + `tailwind.config` + componentes) é **consolidado na Sprint 6.5**; referência visual em `referencias/` (direção da marca + `referencias/templates/igreja_saas_novo.html` como padrão de qualidade do app). Nenhuma cor/fonte/componente fora desses tokens.
 13. **Prevenção de N+1.** `select_related`/`prefetch_related` obrigatórios em listagens (P-ARQ-09); `nplusone` quebra teste em CI.
 14. **Paginação obrigatória** em listas com >25 registros (RNF-021). Carregar lista completa em template é proibido.
 15. **Healthcheck:** `/health/` (liveness) e `/ready/` (Postgres+Redis) sempre ativos (RNF-022).
