@@ -89,6 +89,7 @@ class SecurityLog(models.Model):
         ('support_access_revoked', 'Acesso de suporte revogado'),
         ('sensitive_file_upload', 'Upload de arquivo sensivel'),
         ('sensitive_file_download', 'Download de arquivo sensivel'),
+        ('schedule_exception_approved', 'Excecao de conflito de escala aprovada'),
     ]
     user_id = models.IntegerField(null=True)
     tenant_id = models.CharField(max_length=60, db_index=True)

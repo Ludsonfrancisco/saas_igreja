@@ -9,14 +9,20 @@ Concentra as regras que não podem viver só na view/form (P-ARQ-04):
 - `detect_conflict` devolve as escalas conflitantes (mesma pessoa, mesma data,
   encontro diferente). `Gathering` só tem `date` (sem hora) → o conflito é por
   data.
+- `approve_exception` (Frente 2) autoriza um conflito: só **Pastor** ou o
+  **Coordenador competente** do ministério; registra `ScheduleConflictApproval`.
+  O Secretário, apesar de admin no CRUD, NÃO aprova (decisão Sprint 5).
 
-AuditLog é automático (Schedule herda `AuditLogMixin`); o service não chama
-`record_audit`.
+Auditoria fica fora do service (P-ARQ-06): o AuditLog é automático
+(Schedule/ScheduleConflictApproval herdam `AuditLogMixin`, receivers em
+`apps/core/signals.py`) e o SecurityLog `schedule_exception_approved` é emitido
+pelo signal `post_save` de ScheduleConflictApproval em `apps/schedules/signals.py`.
 """
 
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
-from apps.schedules.models import Schedule
+from apps.schedules.models import Schedule, ScheduleConflictApproval
 
 
 def detect_conflict(*, person, gathering, exclude_schedule=None):
@@ -68,3 +74,57 @@ def create_schedule(
         role=role or '',
         notes=notes or '',
     )
+
+
+def is_competent_approver(user, ministry):
+    """Quem pode aprovar exceção de conflito no `ministry` (§3.7).
+
+    Pastor (qualquer ministério) ou o Coordenador do ministério (`coordinators`
+    → user_id). O Secretário NÃO aprova (decisão Sprint 5), mesmo sendo admin no
+    CRUD — por isso a checagem é por `pastor`/coordenação, nunca por `secretary`.
+    """
+    if user.has_any_role('pastor'):
+        return True
+    return ministry.coordinators.filter(user_id=user.id).exists()
+
+
+def approve_exception(
+    *, actor, ministry, person, gathering, justification, role='', notes=''
+):
+    """Cria uma escala em conflito COM aprovação explícita (§3.7).
+
+    Barreiras: `actor` precisa ser aprovador competente (`is_competent_approver`);
+    `justification` é obrigatória; tem de HAVER conflito (senão é criação normal).
+    Cria o `Schedule` (via `create_schedule(allow_conflict=True)` — revalida vínculo
+    ao ministério) + um `ScheduleConflictApproval`, e emite SecurityLog
+    `schedule_exception_approved`. Retorna `(schedule, approval)`.
+    """
+    if not is_competent_approver(actor, ministry):
+        raise ValidationError(
+            'Apenas o Pastor ou o Coordenador do ministerio aprova excecao.'
+        )
+    if not (justification or '').strip():
+        raise ValidationError('Justificativa e obrigatoria para aprovar excecao.')
+    if not detect_conflict(person=person, gathering=gathering).exists():
+        raise ValidationError(
+            'Nao ha conflito nesta data; use a criacao normal de escala.'
+        )
+
+    schedule = create_schedule(
+        ministry=ministry,
+        person=person,
+        gathering=gathering,
+        role=role,
+        notes=notes,
+        allow_conflict=True,
+    )
+    # O SecurityLog `schedule_exception_approved` é emitido pelo signal
+    # `post_save` de ScheduleConflictApproval (apps/schedules/signals.py, P-ARQ-06);
+    # o AuditLog vem dos receivers globais de AuditLogMixin (apps/core/signals.py).
+    approval = ScheduleConflictApproval.objects.create(
+        schedule=schedule,
+        approved_by_id=actor.id,
+        justification=justification.strip(),
+        approved_at=timezone.now(),
+    )
+    return schedule, approval

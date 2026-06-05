@@ -27,11 +27,13 @@ from django_tenants.utils import schema_context
 
 from apps.accounts.models import Invite, User
 from apps.gatherings.models import Gathering
+from apps.ministries.models import Ministry
 from apps.people.models import Person
+from apps.schedules.models import Schedule
 
 GOOD_PASSWORD = 'Senha@123'
 
-# Views autenticadas tenant-scoped GET-áveis (Sprint 2 + Sprint 3 + Sprint 4).
+# Views autenticadas tenant-scoped GET-áveis (Sprint 2 + Sprint 3 + Sprint 4 + 5).
 AUTHENTICATED_TENANT_URLS = [
     '/configuracoes/usuarios/',
     '/configuracoes/convites/',
@@ -42,6 +44,9 @@ AUTHENTICATED_TENANT_URLS = [
     '/ministerios/',
     '/encontros/',
     '/encontros/novo/',
+    '/escalas/',
+    '/escalas/nova/',
+    '/escalas/excecao/nova/',
 ]
 
 
@@ -117,17 +122,30 @@ def test_tenant_isolation_matrix(tenant_a_client, church_a, church_b):
     # Pessoas (model de TENANT): cada uma só existe no schema da sua igreja.
     with schema_context(church_a.schema_name):
         Person.objects.create(name='Pessoa A')
-        Gathering.objects.create(
+        gathering_a = Gathering.objects.create(
             gathering_type=Gathering.Type.WORSHIP,
             title='Culto A',
             date=timezone.now().date(),
         )
+        # Escala (Sprint 5): voluntário escalado num ministério da igreja A.
+        ministry_a = Ministry.objects.create(name='Louvor A')
+        volunteer_a = Person.objects.create(name='Voluntario A')
+        volunteer_a.ministries.add(ministry_a)
+        Schedule.objects.create(
+            ministry=ministry_a, person=volunteer_a, gathering=gathering_a
+        )
     with schema_context(church_b.schema_name):
         Person.objects.create(name='Pessoa B')
-        Gathering.objects.create(
+        gathering_b = Gathering.objects.create(
             gathering_type=Gathering.Type.WORSHIP,
             title='Culto B',
             date=timezone.now().date(),
+        )
+        ministry_b = Ministry.objects.create(name='Louvor B')
+        volunteer_b = Person.objects.create(name='Voluntario B')
+        volunteer_b.ministries.add(ministry_b)
+        Schedule.objects.create(
+            ministry=ministry_b, person=volunteer_b, gathering=gathering_b
         )
 
     tenant_a_client.force_login(pastor_a)
@@ -160,3 +178,10 @@ def test_tenant_isolation_matrix(tenant_a_client, church_a, church_b):
     gathering_titles = {g.title for g in resp.context['gatherings']}
     assert 'Culto A' in gathering_titles
     assert 'Culto B' not in gathering_titles
+
+    # Escalas: idem — A só enxerga a escala do próprio ministério (Sprint 5).
+    resp = tenant_a_client.get('/escalas/')
+    assert resp.status_code == 200
+    schedule_ministries = {s.ministry.name for s in resp.context['schedules']}
+    assert 'Louvor A' in schedule_ministries
+    assert 'Louvor B' not in schedule_ministries

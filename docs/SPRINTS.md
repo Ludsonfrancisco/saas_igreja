@@ -417,33 +417,34 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### Schedule
 
-- [ ] (P0) Criar `apps/schedules/models.py` com `Schedule` (ministry, person, gathering, role, notes)
-- [ ] (P0) Criar `apps/schedules/models.py` com `ScheduleConflictApproval` (schedule, approved_by_id, justification, approved_at)
-- [ ] (P0) Criar `apps/schedules/services.py` com `create_schedule` (valida que person pertence ao ministry via M2M)
-- [ ] (P0) Criar `apps/schedules/services.py` com `detect_conflict` (mesma pessoa em outro Gathering na mesma data/hora)
-- [ ] (P0) Criar `apps/schedules/services.py` com `approve_exception` (registra `ScheduleConflictApproval`)
-- [ ] (P0) `apps/schedules/signals.py` com `AuditLog` e `SecurityLog` em aprovação de exceção
-- [ ] (P0) CRUD CBV com mixins (Coordenador escala apenas no seu ministério; Pastor escala em qualquer)
-- [ ] (P0) View de aprovação de exceção com form de justificativa
-- [ ] (P0) "Coordenador competente": `User` cujo `Person` é `coordinator` do `Schedule.ministry`
+- [x] (P0) Criar `apps/schedules/models.py` com `Schedule` (ministry, person, gathering, role, notes)
+- [x] (P0) Criar `apps/schedules/models.py` com `ScheduleConflictApproval` (schedule, approved_by_id, justification, approved_at)
+- [x] (P0) Criar `apps/schedules/services.py` com `create_schedule` (valida que person pertence ao ministry via M2M)
+- [x] (P0) Criar `apps/schedules/services.py` com `detect_conflict` (mesma pessoa em outro Gathering na mesma data/hora)
+- [x] (P0) Criar `apps/schedules/services.py` com `approve_exception` (registra `ScheduleConflictApproval`)
+- [x] (P0) `apps/schedules/signals.py` com `AuditLog` e `SecurityLog` em aprovação de exceção
+  - AuditLog: receivers globais de `AuditLogMixin` (`apps/core/signals.py`). SecurityLog `schedule_exception_approved`: `post_save` de `ScheduleConflictApproval`, conectado em `SchedulesConfig.ready()`.
+- [x] (P0) CRUD CBV com mixins (Coordenador escala apenas no seu ministério; Pastor escala em qualquer)
+- [x] (P0) View de aprovação de exceção com form de justificativa
+- [x] (P0) "Coordenador competente": `User` cujo `Person` é `coordinator` do `Schedule.ministry`
 
 ### Testes mínimos da Sprint 5
 
-- [ ] (P0) `test_schedule_create_validates_ministry_membership`
-- [ ] (P0) `test_schedule_conflict_blocked`
-- [ ] (P0) `test_schedule_exception_requires_competent_coordinator`
-- [ ] (P0) `test_schedule_exception_creates_approval_and_audits`
-- [ ] (P0) `test_schedule_exception_security_logged`
-- [ ] (P0) `test_coordinator_sees_only_own_ministry_schedules`
-- [ ] (P0) `test_tenant_isolation_matrix` (atualizado)
-- [ ] (P0) `test_permissions_matrix` (atualizado)
+- [x] (P0) `test_schedule_create_validates_ministry_membership`
+- [x] (P0) `test_schedule_conflict_blocked` (como `test_create_schedule_blocks_conflict_same_date_other_gathering`)
+- [x] (P0) `test_schedule_exception_requires_competent_coordinator`
+- [x] (P0) `test_schedule_exception_creates_approval_and_audits`
+- [x] (P0) `test_schedule_exception_security_logged`
+- [x] (P0) `test_coordinator_sees_only_own_ministry_schedules` (como `test_coordinator_sees_only_own_ministry`)
+- [x] (P0) `test_tenant_isolation_matrix` (atualizado — rotas `/escalas/*` + no-leak de Schedule)
+- [x] (P0) `test_permissions_matrix` (atualizado — escala: list/create staff-scoped, exceção exclui Secretário)
 
 ### Critério de conclusão da Sprint 5
 
-- [ ] Coordenador monta escala mensal sem conflito não detectado
-- [ ] Conflitos são bloqueados e exigem aprovação explícita
-- [ ] Aprovações são registradas com justificativa e auditadas
-- [ ] Cobertura de `schedules` ≥ 80%
+- [x] Coordenador monta escala mensal sem conflito não detectado
+- [x] Conflitos são bloqueados e exigem aprovação explícita
+- [x] Aprovações são registradas com justificativa e auditadas
+- [x] Cobertura de `schedules` ≥ 80% (97%)
 
 ---
 

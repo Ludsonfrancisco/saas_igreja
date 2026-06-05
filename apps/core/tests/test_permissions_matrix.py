@@ -34,6 +34,9 @@ MIN_LIST = '/ministerios/'
 MIN_CREATE = '/ministerios/novo/'
 GATHERING_LIST = '/encontros/'
 GATHERING_CREATE = '/encontros/novo/'
+SCHEDULE_LIST = '/escalas/'
+SCHEDULE_CREATE = '/escalas/nova/'
+SCHEDULE_EXCEPTION = '/escalas/excecao/nova/'
 ACCOUNT_SECURITY = '/contas/seguranca/'
 
 
@@ -52,6 +55,21 @@ def _staff_scoped(url):
     return [
         ('pastor', url, 200),
         ('secretary', url, 200),
+        ('leader', url, 200),
+        ('member', url, 403),
+    ]
+
+
+def _pastor_or_coordinator(url):
+    """Pastor + Líder/Coordenador liberados; Secretário NEGADO (Sprint 5 §3.7).
+
+    O Secretário é admin no CRUD de escala, mas NÃO aprova exceção de conflito —
+    daí 403 aqui, ao contrário de `_staff_scoped`. A competência fina por
+    ministério (Coordenador só o seu) é revalidada no service.
+    """
+    return [
+        ('pastor', url, 200),
+        ('secretary', url, 403),
         ('leader', url, 200),
         ('member', url, 403),
     ]
@@ -78,6 +96,12 @@ PERMISSION_CASES = (
     # coberto em apps/gatherings/tests.
     + _staff_scoped(GATHERING_LIST)
     + _staff_scoped(GATHERING_CREATE)
+    # Escalas (§3.7): Listar/Criar liberados a Pastor/Secretário/Líder-Coordenador
+    # (escopo por ministério refinado no qs/form). A aprovação de EXCEÇÃO de
+    # conflito exclui o Secretário — só Pastor ou Coordenador.
+    + _staff_scoped(SCHEDULE_LIST)
+    + _staff_scoped(SCHEDULE_CREATE)
+    + _pastor_or_coordinator(SCHEDULE_EXCEPTION)
     + _login_only(ACCOUNT_SECURITY)
 )
 

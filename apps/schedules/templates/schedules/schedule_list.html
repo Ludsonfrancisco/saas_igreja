@@ -9,7 +9,10 @@
     <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
   {% endif %}
 
-  <p><a href="{% url 'schedules:create' %}">Nova escala</a></p>
+  <p>
+    <a href="{% url 'schedules:create' %}">Nova escala</a> ·
+    <a href="{% url 'schedules:exception' %}">Aprovar exceção de conflito</a>
+  </p>
 
   <table>
     <thead><tr><th>Encontro</th><th>Ministério</th><th>Voluntário</th><th>Função</th></tr></thead>

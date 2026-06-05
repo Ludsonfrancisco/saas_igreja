@@ -1,0 +1,18 @@
+{% comment %}Aprovação de exceção de conflito de escala (Sprint 5 / Frente 2). CSRF.{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Aprovar exceção de conflito</title></head>
+<body>
+  <h1>Aprovar exceção de conflito</h1>
+  <p>Use esta tela quando a pessoa já está escalada em outro encontro na mesma data
+     e o conflito precisa ser autorizado. A justificativa é registrada e auditada.</p>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Aprovar e criar escala</button>
+  </form>
+
+  <p><a href="{% url 'schedules:list' %}">Voltar</a></p>
+</body>
+</html>

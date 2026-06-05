@@ -21,20 +21,34 @@ from django.views.generic import (
     CreateView,
     DeleteView,
     DetailView,
+    FormView,
     ListView,
     UpdateView,
 )
 
 from apps.core.mixins import (
     LeaderOrPastorMixin,
+    RoleRequiredMixin,
     ScopedToMinistryMixin,
     TenantRequiredMixin,
 )
 from apps.schedules import services
-from apps.schedules.forms import ScheduleForm
+from apps.schedules.forms import ScheduleExceptionForm, ScheduleForm
 from apps.schedules.models import Schedule
 
 SCHEDULE_SCOPE_LOOKUP = 'ministry__coordinators__user_id'
+
+
+class PastorOrCoordinatorMixin(RoleRequiredMixin):
+    """Aprovação de exceção (§3.7): Pastor ou Coordenador (papel `leader`).
+
+    O Secretário é EXCLUÍDO de propósito (decisão Sprint 5: admin no CRUD, mas não
+    aprova exceção). A competência fina por ministério (Coordenador só o seu) é
+    refinada no form (queryset de `ministry`) e revalidada no service
+    (`is_competent_approver`) — defesa em profundidade (P-ARQ-08).
+    """
+
+    required_roles = ('pastor', 'leader')
 
 
 class ScheduleListView(
@@ -137,4 +151,42 @@ class ScheduleDeleteView(
 
     def form_valid(self, form):
         messages.success(self.request, 'Escala excluida.')
+        return super().form_valid(form)
+
+
+class ScheduleExceptionCreateView(
+    TenantRequiredMixin, PastorOrCoordinatorMixin, FormView
+):
+    """Cria escala em conflito COM aprovação explícita (§3.7).
+
+    Gate de papel = Pastor ou Coordenador (Secretário 403). O service
+    (`approve_exception`) exige aprovador competente + justificativa + conflito
+    real, registra `ScheduleConflictApproval` (AuditLog) e SecurityLog.
+    """
+
+    form_class = ScheduleExceptionForm
+    template_name = 'schedules/schedule_exception_form.html'
+    success_url = reverse_lazy('schedules:list')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        try:
+            services.approve_exception(
+                actor=self.request.user,
+                ministry=data['ministry'],
+                person=data['person'],
+                gathering=data['gathering'],
+                justification=data['justification'],
+                role=data['role'],
+                notes=data['notes'],
+            )
+        except ValidationError as exc:
+            form.add_error(None, exc.messages[0])
+            return self.form_invalid(form)
+        messages.success(self.request, 'Excecao de conflito aprovada e escala criada.')
         return super().form_valid(form)

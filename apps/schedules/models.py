@@ -49,12 +49,13 @@ class Schedule(BaseModel, AuditLogMixin):
         return f'{who} — {self.ministry.name} @ {self.gathering}'
 
 
-class ScheduleConflictApproval(BaseModel):
+class ScheduleConflictApproval(BaseModel, AuditLogMixin):
     """Aprovação explícita de uma exceção de conflito de escala (§3.7).
 
     Criada por `services.approve_exception` apenas pelo Pastor ou pelo Coordenador
     competente (coordenador do `schedule.ministry`). `approved_by_id` é o `user_id`
-    do aprovador (TENANT-04). Gera AuditLog + SecurityLog `schedule_exception_approved`.
+    do aprovador (TENANT-04). Herda `AuditLogMixin` (AuditLog automático na criação)
+    e o service emite SecurityLog `schedule_exception_approved`.
     """
 
     schedule = models.ForeignKey(

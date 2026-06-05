@@ -16,11 +16,12 @@ from apps.accounts.models import User
 from apps.gatherings.models import Gathering
 from apps.ministries.models import Ministry
 from apps.people.models import Person
-from apps.schedules.models import Schedule
+from apps.schedules.models import Schedule, ScheduleConflictApproval
 
 GOOD_PASSWORD = 'Senha@123'
 LIST_URL = '/escalas/'
 CREATE_URL = '/escalas/nova/'
+EXCEPTION_URL = '/escalas/excecao/nova/'
 DATE = datetime.date(2026, 6, 14)
 
 
@@ -172,3 +173,74 @@ def test_secretary_creates_and_deletes(tenant_client, church_a):
     with schema_context(church_a.schema_name):
         schedule = Schedule.objects.get(person=member)
     assert tenant_client.post(f'/escalas/{schedule.pk}/excluir/').status_code == 302
+
+
+# --- Aprovação de exceção de conflito (Frente 2, §3.7) -----------------------
+
+
+def _conflict_setup(coord_user=None):
+    """Conflito pronto: `member` já escalado em `g1` na DATE; `g2` (mesma data,
+    outro encontro) é o conflito que a exceção autoriza."""
+    ministry, member = _ministry_with_member(coord_user=coord_user)
+    g1 = Gathering.objects.create(gathering_type='worship', date=DATE, title='Manha')
+    g2 = Gathering.objects.create(gathering_type='event', date=DATE, title='Noite')
+    Schedule.objects.create(ministry=ministry, person=member, gathering=g1)
+    return ministry, member, g2
+
+
+@pytest.mark.django_db(transaction=True)
+def test_secretary_cannot_approve_exception(tenant_client, church_a):
+    """Secretário é admin no CRUD, mas NÃO aprova exceção (gate de papel → 403)."""
+    secretary = _make_user(church_a, 'sec@a.com', ['secretary'])
+    tenant_client.force_login(secretary)
+    assert tenant_client.get(EXCEPTION_URL).status_code == 403
+
+
+@pytest.mark.django_db(transaction=True)
+def test_competent_coordinator_approves_exception_via_view(tenant_client, church_a):
+    """Coordenador competente aprova exceção pela view → 302 + aprovação registrada."""
+    coord = _make_user(church_a, 'coord@a.com', ['leader'])
+    with schema_context(church_a.schema_name):
+        ministry, member, g2 = _conflict_setup(coord_user=coord)
+    tenant_client.force_login(coord)
+    resp = tenant_client.post(
+        EXCEPTION_URL,
+        {
+            'ministry': ministry.pk,
+            'person': member.pk,
+            'gathering': g2.pk,
+            'role': '',
+            'notes': '',
+            'justification': 'Coordenador autoriza o acumulo.',
+        },
+    )
+    assert resp.status_code == 302
+    with schema_context(church_a.schema_name):
+        schedule = Schedule.objects.get(gathering=g2)
+        assert ScheduleConflictApproval.objects.filter(schedule=schedule).exists()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_noncompetent_leader_exception_blocked(tenant_client, church_a):
+    """Líder que não coordena o ministério passa o gate de papel, mas o ministério
+    nem aparece no form (escopo por coordenação) — defesa em profundidade
+    (P-ARQ-08; o barramento no service é coberto em test_services). Resultado:
+    form re-renderizado (200), nenhuma aprovação criada."""
+    leader = _make_user(church_a, 'leader@a.com', ['leader'])
+    with schema_context(church_a.schema_name):
+        ministry, member, g2 = _conflict_setup()  # sem coordenador vinculado
+    tenant_client.force_login(leader)
+    resp = tenant_client.post(
+        EXCEPTION_URL,
+        {
+            'ministry': ministry.pk,
+            'person': member.pk,
+            'gathering': g2.pk,
+            'role': '',
+            'notes': '',
+            'justification': 'Tentativa sem competencia.',
+        },
+    )
+    assert resp.status_code == 200
+    with schema_context(church_a.schema_name):
+        assert not ScheduleConflictApproval.objects.exists()

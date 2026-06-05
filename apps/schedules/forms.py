@@ -41,3 +41,19 @@ class ScheduleForm(forms.ModelForm):
         if self.instance.pk:
             for name in LOCKED_ON_EDIT:
                 self.fields[name].disabled = True
+
+
+class ScheduleExceptionForm(ScheduleForm):
+    """`ScheduleForm` + justificativa, para a aprovação de exceção de conflito (§3.7).
+
+    `justification` é campo de form (não do model) — vai em `cleaned_data` e é
+    consumido por `services.approve_exception` (não há `save()` aqui). A escolha de
+    `ministry` já fica escopada pela base (Coordenador só os que coordena), o que
+    casa com "Coordenador competente".
+    """
+
+    justification = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3}),
+        label='Justificativa',
+        help_text='Obrigatoria — registra por que o conflito foi autorizado.',
+    )
