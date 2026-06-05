@@ -468,10 +468,10 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 #### FileAsset
 
-- [ ] (P0) Criar `apps/files/models.py` com `FileAsset` (metadados + storage_path)
-- [ ] (P0) Criar `apps/core/validators.py` com `MagicValidator` (valida MIME via `python-magic`)
-- [ ] (P0) Criar `apps/files/services.py` com `upload_file` (valida MIME, tamanho ≤10MB, tipos PDF/PNG/JPG; faz upload no R2)
-- [ ] (P0) Rejeitar SVG (vetor XSS)
+- [x] (P0) Criar `apps/files/models.py` com `FileAsset` (metadados + storage_path) — conforme TECH_SPEC §5.8 (contexto via `related_model`/`related_object_id`, sem FK; TENANT-04 `uploaded_by_id`)
+- [x] (P0) Criar `apps/core/validators.py` com `MagicValidator` (valida MIME via `python-magic`; `@deconstructible`)
+- [x] (P0) Criar `apps/files/services.py` com `upload_file` (valida MIME, tamanho ≤10MB, tipos PDF/PNG/JPG; grava no `STORAGES['default']`)
+- [x] (P0) Rejeitar SVG (vetor XSS) — `EXPLICITLY_DENIED_MIME_TYPES`
 - [ ] (P0) Criar view de download autenticada com checagem de permissão por tenant + papel — gera URL temporária assinada R2 (TTL 60s) ou faz streaming pela view
 - [ ] (P0) `apps/files/signals.py` com `AuditLog` em upload/download/delete
 - [ ] (P0) `SecurityLog` para upload/download de arquivos sensíveis
@@ -489,15 +489,15 @@ Detalhamento operacional das 8 sprints do MVP. Cada task tem checkbox `[ ]`. Mar
 
 ### Testes mínimos da Sprint 6
 
-- [ ] (P0) `test_upload_validates_mime_via_magic`
-- [ ] (P0) `test_upload_rejects_file_above_10mb`
-- [ ] (P0) `test_upload_rejects_svg`
+- [x] (P0) `test_upload_validates_mime_via_magic`
+- [x] (P0) `test_upload_rejects_file_above_10mb`
+- [x] (P0) `test_upload_rejects_svg`
 - [ ] (P0) `test_download_requires_permission`
 - [ ] (P0) `test_download_unauthorized_returns_404`
 - [ ] (P0) `test_no_permanent_public_url`
 - [ ] (P0) `test_delete_file_audited`
 - [ ] (P0) `test_file_upload_security_logged`
-- [ ] (P0) `test_r2_path_isolated_per_tenant` (upload em tenant A não vaza em tenant B)
+- [x] (P0) `test_r2_path_isolated_per_tenant` (upload em tenant A não vaza em tenant B)
 - [ ] (P0) `test_signed_url_expires_in_60s`
 - [ ] (P0) `test_dashboard_scoped_no_leak`
 - [ ] (P0) `test_dashboard_leader_sees_only_own_community`

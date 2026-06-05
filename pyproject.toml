@@ -36,6 +36,7 @@ dependencies = [
     "weasyprint>=62.0",
     "django-anymail[brevo]>=15.0",
     "django-storages[s3]>=1.14",
+    "python-magic>=0.4.27",
 ]
 
 # Dependencias de desenvolvimento/CI (formato uv: PEP 735 dependency-groups).
