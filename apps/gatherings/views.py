@@ -15,8 +15,10 @@ trava "editar pelo criador".
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-from django.shortcuts import redirect
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -83,6 +85,16 @@ class GatheringDetailView(TenantRequiredMixin, LeaderOrPastorMixin, DetailView):
 
     def get_queryset(self):
         return Gathering.objects.select_related('community')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['present_count'] = self.object.attendances.filter(
+            is_present=True
+        ).count()
+        context['can_mark'] = services.can_mark_attendance(
+            self.request.user, self.object
+        )
+        return context
 
 
 class GatheringCreateView(TenantRequiredMixin, LeaderOrPastorMixin, CreateView):
@@ -162,3 +174,48 @@ class GatheringDeleteView(TenantRequiredMixin, PastorRequiredMixin, DeleteView):
     def form_valid(self, form):
         messages.success(self.request, 'Encontro excluido.')
         return super().form_valid(form)
+
+
+class AttendanceMarkView(TenantRequiredMixin, LeaderOrPastorMixin, View):
+    """Marca presença em lote num encontro (RF-040 / RN-009 / §3.6).
+
+    Barreira de papel ampla (`LeaderOrPastorMixin`) + barreira FINA por encontro
+    (`services.can_mark_attendance`): Pastor/Secretário marcam em qualquer; Líder/
+    Coordenador só no que criaram ou na comunidade que lideram. Fora do escopo →
+    404 (não vaza a existência do encontro).
+
+    GET: roster (membros da comunidade ou pessoas ativas) com os já-presentes
+    pré-marcados. POST: `update_or_create` por pessoa (nunca duplica).
+    """
+
+    def _get_gathering(self, request, pk):
+        # Sem select_related('community'): a comunidade só é tocada (uma vez) quando
+        # o encontro tem uma — eager load incondicional seria desnecessário p/
+        # encontros sem comunidade (nplusone reclamaria). Não há laço aqui.
+        gathering = get_object_or_404(Gathering, pk=pk)
+        if not services.can_mark_attendance(request.user, gathering):
+            raise Http404()
+        return gathering
+
+    def get(self, request, pk):
+        gathering = self._get_gathering(request, pk)
+        roster = services.attendance_roster(gathering)
+        present_ids = set(
+            gathering.attendances.filter(is_present=True).values_list(
+                'person_id', flat=True
+            )
+        )
+        return render(
+            request,
+            'gatherings/attendance_mark.html',
+            {'gathering': gathering, 'roster': roster, 'present_ids': present_ids},
+        )
+
+    def post(self, request, pk):
+        gathering = self._get_gathering(request, pk)
+        present_ids = [int(pid) for pid in request.POST.getlist('present')]
+        count = services.mark_attendance_bulk(
+            gathering=gathering, present_person_ids=present_ids
+        )
+        messages.success(request, f'Presenca registrada: {count} presente(s).')
+        return redirect('gatherings:detail', pk=gathering.pk)

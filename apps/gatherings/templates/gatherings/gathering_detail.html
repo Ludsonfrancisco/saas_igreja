@@ -15,9 +15,11 @@
     <dt>Título</dt><dd>{{ gathering.title|default:'—' }}</dd>
     <dt>Comunidade</dt><dd>{{ gathering.community.name|default:'—' }}</dd>
     <dt>Descrição</dt><dd>{{ gathering.description|default:'—' }}</dd>
+    <dt>Presentes</dt><dd>{{ present_count }}</dd>
   </dl>
 
   <p>
+    {% if can_mark %}<a href="{% url 'gatherings:attendance' pk=gathering.pk %}">Marcar presença</a> · {% endif %}
     <a href="{% url 'gatherings:update' pk=gathering.pk %}">Editar</a> ·
     <a href="{% url 'gatherings:delete' pk=gathering.pk %}">Excluir</a> ·
     <a href="{% url 'gatherings:list' %}">Voltar</a>

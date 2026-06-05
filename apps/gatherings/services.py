@@ -16,7 +16,8 @@ pelo criador" da §3.6. AuditLog é automático (AuditLogMixin); o service não 
 from django.core.exceptions import ValidationError
 
 from apps.communities.models import Community
-from apps.gatherings.models import Gathering
+from apps.gatherings.models import Attendance, Gathering
+from apps.people.models import Person
 
 ADMIN_ROLES = ('pastor', 'secretary')
 
@@ -83,3 +84,70 @@ def create_gathering(
         description=description or '',
         created_by=user.id,
     )
+
+
+# --- Presença (Frente 2) -----------------------------------------------------
+
+
+def attendance_roster(gathering):
+    """Pessoas candidatas à lista de presença de um encontro (RF-040).
+
+    - Encontro COMMUNITY com comunidade → membros daquela comunidade.
+    - Demais tipos → todas as pessoas ATIVAS da igreja.
+
+    Exclui sempre as anonimizadas (`anonymized_at`). Ordenado por nome.
+    """
+    qs = Person.objects.filter(anonymized_at__isnull=True)
+    if gathering.gathering_type == Gathering.Type.COMMUNITY and gathering.community_id:
+        qs = qs.filter(community_id=gathering.community_id)
+    else:
+        qs = qs.exclude(status=Person.Status.INACTIVE)
+    return qs.order_by('name')
+
+
+def mark_attendance_bulk(*, gathering, present_person_ids):
+    """Marca presença em lote (RN-009, idempotente via `update_or_create`).
+
+    `present_person_ids` é o conjunto de Pessoas PRESENTES (vindo dos checkboxes).
+    Para cada uma, faz `update_or_create` com `is_present=True` (nunca duplica).
+    Pessoas que JÁ tinham presença neste encontro e agora não vieram passam a
+    `is_present=False` (mantém o registro histórico do encontro, não cria linha
+    para quem nunca foi marcado). Retorna a quantidade de presentes.
+
+    Só aceita ids de Pessoas reais (filtra contra a base) — o schema-per-tenant já
+    isola a igreja; isto barra ids forjados/inexistentes (evita IntegrityError).
+    """
+    valid_ids = set(
+        Person.objects.filter(
+            id__in=present_person_ids, anonymized_at__isnull=True
+        ).values_list('id', flat=True)
+    )
+    for person_id in valid_ids:
+        Attendance.objects.update_or_create(
+            person_id=person_id,
+            gathering=gathering,
+            defaults={'is_present': True},
+        )
+    # Quem estava marcado presente e não veio agora: vira ausente (não apaga).
+    Attendance.objects.filter(gathering=gathering, is_present=True).exclude(
+        person_id__in=valid_ids
+    ).update(is_present=False)
+    return len(valid_ids)
+
+
+def can_mark_attendance(user, gathering):
+    """True se `user` pode marcar presença neste encontro (§3.6).
+
+    Espelha o escopo de EDIÇÃO: Pastor/Secretário (qualquer); Líder/Coordenador só
+    o que criou OU encontros de uma comunidade que lidera.
+    """
+    if user.has_any_role(*ADMIN_ROLES):
+        return True
+    if gathering.created_by == user.id:
+        return True
+    if (
+        gathering.community_id
+        and gathering.community.leaders.filter(user_id=user.id).exists()
+    ):
+        return True
+    return False

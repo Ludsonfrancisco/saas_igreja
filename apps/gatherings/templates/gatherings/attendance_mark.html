@@ -1,0 +1,33 @@
+{% comment %}Marcação de presença em lote (Sprint 4 / Frente 2). CSRF obrigatório.{% endcomment %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><meta charset="utf-8"><title>Presença — {{ gathering }}</title></head>
+<body>
+  <h1>Marcar presença</h1>
+  <p>{{ gathering }}</p>
+
+  {% if messages %}
+    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    <ul>
+      {% for person in roster %}
+        <li>
+          <label>
+            <input type="checkbox" name="present" value="{{ person.pk }}"
+                   {% if person.pk in present_ids %}checked{% endif %}>
+            {{ person.name }}
+          </label>
+        </li>
+      {% empty %}
+        <li>Nenhuma pessoa elegível para este encontro.</li>
+      {% endfor %}
+    </ul>
+    <button type="submit">Salvar presença</button>
+  </form>
+
+  <p><a href="{% url 'gatherings:detail' pk=gathering.pk %}">Voltar</a></p>
+</body>
+</html>

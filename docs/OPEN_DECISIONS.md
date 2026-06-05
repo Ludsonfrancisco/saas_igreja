@@ -388,6 +388,21 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 
 ---
 
+### OD-020 — `on_delete` de `Attendance.person` (conflito de docs)
+
+| Campo | Valor |
+|---|---|
+| Status | ✅ Fechada (2026-06-05) |
+| Impacto | Médio (LGPD, integridade de dados) |
+| Owner | Produto + Segurança |
+| Decisão | **`on_delete=SET_NULL`** (`null=True`) em `Attendance.person`, alinhando com **RN-007**. Corrige a `TECH_SPEC §5.6`, que trazia `CASCADE` por engano |
+
+**Contexto:** ao implementar a Frente 2 da Sprint 4 (Presença), `TECH_SPEC §5.6` especificava `Attendance.person = ForeignKey(on_delete=CASCADE)`, conflitando com `RN-007`/`CLAUDE.md` ("FKs para Person usam `on_delete=SET_NULL` — preserva auditoria/**presença**").
+
+**Decisão:** prevalece RN-007. O **purge físico** (Celery Beat, 30 dias pós-anonimização) que apaga a `Person` mantém os registros de `Attendance` com `person=NULL` — preserva a **contagem histórica** de presença dos encontros sem revelar *quem* (esquece a identidade, mantém o número). A anonimização (soft delete) não dispara nada disso; a linha da Pessoa permanece. `unique_together (person, gathering)` segue válido (NULLs são distintos no Postgres). Sem auditoria por linha em `Attendance` (operação de alta frequência; marcação em lote geraria ruído).
+
+---
+
 ## Histórico — decisões fechadas
 
 | ID | Decisão | Data | Resultado |

@@ -53,3 +53,39 @@ class Gathering(BaseModel, AuditLogMixin):
 
     def __str__(self):
         return self.title or f'{self.get_gathering_type_display()} {self.date}'
+
+
+class Attendance(BaseModel):
+    """Presença de uma Pessoa em um Encontro (RF-040 / RN-009 / §5.6).
+
+    `unique_together (person, gathering)` + `update_or_create` (RN-009): marcar duas
+    vezes nunca duplica. NÃO herda `AuditLogMixin` (OD-020): presença é operação de
+    alta frequência (marcação em lote) — auditar cada linha geraria ruído.
+
+    `person` é `on_delete=SET_NULL` (RN-007 / OD-020): o purge físico da Pessoa
+    preserva a presença histórica do encontro (a contagem fica; a identidade some).
+    Por isso `person` é nullable. `gathering` é CASCADE (apagar o encontro apaga a
+    sua lista de presença).
+    """
+
+    person = models.ForeignKey(
+        'people.Person',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='attendances',
+    )
+    gathering = models.ForeignKey(
+        'Gathering',
+        on_delete=models.CASCADE,
+        related_name='attendances',
+    )
+    is_present = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('person', 'gathering')
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        who = self.person.name if self.person else '(anonimizada)'
+        return f'{who} @ {self.gathering}'

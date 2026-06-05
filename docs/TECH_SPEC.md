@@ -478,8 +478,15 @@ class Gathering(BaseModel, AuditLogMixin):
 
 
 class Attendance(BaseModel):
-    """Presença de uma Pessoa em um Encontro. Unique por (person, gathering)."""
-    person = models.ForeignKey('people.Person', on_delete=models.CASCADE)
+    """Presença de uma Pessoa em um Encontro. Unique por (person, gathering).
+
+    OD-020: `person` é `on_delete=SET_NULL` (RN-007) — o purge físico da Pessoa
+    preserva a presença histórica do encontro (contagem mantida, identidade
+    esquecida). `gathering` é CASCADE (apagar o encontro apaga sua lista).
+    """
+    person = models.ForeignKey(
+        'people.Person', on_delete=models.SET_NULL, null=True, blank=True
+    )
     gathering = models.ForeignKey(
         'Gathering',
         on_delete=models.CASCADE,
