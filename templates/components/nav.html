@@ -1,0 +1,31 @@
+{% comment %}Navegação principal por papel (Sprint 6.5 / Bloco 2).
+Vertical — usada no sidebar (desktop) e no drawer (mobile). Itens condicionados por
+`user.roles` (espelha ACCESS_MATRIX). Caminhos absolutos (tenant-scoped) p/ robustez.
+Item ativo destacado por `request.path`.{% endcomment %}
+{% load nav_extras %}
+<nav class="flex flex-col gap-1 text-sm" aria-label="Navegação principal">
+
+  {% nav_link '/' 'Painel' 'layout-dashboard' match='/painel' %}
+
+  {% if 'pastor' in user.roles or 'secretary' in user.roles or 'leader' in user.roles %}
+    {% nav_link '/pessoas/' 'Pessoas' 'users' %}
+    {% nav_link '/comunidades/' 'Comunidades' 'home' %}
+    {% nav_link '/ministerios/' 'Ministérios' 'heart-handshake' %}
+    {% nav_link '/encontros/' 'Encontros' 'calendar' %}
+    {% nav_link '/escalas/' 'Escalas' 'clipboard-list' %}
+  {% endif %}
+
+  {% if 'pastor' in user.roles or 'secretary' in user.roles or 'leader' in user.roles or 'treasurer' in user.roles %}
+    {% nav_link '/arquivos/' 'Arquivos' 'folder' %}
+  {% endif %}
+
+  {% if 'pastor' in user.roles or 'secretary' in user.roles %}
+    <p class="mt-3 px-3 text-xs font-medium uppercase tracking-wide text-muted-2">Administração</p>
+    {% nav_link '/configuracoes/usuarios/' 'Acessos' 'shield' %}
+    {% nav_link '/configuracoes/convites/' 'Convites' 'mail' %}
+  {% endif %}
+
+  <p class="mt-3 px-3 text-xs font-medium uppercase tracking-wide text-muted-2">Conta</p>
+  {% nav_link '/contas/seguranca/' 'Segurança' 'lock' %}
+  {% nav_link '/contas/logout/' 'Sair' 'log-out' %}
+</nav>

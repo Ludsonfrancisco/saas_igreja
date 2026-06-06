@@ -1,57 +1,66 @@
-{% comment %}Bloco de métricas do dashboard (Sprint 6 / Bloco 5). Partial incluído
-pelas 3 páginas (pastor/líder/coordenador) — recebe `metrics` do contexto da view.
-Markup mínimo pt-BR. Chart.js via CDN (P1, "charts simples sem biblioteca paga"):
-os números também aparecem na tabela, então a página funciona mesmo sem JS.{% endcomment %}
-<section>
-  <ul>
-    <li>Pessoas (total): <strong>{{ metrics.people_total }}</strong></li>
-    <li>Presenças no último mês: <strong>{{ metrics.attendance_last_month }}</strong></li>
-    <li>Comunidades ativas: <strong>{{ metrics.active_communities }}</strong></li>
-    <li>Ministérios ativos: <strong>{{ metrics.active_ministries }}</strong></li>
-  </ul>
+{% comment %}Métricas do dashboard (Sprint 6 / Bloco 5 — restilizado Sprint 6.5/Bloco 2).
+Recebe `metrics` do contexto. KPI cards + tabela + Chart.js (cor = acento da igreja).{% endcomment %}
 
-  <h2>Pessoas por situação</h2>
-  <table>
-    <thead><tr><th>Situação</th><th>Total</th></tr></thead>
-    <tbody>
-      {% for status, count in metrics.people_by_status.items %}
-        <tr>
-          <td>
-            {% if status == 'visitor' %}Visitante
-            {% elif status == 'congregant' %}Congregante
-            {% elif status == 'member' %}Membro
-            {% elif status == 'leader' %}Líder
-            {% elif status == 'inactive' %}Inativo
-            {% else %}{{ status }}{% endif %}
-          </td>
-          <td>{{ count }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+{# ── KPIs ── #}
+<div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+  <div class="rounded-xl2 border border-hairline bg-paper p-4 shadow-soft">
+    <div class="flex items-center gap-2 text-muted"><i data-lucide="users" class="h-4 w-4"></i><span class="text-xs">Pessoas</span></div>
+    <p class="mt-1 font-display text-2xl font-semibold text-ink">{{ metrics.people_total }}</p>
+  </div>
+  <div class="rounded-xl2 border border-hairline bg-paper p-4 shadow-soft">
+    <div class="flex items-center gap-2 text-muted"><i data-lucide="calendar-check" class="h-4 w-4"></i><span class="text-xs">Presenças (mês)</span></div>
+    <p class="mt-1 font-display text-2xl font-semibold text-ink">{{ metrics.attendance_last_month }}</p>
+  </div>
+  <div class="rounded-xl2 border border-hairline bg-paper p-4 shadow-soft">
+    <div class="flex items-center gap-2 text-muted"><i data-lucide="home" class="h-4 w-4"></i><span class="text-xs">Comunidades</span></div>
+    <p class="mt-1 font-display text-2xl font-semibold text-ink">{{ metrics.active_communities }}</p>
+  </div>
+  <div class="rounded-xl2 border border-hairline bg-paper p-4 shadow-soft">
+    <div class="flex items-center gap-2 text-muted"><i data-lucide="heart-handshake" class="h-4 w-4"></i><span class="text-xs">Ministérios</span></div>
+    <p class="mt-1 font-display text-2xl font-semibold text-ink">{{ metrics.active_ministries }}</p>
+  </div>
+</div>
 
-  {# Dados para o gráfico: json_script escapa com segurança (sem XSS). #}
-  {{ metrics.people_by_status|json_script:"people-by-status-data" }}
-  <canvas id="people-by-status-chart" height="120" aria-label="Gráfico de pessoas por situação" role="img"></canvas>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-  <script>
-    (function () {
-      var el = document.getElementById('people-by-status-chart');
-      var raw = document.getElementById('people-by-status-data');
-      if (!el || !raw || typeof Chart === 'undefined') { return; }
-      var data = JSON.parse(raw.textContent);
-      var labels = {
-        visitor: 'Visitante', congregant: 'Congregante', member: 'Membro',
-        leader: 'Líder', inactive: 'Inativo'
-      };
-      new Chart(el, {
-        type: 'bar',
-        data: {
-          labels: Object.keys(data).map(function (k) { return labels[k] || k; }),
-          datasets: [{ label: 'Pessoas', data: Object.values(data) }]
-        },
-        options: { responsive: true, plugins: { legend: { display: false } } }
-      });
-    })();
-  </script>
-</section>
+{# ── Pessoas por situação: tabela + gráfico ── #}
+<div class="mt-6 grid gap-6 lg:grid-cols-2">
+  <div class="rounded-xl2 border border-hairline bg-paper p-5 shadow-soft">
+    <h2 class="mb-3 font-display text-base font-semibold text-ink">Pessoas por situação</h2>
+    <table class="w-full text-sm">
+      <tbody class="divide-y divide-hairline">
+        {% for status, count in metrics.people_by_status.items %}
+          <tr>
+            <td class="py-2 text-muted">
+              {% if status == 'visitor' %}Visitante{% elif status == 'congregant' %}Congregante{% elif status == 'member' %}Membro{% elif status == 'leader' %}Líder{% elif status == 'inactive' %}Inativo{% else %}{{ status }}{% endif %}
+            </td>
+            <td class="py-2 text-right font-medium text-ink">{{ count }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="rounded-xl2 border border-hairline bg-paper p-5 shadow-soft">
+    <h2 class="mb-3 font-display text-base font-semibold text-ink">Distribuição</h2>
+    {{ metrics.people_by_status|json_script:"people-by-status-data" }}
+    <canvas id="people-by-status-chart" height="160" aria-label="Gráfico de pessoas por situação" role="img"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script>
+      (function () {
+        var el = document.getElementById('people-by-status-chart');
+        var raw = document.getElementById('people-by-status-data');
+        if (!el || !raw || typeof Chart === 'undefined') { return; }
+        var data = JSON.parse(raw.textContent);
+        var labels = { visitor: 'Visitante', congregant: 'Congregante', member: 'Membro', leader: 'Líder', inactive: 'Inativo' };
+        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#C75A3B';
+        new Chart(el, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(data).map(function (k) { return labels[k] || k; }),
+            datasets: [{ label: 'Pessoas', data: Object.values(data), backgroundColor: accent, borderRadius: 6 }]
+          },
+          options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+        });
+      })();
+    </script>
+  </div>
+</div>

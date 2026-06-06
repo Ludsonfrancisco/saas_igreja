@@ -556,10 +556,10 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 - [x] (P0) Biblioteca de componentes (`templates/components/`): `page_header`, `badge`, `empty_state`, `avatar`, `pagination`, `skeleton` + padrões botão/card/tabela/form/**modal-confirm (Alpine)** na styleguide. _(sidebar/bottom-nav por papel = Bloco 2.)_ + **styleguide dev em `/styleguide/`** (DEBUG).
 - [x] (P0) Páginas de erro estilizadas (`404.html`, `403.html`, `500.html` standalone).
 
-#### Bloco 2 — Shell de navegação por papel (desktop + mobile)
-- [ ] (P0) Shell de layout: **desktop** = sidebar + top-header; **mobile** = top-header + **bottom-nav** (papéis operacionais) ou drawer.
-- [ ] (P0) Navegação adaptada por papel (`user.roles`): admin (Pastor/Secretário/Tesoureiro) vê o conjunto de gestão; Líder/Coordenador vê o escopo deles; itens condicionados por permissão (espelha ACCESS_MATRIX).
-- [ ] (P0) Home pós-login = Dashboard do papel (roteamento por papel).
+#### Bloco 2 — Shell de navegação por papel (desktop + mobile) ✅
+- [x] (P0) Shell de layout (`app_base.html`): **desktop** = sidebar + top-header; **mobile** = top-header + **bottom-nav** + **drawer** (Alpine). Ícones **Lucide**. `base.html` virou esqueleto puro (`{% block shell %}`); app estende `app_base.html`.
+- [x] (P0) Navegação por papel (`components/nav.html` + tag `nav_extras.nav_link` c/ item ativo): admin (Pastor/Secretário) vê Administração (Acessos/Convites); Líder vê gestão escopada; Tesoureiro vê Arquivos; todos veem Painel/Conta — espelha ACCESS_MATRIX. Verificado (leader não vê Acessos).
+- [x] (P0) Home pós-login = painel do papel: view `/` (`apps/core/views.home`) redireciona Pastor→`dashboard:pastor`, Secretário/Líder→`dashboard:leader` — **corrige o gap em que `LOGIN_REDIRECT_URL='/'` caía em 404**. Dashboards re-skinados (extend `app_base`, KPI cards + Chart.js temático).
 
 #### Bloco 3 — Telas ADMIN (Pastor / Secretário / Tesoureiro) — desktop + mobile
 - [ ] (P0) Dashboard completo (Pastor): cards de KPI + gráfico Chart.js estilizado ao tema.

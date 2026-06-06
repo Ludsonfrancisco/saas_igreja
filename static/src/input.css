@@ -51,6 +51,10 @@
   html {
     -webkit-text-size-adjust: 100%;
   }
+  /* Alpine: esconde elementos com x-cloak até o Alpine inicializar. */
+  [x-cloak] {
+    display: none !important;
+  }
   body {
     background-color: var(--color-bg);
     color: var(--color-ink);

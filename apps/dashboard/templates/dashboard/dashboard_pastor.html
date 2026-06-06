@@ -1,11 +1,7 @@
-{% comment %}Dashboard completo do Pastor (Sprint 6 / Bloco 5, §3.9). Markup mínimo
-pt-BR; métricas no partial _metrics.html.{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="utf-8"><title>Painel da igreja</title></head>
-<body>
-  <h1>Painel da igreja</h1>
-  <p>Visão completa.</p>
+{% extends 'app_base.html' %}
+{% comment %}Dashboard completo do Pastor — home do papel (Sprint 6.5/Bloco 2).{% endcomment %}
+{% block title %}Painel da igreja · Oikonos{% endblock %}
+{% block content %}
+  {% include 'components/page_header.html' with title='Painel da igreja' subtitle='Visão completa da sua comunidade.' %}
   {% include 'dashboard/_metrics.html' %}
-</body>
-</html>
+{% endblock %}

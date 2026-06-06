@@ -27,6 +27,7 @@ mensagens (toasts Alpine) + skip-link (a11y). O shell de navegação por papel
 
   <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
+  <script src="https://unpkg.com/lucide@0.469.0"></script>
   {% block head_extra %}{% endblock %}
 </head>
 <body class="min-h-screen bg-bg text-ink font-sans antialiased">
@@ -36,11 +37,13 @@ mensagens (toasts Alpine) + skip-link (a11y). O shell de navegação por papel
     Pular para o conteúdo
   </a>
 
-  {# ── Header de marca ── #}
+  {% comment %}`shell` = layout do corpo. Default = simples (header de marca + conteúdo
+  + footer), usado por login/erro/styleguide. O app autenticado sobrescreve `shell`
+  em `app_base.html` (sidebar desktop + bottom-nav mobile).{% endcomment %}
+  {% block shell %}
+  {# ── Header de marca (layout simples) ── #}
   <header class="sticky top-0 z-30 border-b border-hairline bg-paper/90 backdrop-blur">
     <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-      {% comment %}Marca = Oikonos (a cor/tema vem da igreja; o nome exibido é o produto).
-      O nome/logo da igreja entra quando a igreja-teste for selecionada.{% endcomment %}
       <a href="/" class="flex items-center gap-2.5" aria-label="Oikonos — início">
         <img src="{% static 'img/oikonos-logo.png' %}" alt="" width="36" height="36" class="h-9 w-9">
         <span class="font-display text-xl font-semibold tracking-wide text-ink">OIKONOS</span>
@@ -53,6 +56,13 @@ mensagens (toasts Alpine) + skip-link (a11y). O shell de navegação por papel
       </div>
     </div>
   </header>
+
+  <main id="conteudo" class="mx-auto max-w-6xl px-4 py-6">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="mx-auto max-w-6xl px-4 py-8 text-center text-xs text-muted-2">Oikonos</footer>
+  {% endblock shell %}
 
   {# ── Mensagens → toasts (Alpine, auto-dismiss) ── #}
   {% if messages %}
@@ -71,15 +81,13 @@ mensagens (toasts Alpine) + skip-link (a11y). O shell de navegação por papel
     </div>
   {% endif %}
 
-  {# ── Conteúdo ── #}
-  <main id="conteudo" class="mx-auto max-w-6xl px-4 py-6">
-    {% block content %}{% endblock %}
-  </main>
-
-  <footer class="mx-auto max-w-6xl px-4 py-8 text-center text-xs text-muted-2">
-    Oikonos
-  </footer>
-
   {% block body_extra %}{% endblock %}
+
+  {# Ícones Lucide: renderiza no load e após swaps HTMX. #}
+  <script>
+    function renderIcons() { if (window.lucide) lucide.createIcons(); }
+    document.addEventListener('DOMContentLoaded', renderIcons);
+    document.body.addEventListener('htmx:afterSwap', renderIcons);
+  </script>
 </body>
 </html>
