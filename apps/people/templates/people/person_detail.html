@@ -39,4 +39,26 @@
       <div class="sm:col-span-2"><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Observações</dt><dd class="mt-0.5 text-sm text-ink">{{ person.notes|default:'—' }}</dd></div>
     </dl>
   </div>
+
+  {% if volunteer_url %}
+    {# Magic-link read-only do voluntário (OD-022): copiar e enviar (WhatsApp/manual). #}
+    <div class="card mt-4 max-w-3xl p-6" x-data="{ copied: false }">
+      <div class="flex items-center gap-2">
+        <i data-lucide="link" class="h-4 w-4 text-accent"></i>
+        <h2 class="font-display text-base font-semibold text-ink">Link do voluntário</h2>
+      </div>
+      <p class="mt-1 text-sm text-muted">Acesso somente leitura às escalas desta pessoa, sem login. Copie e envie ao voluntário.</p>
+      <div class="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+        <input type="text" readonly :value="$refs.url.textContent" x-ref="urlinput"
+               class="w-full truncate rounded-lg border border-line bg-bg-soft px-3 py-2 text-sm text-muted">
+        <span x-ref="url" class="hidden">{{ volunteer_url }}</span>
+        <button type="button"
+                @click="navigator.clipboard.writeText($refs.url.textContent); copied = true; setTimeout(() => copied = false, 2000)"
+                class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-paper hover:bg-accent-2">
+          <i data-lucide="copy" class="h-4 w-4"></i>
+          <span x-text="copied ? 'Copiado!' : 'Copiar link'"></span>
+        </button>
+      </div>
+    </div>
+  {% endif %}
 {% endblock %}

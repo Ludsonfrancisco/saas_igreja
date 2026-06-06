@@ -16,6 +16,8 @@ mensagens (toasts Alpine) + skip-link (a11y). O shell de navegação por papel
       --accent-2: {{ theme_accent_2 }};
       --hot: {{ theme_hot }};
     }
+    /* Feedback de envio: botão em estado "enviando" (DS-02, Bloco 5.2). */
+    [type="submit"][aria-busy="true"] { opacity: .65; cursor: wait; }
   </style>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -88,6 +90,21 @@ mensagens (toasts Alpine) + skip-link (a11y). O shell de navegação por papel
     function renderIcons() { if (window.lucide) lucide.createIcons(); }
     document.addEventListener('DOMContentLoaded', renderIcons);
     document.body.addEventListener('htmx:afterSwap', renderIcons);
+  </script>
+
+  {# Anti-duplo-submit (Bloco 5.2): trava o 2º envio e marca o botão como "enviando".
+     Captura no bubble (após validação HTML5) e desabilita em setTimeout(0) para não
+     remover name/value do botão do POST. #}
+  <script>
+    document.addEventListener('submit', function (e) {
+      var form = e.target;
+      if (form.dataset.submitting === '1') { e.preventDefault(); return; }
+      form.dataset.submitting = '1';
+      var btn = form.querySelector('[type="submit"]');
+      if (btn) {
+        setTimeout(function () { btn.setAttribute('aria-busy', 'true'); btn.disabled = true; }, 0);
+      }
+    });
   </script>
 </body>
 </html>

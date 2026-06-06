@@ -13,10 +13,15 @@ A barreira de PAPEL é ampla (`LeaderOrPastorMixin`); o ESCOPO refina no queryse
 conflito).
 """
 
+from datetime import date
+
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from django.shortcuts import redirect
+from django.db import connection
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -26,6 +31,7 @@ from django.views.generic import (
     UpdateView,
 )
 
+from apps.core.audit import log_security_event
 from apps.core.mixins import (
     LeaderOrPastorMixin,
     RoleRequiredMixin,
@@ -35,6 +41,7 @@ from apps.core.mixins import (
 from apps.schedules import services
 from apps.schedules.forms import ScheduleExceptionForm, ScheduleForm
 from apps.schedules.models import Schedule
+from apps.schedules.tokens import read_volunteer_token
 
 SCHEDULE_SCOPE_LOOKUP = 'ministry__coordinators__user_id'
 
@@ -190,3 +197,48 @@ class ScheduleExceptionCreateView(
             return self.form_invalid(form)
         messages.success(self.request, 'Excecao de conflito aprovada e escala criada.')
         return super().form_valid(form)
+
+
+class VolunteerScheduleView(View):
+    """Acesso READ-ONLY do voluntário às próprias escalas via magic-link (OD-022).
+
+    Público (sem conta/login/MFA) e tenant-scoped pelo subdomínio — distinto do
+    Membro geral (OD-004, sem acesso). O token (apps/schedules/tokens.py) carrega
+    `person_id` + tenant; aqui revalidamos o tenant atual e exigimos pessoa
+    existente e NÃO anonimizada (LGPD). Falha → página genérica 'link inválido'
+    (não vaza existência). Mostra só as escalas FUTURAS da própria pessoa.
+    """
+
+    def get(self, request, token):
+        from apps.people.models import Person
+
+        person_id = read_volunteer_token(
+            token,
+            tenant=connection.schema_name,
+            max_age=settings.VOLUNTEER_LINK_MAX_AGE,
+        )
+        person = None
+        if person_id is not None:
+            person = Person.objects.filter(
+                pk=person_id, anonymized_at__isnull=True
+            ).first()
+        if person is None:
+            return render(
+                request, 'schedules/volunteer_invalid.html', status=404
+            )
+
+        log_security_event(
+            event_type='volunteer_schedule_access',
+            payload={'person_id': person.pk},
+        )
+
+        schedules = (
+            person.schedules.filter(gathering__date__gte=date.today())
+            .select_related('ministry', 'gathering')
+            .order_by('gathering__date')
+        )
+        return render(
+            request,
+            'schedules/volunteer_schedule.html',
+            {'person': person, 'schedules': schedules},
+        )

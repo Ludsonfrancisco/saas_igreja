@@ -18,7 +18,7 @@ from django.core.exceptions import ValidationError
 from django.db import connection
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views import View
 from django.views.generic import DetailView, FormView, ListView, UpdateView
@@ -36,6 +36,7 @@ from apps.people import services
 from apps.people.forms import PersonForm, PersonImportForm
 from apps.people.models import Person
 from apps.people.tasks import import_persons_csv
+from apps.schedules.tokens import make_volunteer_token
 
 
 class PersonListView(
@@ -93,6 +94,19 @@ class PersonDetailView(
     template_name = 'people/person_detail.html'
     context_object_name = 'person'
     community_scope_lookup = 'community__leaders__user_id'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Magic-link read-only do voluntário (OD-022): gerado sob demanda para o
+        # staff copiar e enviar (WhatsApp/manual). Não para pessoa anonimizada.
+        if not self.object.anonymized_at:
+            token = make_volunteer_token(
+                person_id=self.object.pk, tenant=connection.schema_name
+            )
+            context['volunteer_url'] = self.request.build_absolute_uri(
+                reverse('schedules:volunteer', args=[token])
+            )
+        return context
 
 
 class PersonCreateView(TenantRequiredMixin, PastorOrSecretaryMixin, FormView):

@@ -312,6 +312,13 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# --- Magic-link do voluntario (OD-022) — Sprint 6.5 / Bloco 5.3 ---
+# TTL (segundos) do link READ-ONLY "minhas escalas" (sem conta). Stateless: ver
+# apps/schedules/tokens.py. Padrao 60 dias; ajustavel por env.
+VOLUNTEER_LINK_MAX_AGE = config(
+    'VOLUNTEER_LINK_MAX_AGE', default=60 * 60 * 24 * 60, cast=int
+)
+
 # --- Sentry (observabilidade) — TENANT-07 / TECH_SPEC §12.3 ---
 # Init GUARDADO por SENTRY_DSN: em dev (DSN vazio) NAO inicializa, evitando
 # qualquer envio acidental e mantendo a suite/check sem rede externa.

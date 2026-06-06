@@ -90,6 +90,7 @@ class SecurityLog(models.Model):
         ('sensitive_file_upload', 'Upload de arquivo sensivel'),
         ('sensitive_file_download', 'Download de arquivo sensivel'),
         ('schedule_exception_approved', 'Excecao de conflito de escala aprovada'),
+        ('volunteer_schedule_access', 'Acesso de voluntario a escala (magic-link)'),
     ]
     user_id = models.IntegerField(null=True)
     tenant_id = models.CharField(max_length=60, db_index=True)

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% comment %}Magic-link inválido/expirado (Sprint 6.5 / Bloco 5.3 — OD-022). Mensagem
+genérica — não revela se o token expirou, é de outra igreja ou a pessoa saiu.{% endcomment %}
+{% block title %}Link inválido · Oikonos{% endblock %}
+
+{% block content %}
+  <div class="mx-auto max-w-md py-10 text-center">
+    <span class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-danger/10 text-danger"><i data-lucide="link-2-off" class="h-6 w-6"></i></span>
+    <h1 class="font-display text-xl font-bold text-ink">Link inválido</h1>
+    <p class="mt-2 text-sm text-muted">Este link de escala não é válido. Ele pode ter expirado ou não estar mais disponível. Peça um novo link ao responsável pela sua igreja.</p>
+  </div>
+{% endblock %}

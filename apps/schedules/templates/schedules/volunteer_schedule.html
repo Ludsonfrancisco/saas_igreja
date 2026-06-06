@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% comment %}Magic-link do voluntário (Sprint 6.5 / Bloco 5.3 — OD-022). Página PÚBLICA
+read-only: as próximas escalas da própria pessoa. Sem conta/login/MFA.{% endcomment %}
+{% block title %}Minhas escalas · Oikonos{% endblock %}
+
+{% block content %}
+  <div class="mx-auto max-w-xl">
+    <h1 class="font-display text-2xl font-bold tracking-tight text-ink">Olá, {{ person.name }}</h1>
+    <p class="mt-1 text-sm text-muted">Suas próximas escalas de voluntário.</p>
+
+    {% if schedules %}
+      <div class="mt-5 space-y-3">
+        {% for s in schedules %}
+          <div class="card p-4">
+            <div class="flex items-center justify-between gap-3">
+              <p class="font-medium text-ink">{{ s.gathering.date|date:'d/m/Y' }}</p>
+              {% include 'components/badge.html' with text=s.ministry.name variant='accent' %}
+            </div>
+            <p class="mt-1 text-sm text-ink">{{ s.gathering }}</p>
+            {% if s.role %}<p class="mt-0.5 text-sm text-muted">Função: {{ s.role }}</p>{% endif %}
+            {% if s.notes %}<p class="mt-1 text-sm text-muted">{{ s.notes }}</p>{% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      {% include 'components/empty_state.html' with title='Nenhuma escala futura' message='Você não tem escalas próximas no momento.' %}
+    {% endif %}
+
+    <p class="mt-6 text-center text-xs text-muted-2">Acesso somente leitura · Oikonos</p>
+  </div>
+{% endblock %}
