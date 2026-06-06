@@ -1,30 +1,24 @@
-{% comment %}
-Importação CSV de pessoas (RF-033 / Bloco 5a). Markup mínimo pt-BR. CSRF + enctype.
-Colunas: name (obrigatório), email, phone, status, consent. Linhas com email/telefone
-sem consent='sim' são puladas (LGPD/OPS-05). Processamento assíncrono (Celery).
-{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="utf-8"><title>Importar pessoas (CSV)</title></head>
-<body>
-  <h1>Importar pessoas via CSV</h1>
+{% extends 'app_base.html' %}
+{% comment %}Importação CSV de pessoas (RF-033). CSRF + enctype. Sprint 6.5 / Bloco 3.{% endcomment %}
+{% block title %}Importar pessoas (CSV) · Oikonos{% endblock %}
 
-  {% if messages %}
-    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
-  {% endif %}
+{% block content %}
+  <div class="mx-auto max-w-xl">
+    <a href="{% url 'people:list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Pessoas</a>
+    <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">Importar pessoas via CSV</h1>
 
-  <p>
-    Colunas: <code>name</code> (obrigatório), <code>email</code>, <code>phone</code>,
-    <code>status</code>, <code>consent</code>. Linhas com email/telefone exigem
-    <code>consent=sim</code> (LGPD) — caso contrário são puladas.
-  </p>
-
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Importar</button>
-  </form>
-
-  <p><a href="{% url 'people:list' %}">Voltar</a></p>
-</body>
-</html>
+    <div class="card mt-4 space-y-4 p-6">
+      <div class="rounded-lg border border-hairline bg-bg-soft px-4 py-3 text-sm text-muted">
+        Colunas: <code class="text-ink">name</code> (obrigatório), <code class="text-ink">email</code>, <code class="text-ink">phone</code>, <code class="text-ink">status</code>, <code class="text-ink">consent</code>. Linhas com e-mail/telefone exigem <code class="text-ink">consent=sim</code> (LGPD) — senão são puladas.
+      </div>
+      <form method="post" enctype="multipart/form-data" class="space-y-4">
+        {% csrf_token %}
+        {% include 'components/form.html' with form=form %}
+        <div class="flex items-center gap-2 pt-1">
+          <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="upload" class="h-4 w-4"></i> Importar</button>
+          <a href="{% url 'people:list' %}" class="rounded-lg border border-line bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-bg-soft">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

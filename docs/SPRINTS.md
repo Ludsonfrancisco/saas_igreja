@@ -526,7 +526,7 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 
 ### Princípios de Design (DS-01..DS-08)
 
-- **DS-01 — Marca ≠ tema.** A **identidade Oikonos** (oficial em `referencias/oikonos_identidade_6_partes/`) é a marca FIXA: terracota **`#C75A3B`** + âmbar **`#E09A2D`**, **Poppins**, logo (pessoas em torno da cruz). A **área logada** usa essa paleta como **default temável por igreja**: o acento vem de `Church.accent_color`/`hot_color` (defaults da identidade) + `Church.logo`, injetados como CSS vars por tenant sobre a base neutra (creme `#F4EFE6` / areia `#E7D6BB`). Igreja sem cor herda a identidade Oikonos.
+- **DS-01 — Marca ≠ tema.** **Logo/identidade:** símbolo terracota + wordmark **OIKONOS**, **Poppins** (`oikonos_identidade_6_partes/`). **UI do app (premium, `igreja_saas_personalizado`):** primary **`#864507`** + âmbar **`#F59A17`** sobre base neutra creme (`#F8F1E8`), com gradientes/sombras/hovers suaves. A área logada usa primary/âmbar como **default temável por igreja** (`Church.accent_color`/`hot_color` + `Church.logo`, CSS vars por tenant). Igreja sem cor herda os defaults Oikonos.
 - **DS-02 — Emoção com sobriedade.** Tipografia = **Poppins** (SemiBold títulos/marca; Regular corpo — identidade/TECH_SPEC §11); cantos suaves, sombras leves, microinterações Alpine discretas, e **estados ricos obrigatórios** (vazio acolhedor, loading, sucesso, erro) — a emoção mora nos detalhes, não em ornamento.
 - **DS-03 — Mobile-first real.** Layout desenhado a partir de ≥360px; alvos de toque ≥44px; navegação inferior (bottom-nav) no mobile para papéis operacionais; nada de "desktop encolhido".
 - **DS-04 — Acessibilidade WCAG AA.** Contraste AA, foco visível, navegação por teclado, `aria`/labels, respeito a `prefers-reduced-motion`. Beleza que exclui não serve a uma igreja.
@@ -550,14 +550,14 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 
 #### Bloco 1 — Fundação do Design System ✅ (commit em andamento)
 - [x] (P0) Pipeline Tailwind **compilado** — **Tailwind v4 via `pytailwindcss`** (CLI standalone, sem Node). Build: `uv run tailwindcss -i static/src/input.css -o static/css/app.css --minify`. _Integração ao Docker/collectstatic do build entra no deploy (Sprint 7)._
-- [x] (P0) Tokens (v4 CSS-first, `static/src/input.css` `@theme`) = **identidade oficial Oikonos** (`referencias/oikonos_identidade_6_partes/`): terracota `#C75A3B` + âmbar `#E09A2D` (temáveis por igreja via `Church.accent_color`/`hot_color`); base neutra creme/areia; **fonte Poppins**. Logo real (`static/img/oikonos-logo.png` + favicon) no header.
+- [x] (P0) Tokens (v4 CSS-first, `static/src/input.css` `@theme`) = **paleta premium** (`igreja_saas_personalizado`): primary `#864507` + âmbar `#F59A17` (temáveis por igreja); base neutra creme `#F8F1E8`; **Poppins**; premium (radial-gradient, cards/stat-pills com sombra, hovers, scrollbar). Logo terracota real (`static/img/oikonos-logo.png` + favicon) no header.
 - [x] (P0) `templates/base.html`: head, fontes, viewport, content block, **toasts (Alpine)**, **skip-link a11y**, injeção das CSS vars do tema. Marca exibida = **Oikonos** (nome da igreja entra quando a igreja-teste for selecionada).
 - [x] (P0) **Tema por tenant**: `apps/core/context_processors.py::church_theme` injeta `--accent`/`--hot`/logo da `Church` (`request.tenant`) — verificado com acento custom.
 - [x] (P0) Biblioteca de componentes (`templates/components/`): `page_header`, `badge`, `empty_state`, `avatar`, `pagination`, `skeleton` + padrões botão/card/tabela/form/**modal-confirm (Alpine)** na styleguide. _(sidebar/bottom-nav por papel = Bloco 2.)_ + **styleguide dev em `/styleguide/`** (DEBUG).
 - [x] (P0) Páginas de erro estilizadas (`404.html`, `403.html`, `500.html` standalone).
 
 #### Bloco 2 — Shell de navegação por papel (desktop + mobile) ✅
-- [x] (P0) Shell de layout (`app_base.html`): **desktop** = sidebar + top-header; **mobile** = top-header + **bottom-nav** + **drawer** (Alpine). Ícones **Lucide**. `base.html` virou esqueleto puro (`{% block shell %}`); app estende `app_base.html`.
+- [x] (P0) Shell de layout (`app_base.html`) = **esqueleto da referência `igreja_saas_personalizado`**: **HEADER** (marca + busca + menu do usuário) + **NAV-RAIL horizontal** por papel (sublinhado no item ativo; mobile = ícone-only rolável) + **CANVAS** centralizado (max-w-1500). Ícones **Lucide**. `base.html` virou esqueleto puro (`{% block shell %}`); app estende `app_base.html`.
 - [x] (P0) Navegação por papel (`components/nav.html` + tag `nav_extras.nav_link` c/ item ativo): admin (Pastor/Secretário) vê Administração (Acessos/Convites); Líder vê gestão escopada; Tesoureiro vê Arquivos; todos veem Painel/Conta — espelha ACCESS_MATRIX. Verificado (leader não vê Acessos).
 - [x] (P0) Home pós-login = painel do papel: view `/` (`apps/core/views.home`) redireciona Pastor→`dashboard:pastor`, Secretário/Líder→`dashboard:leader` — **corrige o gap em que `LOGIN_REDIRECT_URL='/'` caía em 404**. Dashboards re-skinados (extend `app_base`, KPI cards + Chart.js temático).
 

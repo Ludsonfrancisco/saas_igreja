@@ -1,43 +1,42 @@
-{% comment %}
-Detalhe de Pessoa (Frente 2 / Bloco 2). Markup mínimo pt-BR. As ações LGPD
-(anonimizar/exportar) entram no Bloco 3.
-{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="utf-8">
-  <title>{{ person.name }}</title>
-</head>
-<body>
-  <h1>{{ person.name }}</h1>
+{% extends 'app_base.html' %}
+{% comment %}Detalhe de Pessoa (Sprint 6.5 / Bloco 3 — padrão de DETALHE).{% endcomment %}
+{% block title %}{{ person.name }} · Oikonos{% endblock %}
 
-  {% if messages %}
-    <ul>
-      {% for message in messages %}<li>{{ message }}</li>{% endfor %}
-    </ul>
-  {% endif %}
+{% block content %}
+  <div class="mb-6 flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <a href="{% url 'people:list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Pessoas</a>
+      <div class="mt-2 flex items-center gap-3">
+        {% include 'components/avatar.html' with name=person.name size='h-11 w-11' %}
+        <div>
+          <h1 class="font-display text-2xl font-bold tracking-tight text-ink">{{ person.name }}</h1>
+          <p class="mt-0.5 text-sm text-muted">{{ person.get_status_display }}{% if person.community.name %} · {{ person.community.name }}{% endif %}</p>
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <a href="{% url 'people:update' pk=person.pk %}" class="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="pencil" class="h-4 w-4"></i> Editar</a>
+      <div x-data="{ open: false }" class="relative">
+        <button @click="open = !open" class="inline-flex items-center gap-2 rounded-lg border border-line bg-paper px-3 py-2 text-sm font-medium text-ink hover:bg-bg-soft"><i data-lucide="download" class="h-4 w-4"></i> Exportar <i data-lucide="chevron-down" class="h-4 w-4"></i></button>
+        <div x-show="open" x-cloak @click.outside="open = false" class="absolute right-0 z-40 mt-1 w-40 rounded-lg border border-hairline bg-paper py-1 shadow-md2">
+          <a href="{% url 'people:export' pk=person.pk %}?format=json" class="block px-3 py-2 text-sm text-ink hover:bg-bg-soft">JSON</a>
+          <a href="{% url 'people:export' pk=person.pk %}?format=csv" class="block px-3 py-2 text-sm text-ink hover:bg-bg-soft">CSV</a>
+        </div>
+      </div>
+      <a href="{% url 'people:anonymize' pk=person.pk %}" class="inline-flex items-center gap-2 rounded-lg border border-danger/30 bg-danger/5 px-3 py-2 text-sm font-medium text-danger hover:bg-danger/10"><i data-lucide="shield-off" class="h-4 w-4"></i> Anonimizar</a>
+    </div>
+  </div>
 
-  <dl>
-    <dt>Status</dt><dd>{{ person.get_status_display }}</dd>
-    <dt>Email</dt><dd>{{ person.email|default:'—' }}</dd>
-    <dt>Telefone</dt><dd>{{ person.phone|default:'—' }}</dd>
-    <dt>Nascimento</dt><dd>{{ person.birth_date|default:'—' }}</dd>
-    <dt>Comunidade</dt><dd>{{ person.community.name|default:'—' }}</dd>
-    <dt>Ministérios</dt>
-    <dd>
-      {% for m in person.ministries.all %}{{ m.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}
-    </dd>
-    <dt>Consentimento LGPD</dt>
-    <dd>{% if person.consent_given_at %}Sim ({{ person.consent_given_at }}){% else %}Não{% endif %}</dd>
-    <dt>Observações</dt><dd>{{ person.notes|default:'—' }}</dd>
-  </dl>
-
-  <p>
-    <a href="{% url 'people:update' pk=person.pk %}">Editar</a> ·
-    <a href="{% url 'people:export' pk=person.pk %}?format=json">Exportar JSON</a> ·
-    <a href="{% url 'people:export' pk=person.pk %}?format=csv">Exportar CSV</a> ·
-    <a href="{% url 'people:anonymize' pk=person.pk %}">Anonimizar (LGPD)</a> ·
-    <a href="{% url 'people:list' %}">Voltar</a>
-  </p>
-</body>
-</html>
+  <div class="card max-w-3xl p-6">
+    <dl class="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
+      <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Situação</dt><dd class="mt-0.5 text-sm text-ink">{{ person.get_status_display }}</dd></div>
+      <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">E-mail</dt><dd class="mt-0.5 text-sm text-ink">{{ person.email|default:'—' }}</dd></div>
+      <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Telefone</dt><dd class="mt-0.5 text-sm text-ink">{{ person.phone|default:'—' }}</dd></div>
+      <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Nascimento</dt><dd class="mt-0.5 text-sm text-ink">{{ person.birth_date|default:'—' }}</dd></div>
+      <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Comunidade</dt><dd class="mt-0.5 text-sm text-ink">{{ person.community.name|default:'—' }}</dd></div>
+      <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Ministérios</dt><dd class="mt-0.5 text-sm text-ink">{% for m in person.ministries.all %}{{ m.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</dd></div>
+      <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Consentimento LGPD</dt><dd class="mt-0.5 text-sm">{% if person.consent_given_at %}{% include 'components/badge.html' with text='Concedido' variant='success' %}{% else %}{% include 'components/badge.html' with text='Pendente' variant='muted' %}{% endif %}</dd></div>
+      <div class="sm:col-span-2"><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Observações</dt><dd class="mt-0.5 text-sm text-ink">{{ person.notes|default:'—' }}</dd></div>
+    </dl>
+  </div>
+{% endblock %}

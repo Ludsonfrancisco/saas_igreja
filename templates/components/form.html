@@ -1,0 +1,12 @@
+{% comment %}Renderiza um formulário Django estilizado (Sprint 6.5 / Bloco 3). Recebe `form`.
+Hidden fields + erros não-de-campo + cada campo visível via form_field. NÃO inclui
+<form>/csrf/botão — quem usa envolve.{% endcomment %}
+{% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+{% if form.non_field_errors %}
+  <div class="rounded-lg border-l-4 border-l-danger bg-danger/5 px-4 py-3 text-sm text-danger">
+    {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+  </div>
+{% endif %}
+{% for field in form.visible_fields %}
+  {% include 'components/form_field.html' with field=field %}
+{% endfor %}

@@ -10,9 +10,9 @@ public, sem tenant) ou se algo faltar, caímos nos defaults Athos — nunca queb
 
 # Defaults = MARCA OIKONOS (identidade: terracota + âmbar). Espelham o input.css.
 # Uma igreja sem cor customizada herda a identidade Oikonos.
-_DEFAULT_ACCENT = '#C75A3B'
-_DEFAULT_ACCENT_2 = '#A6442C'
-_DEFAULT_HOT = '#E09A2D'
+_DEFAULT_ACCENT = '#864507'
+_DEFAULT_ACCENT_2 = '#6A3302'
+_DEFAULT_HOT = '#F59A17'
 
 
 def church_theme(request):

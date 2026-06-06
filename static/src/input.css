@@ -1,78 +1,140 @@
-/* Oikonos — Design System (Sprint 6.5, Bloco 1).
-   Tailwind v4 (CSS-first). Paleta Athos (TECH_SPEC §11) como BASE NEUTRA;
-   o acento (accent/hot) é TEMÁVEL POR IGREJA via CSS vars injetadas no base.html
-   a partir de Church.accent_color / Church.hot_color (DS-01, marca ≠ tema). */
+/* Oikonos — Design System (Sprint 6.5). Tailwind v4 (CSS-first).
+   Paleta + hovers + "premium" alinhados à referência igreja_saas_personalizado.
+   Acento (accent/hot) TEMÁVEL POR IGREJA via CSS vars (DS-01). Fonte Poppins (identidade). */
 
 @import 'tailwindcss';
 
-/* Onde o Tailwind procura classes (Django templates + parciais). */
 @source '../../templates';
 @source '../../apps';
 
 @theme {
-  /* Acento temável por igreja (resolve para as CSS vars de :root abaixo) */
+  /* Acento temável por igreja (resolve para :root abaixo) */
   --color-accent: var(--accent);
   --color-accent-2: var(--accent-2);
   --color-hot: var(--hot);
 
-  /* Base neutra (paleta oficial Oikonos — 04_paleta_de_cores) */
-  --color-bg: #f4efe6;       /* creme/canvas */
-  --color-bg-soft: #efe7da;  /* creme um tom abaixo */
-  --color-sand: #e7d6bb;     /* areia (cards-alt, faixas) */
-  --color-paper: #ffffff;
-  --color-ink: #1a1a1f;      /* quase-preto oficial */
-  --color-ink-2: #2a2522;
-  --color-muted: #6f6557;
-  --color-muted-2: #94897a;
-  --color-hairline: #e6dece;
+  /* Base neutra (referência premium) */
+  --color-bg: #f8f1e8;        /* canvas */
+  --color-bg-soft: #f6eadc;   /* surfaceSoft */
+  --color-paper: #fffefa;     /* surface */
+  --color-ink: #161412;       /* text */
+  --color-ink-2: #322a23;
+  --color-muted: #6c6259;
+  --color-muted-2: #8a7f74;
+  --color-hairline: #eadfd2;  /* border */
   --color-line: #d9cfbf;
-  --color-success: #4d7c2f;
-  --color-danger: #c23a22;
+  --color-amber-soft: #f4d6a1;
+  --color-success: #557a35;   /* green */
+  --color-danger: #b43a21;
 
-  /* Tipografia da MARCA (identidade Oikonos): Poppins. */
+  /* Tipografia da MARCA: Poppins */
   --font-sans: 'Poppins', system-ui, -apple-system, sans-serif;
   --font-display: 'Poppins', system-ui, sans-serif;
 
-  /* Raios e sombras suaves (DS-02 — emoção nos detalhes) */
-  --radius-xl2: 1.25rem;
-  --shadow-soft: 0 10px 25px rgba(22, 20, 18, 0.04);
-  --shadow-md2: 0 20px 40px rgba(22, 20, 18, 0.06);
+  /* Raios e sombras premium */
+  --radius-xl2: 1.1rem;
+  --shadow-soft: 0 16px 38px rgba(76, 44, 16, 0.04);
+  --shadow-md2: 0 20px 52px rgba(76, 44, 16, 0.06);
 }
 
-/* Defaults do acento = MARCA OIKONOS (identidade: terracota + âmbar).
+/* Defaults do acento = MARCA OIKONOS (referência: primary #864507 + âmbar #F59A17).
    SOBRESCRITOS por igreja no base.html (Church.accent_color/hot_color). */
 :root {
-  --accent: #c75a3b;   /* terracota Oikonos (oficial) */
-  --accent-2: #a6442c; /* terracota escuro (hover) */
-  --hot: #e09a2d;      /* âmbar Oikonos (oficial) */
+  --accent: #864507;   /* primary */
+  --accent-2: #6a3302; /* primaryDark (hover) */
+  --hot: #f59a17;      /* âmbar/accent */
+  --athos-line: rgba(118, 78, 39, 0.12);
+  --athos-line-soft: rgba(118, 78, 39, 0.075);
 }
 
 @layer base {
-  html {
-    -webkit-text-size-adjust: 100%;
-  }
-  /* Alpine: esconde elementos com x-cloak até o Alpine inicializar. */
-  [x-cloak] {
-    display: none !important;
-  }
+  html { -webkit-text-size-adjust: 100%; }
+  [x-cloak] { display: none !important; }
+
+  /* Fundo "premium": brilhos quentes nos cantos sobre o canvas creme. */
   body {
-    background-color: var(--color-bg);
+    background:
+      radial-gradient(circle at 14% 8%, rgba(255, 247, 234, 0.6), transparent 36rem),
+      radial-gradient(circle at 86% 4%, rgba(255, 252, 244, 0.7), transparent 32rem),
+      var(--color-bg);
     color: var(--color-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
-  /* Foco visível sempre (WCAG AA / DS-04) */
-  :focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-  }
-  /* Respeita prefers-reduced-motion (DS-04) */
+
+  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.001ms !important;
-      transition-duration: 0.001ms !important;
-    }
+    *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+
+  /* Scrollbar fina e quente (premium). */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #e6d8c7; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #6e6257; }
+}
+
+@layer components {
+  /* Card premium (bg quase-branco quente + borda sutil + sombra suave). */
+  .card {
+    background-color: rgba(255, 254, 250, 0.94);
+    border: 1px solid var(--athos-line);
+    border-radius: 1.1rem;
+    box-shadow: var(--shadow-soft);
+  }
+  .card-md { box-shadow: var(--shadow-md2); }
+
+  /* Stat pill (KPI premium). */
+  .stat-pill {
+    display: flex; align-items: center; gap: 0.85rem;
+    background: rgba(255, 254, 250, 0.92);
+    border: 1px solid var(--athos-line);
+    border-radius: 1rem;
+    padding: 1rem 1.15rem;
+    box-shadow: var(--shadow-soft);
+  }
+  .stat-icon {
+    width: 2.4rem; height: 2.4rem; flex-shrink: 0;
+    border-radius: 0.75rem;
+    background: rgba(248, 234, 214, 0.7);
+    color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .stat-icon svg, .stat-icon i { width: 1.15rem; height: 1.15rem; }
+  .stat-num { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1; color: var(--color-ink); }
+  .stat-label { font-size: 0.74rem; color: var(--color-muted); font-weight: 500; }
+
+  /* Nav-rail horizontal (esqueleto da referência) com gradiente quente. */
+  .nav-rail {
+    background:
+      linear-gradient(180deg, rgba(250, 241, 228, 0.72), rgba(246, 234, 216, 0.92)),
+      rgba(255, 253, 248, 0.6);
+    border-bottom: 1px solid var(--athos-line);
+    box-shadow: 0 12px 26px rgba(91, 58, 24, 0.035);
+  }
+  .nav-rail-inner {
+    display: flex; align-items: stretch; gap: 0.15rem;
+    padding: 0 1.25rem; overflow-x: auto; scrollbar-width: none;
+  }
+  .nav-rail-inner::-webkit-scrollbar { display: none; }
+  .nav-item {
+    position: relative; display: inline-flex; align-items: center; gap: 0.55rem;
+    height: 3rem; padding: 0 1rem;
+    font-size: 0.875rem; font-weight: 500; white-space: nowrap;
+    color: var(--color-muted);
+    transition: color .18s ease, background-color .18s ease;
+  }
+  .nav-item:hover { color: var(--color-ink); background: rgba(248, 237, 222, 0.55); }
+  .nav-item.is-active {
+    color: var(--accent);
+    background: linear-gradient(180deg, rgba(255, 253, 248, 0.85), rgba(248, 234, 214, 0.7));
+  }
+  .nav-item.is-active::after {
+    content: ""; position: absolute; left: 0.6rem; right: 0.6rem; bottom: 0;
+    height: 2.5px; border-radius: 2px 2px 0 0; background: var(--accent);
+  }
+  @media (max-width: 768px) {
+    .nav-item .lbl { display: none; }
+    .nav-item.is-active .lbl { display: inline; }
   }
 }

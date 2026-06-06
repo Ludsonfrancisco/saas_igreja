@@ -1,37 +1,30 @@
-{% comment %}
-Confirmação de anonimização LGPD (OD-014, dupla confirmação digitando o nome).
-Ação IRREVERSÍVEL. Markup mínimo pt-BR. CSRF obrigatório.
-{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="utf-8">
-  <title>Anonimizar pessoa</title>
-</head>
-<body>
-  <h1>Anonimizar {{ person.name }}</h1>
+{% extends 'app_base.html' %}
+{% comment %}Confirmação de anonimização LGPD (OD-014, dupla confirmação digitando o nome).
+Ação IRREVERSÍVEL. Sprint 6.5 / Bloco 3.{% endcomment %}
+{% block title %}Anonimizar {{ person.name }} · Oikonos{% endblock %}
 
-  {% if messages %}
-    <ul>
-      {% for message in messages %}<li>{{ message }}</li>{% endfor %}
-    </ul>
-  {% endif %}
+{% block content %}
+  <div class="mx-auto max-w-xl">
+    <a href="{% url 'people:detail' pk=person.pk %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> {{ person.name }}</a>
 
-  <p>
-    <strong>Atenção:</strong> esta ação é <strong>irreversível</strong>. Os dados
-    pessoais serão substituídos imediatamente e o registro será removido
-    fisicamente após 30 dias (LGPD). A trilha de auditoria e a presença histórica
-    são preservadas.
-  </p>
-
-  <p>Para confirmar, digite o nome exato da pessoa: <strong>{{ person.name }}</strong></p>
-
-  <form method="post">
-    {% csrf_token %}
-    <input type="text" name="confirm_name" placeholder="Digite o nome completo" autocomplete="off">
-    <button type="submit">Anonimizar definitivamente</button>
-  </form>
-
-  <p><a href="{% url 'people:detail' pk=person.pk %}">Cancelar</a></p>
-</body>
-</html>
+    <div class="card mt-3 overflow-hidden">
+      <div class="flex items-center gap-3 border-b border-hairline bg-danger/5 px-6 py-4">
+        <i data-lucide="shield-alert" class="h-6 w-6 text-danger"></i>
+        <h1 class="font-display text-lg font-semibold text-danger">Anonimizar {{ person.name }}</h1>
+      </div>
+      <div class="space-y-4 p-6">
+        <p class="text-sm text-ink">Esta ação é <strong>irreversível</strong>. Os dados pessoais são substituídos imediatamente e o registro é removido fisicamente após 30 dias (LGPD). A trilha de auditoria e a presença histórica são preservadas.</p>
+        <p class="text-sm text-muted">Para confirmar, digite o nome exato: <strong class="text-ink">{{ person.name }}</strong></p>
+        <form method="post" class="space-y-3">
+          {% csrf_token %}
+          <input type="text" name="confirm_name" autocomplete="off" placeholder="Digite o nome completo"
+                 class="w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink placeholder:text-muted-2 focus:border-danger focus:ring-2 focus:ring-danger/20">
+          <div class="flex items-center gap-2">
+            <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-danger px-4 py-2 text-sm font-medium text-paper hover:opacity-90"><i data-lucide="shield-off" class="h-4 w-4"></i> Anonimizar definitivamente</button>
+            <a href="{% url 'people:detail' pk=person.pk %}" class="rounded-lg border border-line bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-bg-soft">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

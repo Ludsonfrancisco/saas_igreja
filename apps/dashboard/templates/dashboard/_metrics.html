@@ -1,29 +1,29 @@
-{% comment %}Métricas do dashboard (Sprint 6 / Bloco 5 — restilizado Sprint 6.5/Bloco 2).
-Recebe `metrics` do contexto. KPI cards + tabela + Chart.js (cor = acento da igreja).{% endcomment %}
+{% comment %}Métricas do dashboard (restilizado premium — Sprint 6.5). Recebe `metrics`.
+Stat-pills + cards + Chart.js (cor = acento da igreja).{% endcomment %}
 
-{# ── KPIs ── #}
-<div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-  <div class="rounded-xl2 border border-hairline bg-paper p-4 shadow-soft">
-    <div class="flex items-center gap-2 text-muted"><i data-lucide="users" class="h-4 w-4"></i><span class="text-xs">Pessoas</span></div>
-    <p class="mt-1 font-display text-2xl font-semibold text-ink">{{ metrics.people_total }}</p>
+{# ── KPIs (stat-pills premium) ── #}
+<div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+  <div class="stat-pill">
+    <div class="stat-icon"><i data-lucide="users"></i></div>
+    <div><div class="stat-num">{{ metrics.people_total }}</div><p class="stat-label">Pessoas</p></div>
   </div>
-  <div class="rounded-xl2 border border-hairline bg-paper p-4 shadow-soft">
-    <div class="flex items-center gap-2 text-muted"><i data-lucide="calendar-check" class="h-4 w-4"></i><span class="text-xs">Presenças (mês)</span></div>
-    <p class="mt-1 font-display text-2xl font-semibold text-ink">{{ metrics.attendance_last_month }}</p>
+  <div class="stat-pill">
+    <div class="stat-icon"><i data-lucide="calendar-check"></i></div>
+    <div><div class="stat-num">{{ metrics.attendance_last_month }}</div><p class="stat-label">Presenças (mês)</p></div>
   </div>
-  <div class="rounded-xl2 border border-hairline bg-paper p-4 shadow-soft">
-    <div class="flex items-center gap-2 text-muted"><i data-lucide="home" class="h-4 w-4"></i><span class="text-xs">Comunidades</span></div>
-    <p class="mt-1 font-display text-2xl font-semibold text-ink">{{ metrics.active_communities }}</p>
+  <div class="stat-pill">
+    <div class="stat-icon"><i data-lucide="home"></i></div>
+    <div><div class="stat-num">{{ metrics.active_communities }}</div><p class="stat-label">Comunidades</p></div>
   </div>
-  <div class="rounded-xl2 border border-hairline bg-paper p-4 shadow-soft">
-    <div class="flex items-center gap-2 text-muted"><i data-lucide="heart-handshake" class="h-4 w-4"></i><span class="text-xs">Ministérios</span></div>
-    <p class="mt-1 font-display text-2xl font-semibold text-ink">{{ metrics.active_ministries }}</p>
+  <div class="stat-pill">
+    <div class="stat-icon"><i data-lucide="heart-handshake"></i></div>
+    <div><div class="stat-num">{{ metrics.active_ministries }}</div><p class="stat-label">Ministérios</p></div>
   </div>
 </div>
 
 {# ── Pessoas por situação: tabela + gráfico ── #}
-<div class="mt-6 grid gap-6 lg:grid-cols-2">
-  <div class="rounded-xl2 border border-hairline bg-paper p-5 shadow-soft">
+<div class="mt-6 grid gap-5 lg:grid-cols-2">
+  <div class="card p-5">
     <h2 class="mb-3 font-display text-base font-semibold text-ink">Pessoas por situação</h2>
     <table class="w-full text-sm">
       <tbody class="divide-y divide-hairline">
@@ -32,14 +32,14 @@ Recebe `metrics` do contexto. KPI cards + tabela + Chart.js (cor = acento da igr
             <td class="py-2 text-muted">
               {% if status == 'visitor' %}Visitante{% elif status == 'congregant' %}Congregante{% elif status == 'member' %}Membro{% elif status == 'leader' %}Líder{% elif status == 'inactive' %}Inativo{% else %}{{ status }}{% endif %}
             </td>
-            <td class="py-2 text-right font-medium text-ink">{{ count }}</td>
+            <td class="py-2 text-right font-semibold text-ink">{{ count }}</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 
-  <div class="rounded-xl2 border border-hairline bg-paper p-5 shadow-soft">
+  <div class="card p-5">
     <h2 class="mb-3 font-display text-base font-semibold text-ink">Distribuição</h2>
     {{ metrics.people_by_status|json_script:"people-by-status-data" }}
     <canvas id="people-by-status-chart" height="160" aria-label="Gráfico de pessoas por situação" role="img"></canvas>
@@ -51,7 +51,7 @@ Recebe `metrics` do contexto. KPI cards + tabela + Chart.js (cor = acento da igr
         if (!el || !raw || typeof Chart === 'undefined') { return; }
         var data = JSON.parse(raw.textContent);
         var labels = { visitor: 'Visitante', congregant: 'Congregante', member: 'Membro', leader: 'Líder', inactive: 'Inativo' };
-        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#C75A3B';
+        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#864507';
         new Chart(el, {
           type: 'bar',
           data: {
