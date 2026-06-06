@@ -1,16 +1,18 @@
-{% comment %}Cadastro/edição de Comunidade (Frente 3 / Bloco 2). CSRF obrigatório.{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="utf-8"><title>Comunidade</title></head>
-<body>
-  <h1>{% if form.instance.pk %}Editar comunidade{% else %}Nova comunidade{% endif %}</h1>
+{% extends 'app_base.html' %}
+{% comment %}Cadastro/edição de Comunidade (Sprint 6.5 / Bloco 3).{% endcomment %}
+{% block title %}{% if form.instance.pk %}Editar comunidade{% else %}Nova comunidade{% endif %} · Oikonos{% endblock %}
 
-  <form method="post">
+{% block content %}
+  <div class="mb-6">
+    <a href="{% url 'communities:list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Comunidades</a>
+    <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">{% if form.instance.pk %}Editar comunidade{% else %}Nova comunidade{% endif %}</h1>
+  </div>
+  <form method="post" class="card max-w-2xl space-y-4 p-6">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Salvar</button>
+    {% include 'components/form.html' with form=form %}
+    <div class="flex items-center gap-2 pt-2">
+      <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="check" class="h-4 w-4"></i> Salvar</button>
+      <a href="{% url 'communities:list' %}" class="rounded-lg border border-line bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-bg-soft">Cancelar</a>
+    </div>
   </form>
-
-  <p><a href="{% url 'communities:list' %}">Voltar</a></p>
-</body>
-</html>
+{% endblock %}

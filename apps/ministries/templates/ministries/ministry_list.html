@@ -1,29 +1,42 @@
-{% comment %}Lista de Ministérios (Frente 3 / Bloco 3). Markup mínimo pt-BR.{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="utf-8"><title>Ministérios</title></head>
-<body>
-  <h1>Ministérios</h1>
+{% extends 'app_base.html' %}
+{% comment %}Lista de Ministérios (Sprint 6.5 / Bloco 3).{% endcomment %}
+{% block title %}Ministérios · Oikonos{% endblock %}
 
-  {% if messages %}
-    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
-  {% endif %}
+{% block content %}
+  <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h1 class="font-display text-2xl font-bold tracking-tight text-ink">Ministérios</h1>
+      <p class="mt-1 text-sm text-muted">Departamentos e equipes da sua igreja.</p>
+    </div>
+    <a href="{% url 'ministries:create' %}" class="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="plus" class="h-4 w-4"></i> Novo ministério</a>
+  </div>
 
-  <p><a href="{% url 'ministries:create' %}">Novo ministério</a></p>
-
-  <table>
-    <thead><tr><th>Nome</th><th>Coordenadores</th><th>Ativo</th></tr></thead>
-    <tbody>
+  {% if ministries %}
+    <div class="card hidden overflow-hidden md:block">
+      <table class="w-full text-sm">
+        <thead class="bg-bg-soft text-left text-muted">
+          <tr><th class="px-4 py-3 font-medium">Nome</th><th class="px-4 py-3 font-medium">Coordenadores</th><th class="px-4 py-3 font-medium">Status</th></tr>
+        </thead>
+        <tbody class="divide-y divide-hairline">
+          {% for ministry in ministries %}
+            <tr class="hover:bg-bg-soft/50">
+              <td class="px-4 py-3"><a href="{% url 'ministries:detail' pk=ministry.pk %}" class="font-medium text-ink hover:text-accent">{{ ministry.name }}</a></td>
+              <td class="px-4 py-3 text-muted">{% for c in ministry.coordinators.all %}{{ c.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</td>
+              <td class="px-4 py-3">{% if ministry.is_active %}{% include 'components/badge.html' with text='Ativo' variant='success' %}{% else %}{% include 'components/badge.html' with text='Inativo' variant='muted' %}{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="grid gap-3 md:hidden">
       {% for ministry in ministries %}
-        <tr>
-          <td><a href="{% url 'ministries:detail' pk=ministry.pk %}">{{ ministry.name }}</a></td>
-          <td>{% for c in ministry.coordinators.all %}{{ c.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</td>
-          <td>{{ ministry.is_active|yesno:'Sim,Não' }}</td>
-        </tr>
-      {% empty %}
-        <tr><td colspan="3">Nenhum ministério cadastrado.</td></tr>
+        <a href="{% url 'ministries:detail' pk=ministry.pk %}" class="card flex items-center justify-between p-4">
+          <div><p class="font-medium text-ink">{{ ministry.name }}</p><p class="mt-0.5 text-xs text-muted">{% for c in ministry.coordinators.all %}{{ c.name }}{% if not forloop.last %}, {% endif %}{% empty %}Sem coordenador{% endfor %}</p></div>
+          {% if ministry.is_active %}{% include 'components/badge.html' with text='Ativo' variant='success' %}{% else %}{% include 'components/badge.html' with text='Inativo' variant='muted' %}{% endif %}
+        </a>
       {% endfor %}
-    </tbody>
-  </table>
-</body>
-</html>
+    </div>
+  {% else %}
+    {% include 'components/empty_state.html' with title='Nenhum ministério ainda' message='Crie o primeiro departamento ou equipe.' cta_url='/ministerios/novo/' cta_label='Novo ministério' %}
+  {% endif %}
+{% endblock %}
