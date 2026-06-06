@@ -1,0 +1,16 @@
+{% extends 'allauth/layouts/base.html' %}
+{% comment %}Login Oikonos (Sprint 6.5 / Bloco 5). Produto é por convite
+(is_open_for_signup=False) — sem prompt de cadastro. Reusa components/form.html.{% endcomment %}
+{% block head_title %}Entrar{% endblock %}
+
+{% block content %}
+  <h1 class="font-display text-xl font-bold text-ink">Entrar</h1>
+  <p class="mt-1 text-sm text-muted">Acesse a conta da sua igreja.</p>
+
+  <form method="post" action="{% url 'account_login' %}" class="mt-5 space-y-4">
+    {% csrf_token %}
+    {% include 'components/form.html' with form=form %}
+    {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
+    <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-paper hover:bg-accent-2">Entrar</button>
+  </form>
+{% endblock %}

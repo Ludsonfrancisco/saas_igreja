@@ -1,21 +1,15 @@
-{% comment %}
-Aceite de convite: definicao de senha (Frente 4). Pagina PUBLICA. Markup minimo
-pt-BR; styling Athos fica para a frente de frontend.
-{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="utf-8">
-  <title>Aceitar convite</title>
-</head>
-<body>
-  <h1>Bem-vindo ao SaaS Igreja</h1>
-  <p>Defina sua senha para criar a conta de <strong>{{ invite.email }}</strong>.</p>
+{% extends 'allauth/layouts/base.html' %}
+{% comment %}Aceite de convite: definição de senha (Sprint 6.5 / Bloco 5). Página PÚBLICA.
+Reusa o layout de autenticação Oikonos + components/form.html.{% endcomment %}
+{% block head_title %}Aceitar convite{% endblock %}
 
-  <form method="post">
+{% block content %}
+  <h1 class="font-display text-xl font-bold text-ink">Bem-vindo ao Oikonos</h1>
+  <p class="mt-1 text-sm text-muted">Defina sua senha para criar a conta de <strong class="text-ink">{{ invite.email }}</strong>.</p>
+
+  <form method="post" class="mt-5 space-y-4">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Criar conta</button>
+    {% include 'components/form.html' with form=form %}
+    <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-paper hover:bg-accent-2">Criar conta</button>
   </form>
-</body>
-</html>
+{% endblock %}

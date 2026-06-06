@@ -1,0 +1,15 @@
+{% extends 'allauth/layouts/base.html' %}
+{% comment %}Confirmação de logout (Sprint 6.5 / Bloco 5).{% endcomment %}
+{% block head_title %}Sair{% endblock %}
+
+{% block content %}
+  <h1 class="font-display text-xl font-bold text-ink">Sair da conta?</h1>
+  <p class="mt-1 text-sm text-muted">Você precisará entrar novamente para acessar.</p>
+
+  <form method="post" action="{% url 'account_logout' %}" class="mt-5 space-y-3">
+    {% csrf_token %}
+    {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
+    <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="log-out" class="h-4 w-4"></i> Sair</button>
+    <a href="/" class="block rounded-lg border border-line bg-paper px-4 py-2.5 text-center text-sm font-medium text-ink hover:bg-bg-soft">Cancelar</a>
+  </form>
+{% endblock %}

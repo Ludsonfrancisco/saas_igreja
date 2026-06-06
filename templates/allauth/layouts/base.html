@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+{% comment %}Layout de autenticação Oikonos (Sprint 6.5 / Bloco 5 — fatia 5.1).
+Sobrescreve allauth/layouts/base.html: TODAS as páginas do allauth (login, reset de
+senha, MFA…) herdam este chrome — marca centrada + card, sem o shell do app (página
+pública, pré-login). As páginas preenchem {% block content %}. Toasts/mensagens vêm
+do base.html (fora do bloco shell).{% endcomment %}
+
+{% block title %}{% block head_title %}{% endblock %} · Oikonos{% endblock %}
+
+{% block shell %}
+<main id="conteudo" class="flex min-h-screen flex-col items-center justify-center px-4 py-10">
+  <div class="w-full max-w-sm">
+    <div class="mb-6 flex flex-col items-center text-center">
+      <img src="{% static 'img/oikonos-logo.png' %}" alt="" width="48" height="48" class="h-12 w-12">
+      <span class="mt-2 font-display text-2xl font-semibold tracking-wide text-ink">OIKONOS</span>
+    </div>
+    <div class="card p-6 sm:p-8">
+      {% block content %}{% endblock %}
+    </div>
+    <p class="mt-6 text-center text-xs text-muted-2">Mordomia, gestão e cuidado</p>
+  </div>
+</main>
+{% endblock shell %}

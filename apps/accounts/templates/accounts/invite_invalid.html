@@ -1,19 +1,14 @@
-{% comment %}
-Convite invalido / expirado / ja utilizado (Frente 4). Pagina PUBLICA. Mensagem
-generica em pt-BR — nao revela qual condicao falhou (nao expoe existencia de
-tokens). Styling Athos fica para a frente de frontend.
-{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="utf-8">
-  <title>Convite invalido</title>
-</head>
-<body>
-  <h1>Convite invalido</h1>
-  <p>
-    Este convite nao e valido. Ele pode ter expirado, ja ter sido utilizado ou
-    nao existir. Solicite um novo convite ao responsavel pela sua igreja.
-  </p>
-</body>
-</html>
+{% extends 'allauth/layouts/base.html' %}
+{% comment %}Convite inválido / expirado / já utilizado (Sprint 6.5 / Bloco 5). Página
+PÚBLICA. Mensagem genérica — não revela qual condição falhou (não expõe existência
+de tokens).{% endcomment %}
+{% block head_title %}Convite inválido{% endblock %}
+
+{% block content %}
+  <div class="flex flex-col items-center text-center">
+    <span class="mb-3 grid h-12 w-12 place-items-center rounded-full bg-danger/10 text-danger"><i data-lucide="mail-x" class="h-6 w-6"></i></span>
+    <h1 class="font-display text-xl font-bold text-ink">Convite inválido</h1>
+    <p class="mt-2 text-sm text-muted">Este convite não é válido. Ele pode ter expirado, já ter sido utilizado ou não existir. Solicite um novo convite ao responsável pela sua igreja.</p>
+    <a href="{% url 'account_login' %}" class="mt-5 text-sm text-accent hover:underline">Ir para o login</a>
+  </div>
+{% endblock %}
