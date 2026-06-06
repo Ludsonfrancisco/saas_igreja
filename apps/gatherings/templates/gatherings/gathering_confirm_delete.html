@@ -12,7 +12,7 @@
       </div>
       <div class="space-y-4 p-6">
         <p class="text-sm text-ink">{{ gathering }}</p>
-        <p class="text-sm text-muted">Esta ação não pode ser desfeita. A presença registrada é preservada com a pessoa, mas o encontro some.</p>
+        <p class="text-sm text-muted">Esta ação não pode ser desfeita. Toda a lista de presença deste encontro também será excluída.</p>
         <form method="post" class="flex items-center gap-2">
           {% csrf_token %}
           <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-danger px-4 py-2 text-sm font-medium text-paper hover:opacity-90"><i data-lucide="trash-2" class="h-4 w-4"></i> Excluir definitivamente</button>

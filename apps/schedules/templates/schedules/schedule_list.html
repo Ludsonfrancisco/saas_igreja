@@ -9,7 +9,7 @@
       <p class="mt-1 text-sm text-muted">Voluntários escalados por encontro e ministério.</p>
     </div>
     <div class="flex items-center gap-2">
-      <a href="{% url 'schedules:exception' %}" class="inline-flex items-center gap-2 rounded-lg border border-line bg-paper px-3 py-2 text-sm font-medium text-ink hover:bg-bg-soft"><i data-lucide="alert-triangle" class="h-4 w-4"></i> Aprovar exceção</a>
+      {% if 'pastor' in user.roles or 'leader' in user.roles %}<a href="{% url 'schedules:exception' %}" class="inline-flex items-center gap-2 rounded-lg border border-line bg-paper px-3 py-2 text-sm font-medium text-ink hover:bg-bg-soft"><i data-lucide="alert-triangle" class="h-4 w-4"></i> Aprovar exceção</a>{% endif %}
       <a href="{% url 'schedules:create' %}" class="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="plus" class="h-4 w-4"></i> Nova escala</a>
     </div>
   </div>
