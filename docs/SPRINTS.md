@@ -526,8 +526,8 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 
 ### Princípios de Design (DS-01..DS-08)
 
-- **DS-01 — Marca ≠ tema.** A **marca do produto** (landing) é **Terracota & Âmbar FIXA** (`#B4502E`/`#F2A93B`, fontes Fraunces+Inter). A **área logada** é **base NEUTRA temável por igreja**: as cores de acento vêm de `Church.accent_color` (#7C3F06) e `Church.hot_color` (#FF9C1A) + `Church.logo`, injetadas como CSS vars por tenant. NUNCA cravar terracota nas telas do app.
-- **DS-02 — Emoção com sobriedade.** Tipografia do app conforme **TECH_SPEC §11** (Inter no corpo, Montserrat display, Instrument Serif em destaques — Fraunces é da landing, não do app); cantos suaves, sombras leves, microinterações Alpine discretas, e **estados ricos obrigatórios** (vazio acolhedor, loading, sucesso, erro) — a emoção mora nos detalhes, não em ornamento.
+- **DS-01 — Marca ≠ tema.** A **identidade Oikonos** (oficial em `referencias/oikonos_identidade_6_partes/`) é a marca FIXA: terracota **`#C75A3B`** + âmbar **`#E09A2D`**, **Poppins**, logo (pessoas em torno da cruz). A **área logada** usa essa paleta como **default temável por igreja**: o acento vem de `Church.accent_color`/`hot_color` (defaults da identidade) + `Church.logo`, injetados como CSS vars por tenant sobre a base neutra (creme `#F4EFE6` / areia `#E7D6BB`). Igreja sem cor herda a identidade Oikonos.
+- **DS-02 — Emoção com sobriedade.** Tipografia = **Poppins** (SemiBold títulos/marca; Regular corpo — identidade/TECH_SPEC §11); cantos suaves, sombras leves, microinterações Alpine discretas, e **estados ricos obrigatórios** (vazio acolhedor, loading, sucesso, erro) — a emoção mora nos detalhes, não em ornamento.
 - **DS-03 — Mobile-first real.** Layout desenhado a partir de ≥360px; alvos de toque ≥44px; navegação inferior (bottom-nav) no mobile para papéis operacionais; nada de "desktop encolhido".
 - **DS-04 — Acessibilidade WCAG AA.** Contraste AA, foco visível, navegação por teclado, `aria`/labels, respeito a `prefers-reduced-motion`. Beleza que exclui não serve a uma igreja.
 - **DS-05 — Performance (Lighthouse mobile ≥ 90).** Tailwind **compilado e purgado** (CLI standalone, sem exigir Node/cadeia npm), não CDN; sem JS pesado; imagens/logo otimizados. (Decisão a registrar: compilado vs CDN — recomendação **compilado**.)
@@ -548,13 +548,13 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 
 ### Tasks
 
-#### Bloco 1 — Fundação do Design System
-- [ ] (P0) Pipeline de build do Tailwind **compilado** (CLI standalone, sem Node) + purga; integrar ao `collectstatic`/Docker. **Decisão a registrar:** compilado vs CDN (recomendado: compilado, DS-05).
-- [ ] (P0) `tailwind.config` com tokens: **base neutra** (slate/creme) + **cores de acento como CSS vars** lidas de `Church.accent_color`/`hot_color`. Fontes Inter (corpo) + Fraunces (títulos seletivos).
-- [ ] (P0) `templates/base.html` (app): head, fontes, `<meta viewport>`, slot de conteúdo, área de mensagens (toasts), skip-link a11y, injeção das CSS vars do tema da `Church` atual.
-- [ ] (P0) **Tema por tenant**: context processor / template tag que injeta `--accent`/`--hot`/logo da `Church` atual em `:root` (base neutra + acento dinâmico, DS-01).
-- [ ] (P0) Biblioteca de componentes parciais (`templates/components/`): top-header, sidebar (desktop), bottom-nav (mobile), card, tabela responsiva (tabela→cards no mobile), badge, button, form-field, modal/confirm destrutivo, pagination, **empty-state acolhedor**, loading (`hx-indicator`/skeleton), avatar, toast.
-- [ ] (P0) Páginas de erro estilizadas (404, 403, 500).
+#### Bloco 1 — Fundação do Design System ✅ (commit em andamento)
+- [x] (P0) Pipeline Tailwind **compilado** — **Tailwind v4 via `pytailwindcss`** (CLI standalone, sem Node). Build: `uv run tailwindcss -i static/src/input.css -o static/css/app.css --minify`. _Integração ao Docker/collectstatic do build entra no deploy (Sprint 7)._
+- [x] (P0) Tokens (v4 CSS-first, `static/src/input.css` `@theme`) = **identidade oficial Oikonos** (`referencias/oikonos_identidade_6_partes/`): terracota `#C75A3B` + âmbar `#E09A2D` (temáveis por igreja via `Church.accent_color`/`hot_color`); base neutra creme/areia; **fonte Poppins**. Logo real (`static/img/oikonos-logo.png` + favicon) no header.
+- [x] (P0) `templates/base.html`: head, fontes, viewport, content block, **toasts (Alpine)**, **skip-link a11y**, injeção das CSS vars do tema. Marca exibida = **Oikonos** (nome da igreja entra quando a igreja-teste for selecionada).
+- [x] (P0) **Tema por tenant**: `apps/core/context_processors.py::church_theme` injeta `--accent`/`--hot`/logo da `Church` (`request.tenant`) — verificado com acento custom.
+- [x] (P0) Biblioteca de componentes (`templates/components/`): `page_header`, `badge`, `empty_state`, `avatar`, `pagination`, `skeleton` + padrões botão/card/tabela/form/**modal-confirm (Alpine)** na styleguide. _(sidebar/bottom-nav por papel = Bloco 2.)_ + **styleguide dev em `/styleguide/`** (DEBUG).
+- [x] (P0) Páginas de erro estilizadas (`404.html`, `403.html`, `500.html` standalone).
 
 #### Bloco 2 — Shell de navegação por papel (desktop + mobile)
 - [ ] (P0) Shell de layout: **desktop** = sidebar + top-header; **mobile** = top-header + **bottom-nav** (papéis operacionais) ou drawer.

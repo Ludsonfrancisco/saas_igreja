@@ -1,0 +1,12 @@
+{% comment %}Avatar (foto ou iniciais). Uso:
+  {% include 'components/avatar.html' with name='Ana Souza' image_url=p.photo.url %}
+Props: name (obrigatório, p/ iniciais e alt); image_url (opcional); size (default h-9 w-9).{% endcomment %}
+{% with size_cls=size|default:'h-9 w-9' %}
+{% if image_url %}
+  <img src="{{ image_url }}" alt="{{ name }}" class="{{ size_cls }} rounded-full object-cover ring-1 ring-hairline">
+{% else %}
+  <span class="{{ size_cls }} grid place-items-center rounded-full bg-accent/15 text-accent font-display text-sm font-semibold ring-1 ring-hairline" aria-hidden="true">
+    {{ name|make_list|first|upper }}
+  </span>
+{% endif %}
+{% endwith %}

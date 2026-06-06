@@ -18,8 +18,9 @@ class Church(TenantMixin):
         default=True,
         help_text='True = igreja em celulas. False = tradicional.',
     )
-    accent_color = models.CharField(max_length=7, default='#7C3F06')
-    hot_color = models.CharField(max_length=7, default='#FF9C1A')
+    # Defaults = cores da marca Oikonos (identidade oficial). Cada igreja customiza.
+    accent_color = models.CharField(max_length=7, default='#C75A3B')
+    hot_color = models.CharField(max_length=7, default='#E09A2D')
     logo = models.ImageField(upload_to='logos/', null=True, blank=True)
     privacy_policy_url = models.URLField(blank=True, default='')
 

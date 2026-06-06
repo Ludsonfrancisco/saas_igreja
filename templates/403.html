@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% comment %}403 — sem permissão (Sprint 6.5 / Bloco 1).{% endcomment %}
+{% block title %}Acesso negado · Oikonos{% endblock %}
+{% block content %}
+  <div class="mx-auto max-w-md py-16 text-center">
+    <p class="font-display text-5xl font-bold text-accent">403</p>
+    <h1 class="mt-4 font-display text-xl font-semibold text-ink">Acesso negado</h1>
+    <p class="mt-2 text-sm text-muted">Você não tem permissão para esta área. Fale com o responsável da sua igreja.</p>
+    <a href="/" class="mt-6 inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-paper hover:bg-accent-2">Voltar ao início</a>
+  </div>
+{% endblock %}

@@ -15,11 +15,12 @@
   --color-accent-2: var(--accent-2);
   --color-hot: var(--hot);
 
-  /* Base neutra Athos (fixa) */
-  --color-bg: #efe7da;
-  --color-bg-soft: #f6f0e5;
+  /* Base neutra (paleta oficial Oikonos — 04_paleta_de_cores) */
+  --color-bg: #f4efe6;       /* creme/canvas */
+  --color-bg-soft: #efe7da;  /* creme um tom abaixo */
+  --color-sand: #e7d6bb;     /* areia (cards-alt, faixas) */
   --color-paper: #ffffff;
-  --color-ink: #161412;
+  --color-ink: #1a1a1f;      /* quase-preto oficial */
   --color-ink-2: #2a2522;
   --color-muted: #6f6557;
   --color-muted-2: #94897a;
@@ -28,10 +29,9 @@
   --color-success: #4d7c2f;
   --color-danger: #c23a22;
 
-  /* Tipografia (TECH_SPEC §11): Inter corpo, Montserrat display, Instrument Serif destaque */
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-display: 'Montserrat', 'Inter', system-ui, sans-serif;
-  --font-serif: 'Instrument Serif', 'Times New Roman', serif;
+  /* Tipografia da MARCA (identidade Oikonos): Poppins. */
+  --font-sans: 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-display: 'Poppins', system-ui, sans-serif;
 
   /* Raios e sombras suaves (DS-02 — emoção nos detalhes) */
   --radius-xl2: 1.25rem;
@@ -39,11 +39,12 @@
   --shadow-md2: 0 20px 40px rgba(22, 20, 18, 0.06);
 }
 
-/* Defaults do acento — SOBRESCRITOS por igreja no base.html (Church.accent/hot). */
+/* Defaults do acento = MARCA OIKONOS (identidade: terracota + âmbar).
+   SOBRESCRITOS por igreja no base.html (Church.accent_color/hot_color). */
 :root {
-  --accent: #7c3f06;
-  --accent-2: #5a2d04;
-  --hot: #ff9c1a;
+  --accent: #c75a3b;   /* terracota Oikonos (oficial) */
+  --accent-2: #a6442c; /* terracota escuro (hover) */
+  --hot: #e09a2d;      /* âmbar Oikonos (oficial) */
 }
 
 @layer base {

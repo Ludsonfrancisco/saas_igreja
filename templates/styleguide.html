@@ -23,9 +23,9 @@ Vitrine de tokens e componentes para revisão visual. NÃO é tela de produto.{%
   <section class="mb-10">
     <h2 class="mb-3 font-display text-lg font-semibold">Tipografia</h2>
     <div class="space-y-2 rounded-xl2 border border-hairline bg-paper p-6 shadow-soft">
-      <p class="font-display text-3xl font-bold">Montserrat — display / títulos</p>
-      <p class="font-sans text-base">Inter — corpo de texto. Organize a igreja, fortaleça o ministério.</p>
-      <p class="font-serif text-2xl italic">Instrument Serif — destaques editoriais</p>
+      <p class="font-display text-3xl font-semibold tracking-wide">POPPINS SEMIBOLD — marca / títulos</p>
+      <p class="font-sans text-base">Poppins — corpo de texto. Organize a igreja, fortaleça o ministério.</p>
+      <p class="font-sans text-sm text-muted">Poppins regular — texto de apoio</p>
     </div>
   </section>
 
@@ -76,6 +76,58 @@ Vitrine de tokens e componentes para revisão visual. NÃO é tela de produto.{%
              class="w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink placeholder:text-muted-2 focus:border-accent focus:ring-2 focus:ring-accent/30">
       <p class="text-xs text-muted">Texto de ajuda do campo.</p>
     </div>
+  </section>
+
+  {# ── Avatares ── #}
+  <section class="mb-10">
+    <h2 class="mb-3 font-display text-lg font-semibold">Avatares</h2>
+    <div class="flex items-center gap-3">
+      {% include 'components/avatar.html' with name='Ana Souza' %}
+      {% include 'components/avatar.html' with name='Beto Lima' size='h-12 w-12' %}
+      {% include 'components/avatar.html' with name='Carla' size='h-7 w-7' %}
+    </div>
+  </section>
+
+  {# ── Modal de confirmação destrutiva (Alpine) ── #}
+  <section class="mb-10">
+    <h2 class="mb-3 font-display text-lg font-semibold">Modal de confirmação</h2>
+    <div x-data="{ open: false }">
+      <button @click="open = true" class="rounded-lg bg-danger px-4 py-2 text-sm font-medium text-paper hover:opacity-90">Excluir arquivo…</button>
+      <div x-show="open" x-transition.opacity style="display:none"
+           class="fixed inset-0 z-50 grid place-items-center bg-ink/40 px-4"
+           @keydown.escape.window="open = false">
+        <div @click.outside="open = false" role="dialog" aria-modal="true"
+             class="w-full max-w-sm rounded-xl2 border border-hairline bg-paper p-6 shadow-md2">
+          <h3 class="font-display text-lg font-semibold text-ink">Excluir este arquivo?</h3>
+          <p class="mt-1 text-sm text-muted">Esta ação não pode ser desfeita.</p>
+          <div class="mt-5 flex justify-end gap-2">
+            <button @click="open = false" class="rounded-lg border border-line bg-paper px-4 py-2 text-sm text-ink hover:bg-bg-soft">Cancelar</button>
+            <button class="rounded-lg bg-danger px-4 py-2 text-sm font-medium text-paper hover:opacity-90">Excluir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ── Loading / skeleton ── #}
+  <section class="mb-10">
+    <h2 class="mb-3 font-display text-lg font-semibold">Carregando (skeleton)</h2>
+    <div class="max-w-md rounded-xl2 border border-hairline bg-paper p-5 shadow-soft">
+      {% include 'components/skeleton.html' %}
+    </div>
+  </section>
+
+  {# ── Paginação (demo estática) ── #}
+  <section class="mb-10">
+    <h2 class="mb-3 font-display text-lg font-semibold">Paginação</h2>
+    <nav class="flex items-center justify-between gap-3 text-sm" aria-label="Paginação (demo)">
+      <span class="text-muted">Página 1 de 4</span>
+      <div class="flex items-center gap-2">
+        <span class="rounded-lg border border-hairline bg-bg-soft px-3 py-1.5 text-muted-2">Anterior</span>
+        <a href="#" class="rounded-lg border border-line bg-paper px-3 py-1.5 text-ink hover:bg-bg-soft">Próxima</a>
+      </div>
+    </nav>
+    <p class="mt-2 text-xs text-muted-2">Em listas reais: <code>{% verbatim %}{% include 'components/pagination.html' %}{% endverbatim %}</code> (lê <code>page_obj</code> e preserva filtros).</p>
   </section>
 
   {# ── Empty state ── #}

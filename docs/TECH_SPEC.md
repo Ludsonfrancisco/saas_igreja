@@ -348,8 +348,8 @@ class Church(TenantMixin):
         default=True,
         help_text='True = igreja em celulas. False = tradicional.',
     )
-    accent_color = models.CharField(max_length=7, default='#7C3F06')
-    hot_color = models.CharField(max_length=7, default='#FF9C1A')
+    accent_color = models.CharField(max_length=7, default='#C75A3B')  # marca Oikonos
+    hot_color = models.CharField(max_length=7, default='#E09A2D')
     logo = models.ImageField(upload_to='logos/', null=True, blank=True)
     privacy_policy_url = models.URLField(blank=True, default='')
 
@@ -729,9 +729,9 @@ Regressão coberta por `test_list_users_requires_login` e
 > **Implementação:** especificado aqui; **consolidado na Sprint 6.5** (`base.html` + `tailwind.config` compilado + biblioteca de componentes + estilização de 100% das telas). Até a 6.5, as telas operacionais usam markup mínimo pt-BR. Detalhe operacional em `docs/SPRINTS.md` (Sprint 6.5, princípios DS-01..08).
 
 - **Referência viva:** `referencias/templates/igreja_saas_novo.html` (padrão de qualidade do app) + `referencias/` (direção da marca). **Marca ≠ tema:** a marca/landing é **Terracota & Âmbar fixa** (Fraunces/Inter); o **app** usa a Paleta Athos abaixo como **base neutra temável por igreja**.
-- **Paleta Athos (app):** `#7C3F06` (accent), `#5A2D04` (accent-2), `#FF9C1A` (hot), `#EFE7DA` (bg), `#F6F0E5` (bg-soft), `#FFF` (paper), `#161412` (ink), `#2A2522` (ink-2), `#6F6557` (muted).
-- **Tipografia (app):** Inter (body), Montserrat (display), Instrument Serif (destaques).
-- **Customização por tenant:** `Church.accent_color` e `Church.hot_color` (defaults `#7C3F06`/`#FF9C1A`) + `Church.logo` injetados em CSS variables no `<html>` — base neutra + acento por igreja.
+- **Paleta Oikonos (identidade oficial — `referencias/oikonos_identidade_6_partes/04_paleta_de_cores_oikonos.png`):** `#C75A3B` (accent/terracota), `#A6442C` (accent-2/terracota escuro), `#E09A2D` (hot/âmbar), `#E7D6BB` (areia), `#F4EFE6` (bg/creme), `#FFF` (paper), `#1A1A1F` (ink). _(accent/hot são as cores temáveis por igreja; o resto é base neutra.)_
+- **Tipografia (identidade):** **Poppins** (Semibold para títulos/marca; Regular para corpo).
+- **Customização por tenant:** `Church.accent_color` e `Church.hot_color` (defaults da marca Oikonos `#C75A3B`/`#E09A2D`) + `Church.logo` injetados em CSS variables no `<html>` — base neutra + acento por igreja.
 - **Mobile-first (DS-03):** papéis operacionais (Líder/Coordenador/voluntário) priorizam mobile (bottom-nav); admin (Pastor/Secretário/Tesoureiro) cobrem desktop **e** mobile. Acessibilidade WCAG AA; Lighthouse mobile ≥ 90 (Sprint 6.5).
 
 ### 11.1 TailwindCSS — build (v4, CSS-first; **implementado Sprint 6.5/Bloco 1**)
@@ -752,10 +752,10 @@ Tailwind **v4** (config no CSS via `@theme`, sem `tailwind.config.js`). Compilad
   --color-accent: var(--accent);   /* Church.accent_color */
   --color-hot: var(--hot);         /* Church.hot_color */
   --color-bg: #efe7da; --color-paper: #fff; --color-ink: #161412; /* … base neutra fixa */
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-display: 'Montserrat', 'Inter', sans-serif;
+  --font-sans: 'Poppins', system-ui, sans-serif;
+  --font-display: 'Poppins', system-ui, sans-serif;
 }
-:root { --accent: #7c3f06; --hot: #ff9c1a; }  /* defaults; base.html sobrescreve por igreja */
+:root { --accent: #c75a3b; --hot: #e09a2d; }  /* defaults Oikonos; base.html sobrescreve por igreja */
 ```
 
 ---

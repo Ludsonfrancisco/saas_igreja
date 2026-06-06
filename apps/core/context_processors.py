@@ -8,10 +8,11 @@ O tenant atual é resolvido pelo `TenantMiddleware` (django-tenants) em
 public, sem tenant) ou se algo faltar, caímos nos defaults Athos — nunca quebra.
 """
 
-# Defaults da Paleta Athos (espelham `Church.accent_color`/`hot_color` e o input.css).
-_DEFAULT_ACCENT = '#7C3F06'
-_DEFAULT_ACCENT_2 = '#5A2D04'
-_DEFAULT_HOT = '#FF9C1A'
+# Defaults = MARCA OIKONOS (identidade: terracota + âmbar). Espelham o input.css.
+# Uma igreja sem cor customizada herda a identidade Oikonos.
+_DEFAULT_ACCENT = '#C75A3B'
+_DEFAULT_ACCENT_2 = '#A6442C'
+_DEFAULT_HOT = '#E09A2D'
 
 
 def church_theme(request):

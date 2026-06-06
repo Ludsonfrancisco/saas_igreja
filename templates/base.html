@@ -20,8 +20,9 @@ mensagens (toasts Alpine) + skip-link (a11y). O shell de navegação por papel
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+  <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
   <link rel="stylesheet" href="{% static 'css/app.css' %}">
 
   <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
@@ -38,15 +39,11 @@ mensagens (toasts Alpine) + skip-link (a11y). O shell de navegação por papel
   {# ── Header de marca ── #}
   <header class="sticky top-0 z-30 border-b border-hairline bg-paper/90 backdrop-blur">
     <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-      <a href="/" class="flex items-center gap-3" aria-label="Oikonos — início">
-        {% if theme_logo_url %}
-          <img src="{{ theme_logo_url }}" alt="{{ church_name }}" class="h-9 w-9 rounded-full object-cover ring-1 ring-hairline">
-        {% else %}
-          <span class="grid h-9 w-9 place-items-center rounded-full bg-accent text-paper font-display font-bold">O</span>
-        {% endif %}
-        <span class="font-display text-lg font-bold tracking-tight text-ink">
-          {{ church_name }}
-        </span>
+      {% comment %}Marca = Oikonos (a cor/tema vem da igreja; o nome exibido é o produto).
+      O nome/logo da igreja entra quando a igreja-teste for selecionada.{% endcomment %}
+      <a href="/" class="flex items-center gap-2.5" aria-label="Oikonos — início">
+        <img src="{% static 'img/oikonos-logo.png' %}" alt="" width="36" height="36" class="h-9 w-9">
+        <span class="font-display text-xl font-semibold tracking-wide text-ink">OIKONOS</span>
       </a>
       <div class="flex items-center gap-2">
         {% block header_actions %}{% endblock %}
@@ -80,7 +77,7 @@ mensagens (toasts Alpine) + skip-link (a11y). O shell de navegação por papel
   </main>
 
   <footer class="mx-auto max-w-6xl px-4 py-8 text-center text-xs text-muted-2">
-    {{ church_name }} · Oikonos
+    Oikonos
   </footer>
 
   {% block body_extra %}{% endblock %}

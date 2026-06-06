@@ -1,0 +1,20 @@
+{% load static %}<!DOCTYPE html>
+{% comment %}500 — erro interno (Sprint 6.5 / Bloco 1). STANDALONE: o handler 500 do
+Django NÃO roda context processors, então esta página não depende de base.html nem
+do tema da igreja. Degrada graciosamente mesmo sem CSS.{% endcomment %}
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Erro inesperado · Oikonos</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body class="min-h-screen bg-bg text-ink font-sans antialiased">
+  <div class="mx-auto max-w-md px-4 py-24 text-center">
+    <p class="font-display text-5xl font-bold text-accent">500</p>
+    <h1 class="mt-4 font-display text-xl font-semibold">Algo deu errado</h1>
+    <p class="mt-2 text-sm text-muted">Tivemos um problema inesperado. Já estamos cuidando disso — tente novamente em instantes.</p>
+    <a href="/" class="mt-6 inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-paper hover:opacity-90">Voltar ao início</a>
+  </div>
+</body>
+</html>
