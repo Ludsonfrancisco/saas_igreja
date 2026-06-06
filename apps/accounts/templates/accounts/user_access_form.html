@@ -1,37 +1,22 @@
-{% comment %}
-Gestão de Acessos (OD-019 / Bloco 4b). Concede funções (roles) + ativo/inativo de
-um usuário. Markup mínimo pt-BR; CSRF obrigatório. As travas (RISK-015) e a regra
-do último Pastor (RN-004) vivem no service — erros aparecem no form.
+{% extends 'app_base.html' %}
+{% comment %}Gestão de Acessos (OD-019) — concede funções + ativo/inativo. Sprint 6.5 / Bloco 3.
+Travas RISK-015 e RN-004 vivem no service (erros aparecem no form).{% endcomment %}
+{% block title %}Acesso de {{ target.email }} · Oikonos{% endblock %}
 
-O escopo de GRUPO (qual comunidade/ministério a pessoa lidera) é definido nas telas
-de Comunidade/Ministério ("definir líderes/coordenadores"), que o Secretário acessa.
-{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="utf-8"><title>Gestão de acesso — {{ target.email }}</title></head>
-<body>
-  <h1>Acesso de {{ target.email }}</h1>
+{% block content %}
+  <div class="mx-auto max-w-2xl">
+    <a href="{% url 'accounts:user_list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Gestão de Acessos</a>
+    <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">Acesso de {{ target.email }}</h1>
 
-  {% if messages %}
-    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
-  {% endif %}
+    <form method="post" class="card mt-4 space-y-4 p-6">
+      {% csrf_token %}
+      {% include 'components/form.html' with form=form %}
+      <div class="flex items-center gap-2 pt-2">
+        <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="check" class="h-4 w-4"></i> Salvar acesso</button>
+        <a href="{% url 'accounts:user_list' %}" class="rounded-lg border border-line bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-bg-soft">Cancelar</a>
+      </div>
+    </form>
 
-  {% if form.non_field_errors %}
-    <ul>{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
-  {% endif %}
-
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Salvar acesso</button>
-  </form>
-
-  <p>
-    Para definir <strong>de qual grupo</strong> esta pessoa é líder/coordenador,
-    use as telas de
-    <a href="{% url 'communities:list' %}">Comunidades</a> e
-    <a href="{% url 'ministries:list' %}">Ministérios</a>.
-  </p>
-  <p><a href="{% url 'accounts:user_list' %}">Voltar</a></p>
-</body>
-</html>
+    <p class="mt-3 text-xs text-muted">Para definir <strong>de qual grupo</strong> a pessoa é líder/coordenador, use <a href="{% url 'communities:list' %}" class="text-accent hover:underline">Comunidades</a> e <a href="{% url 'ministries:list' %}" class="text-accent hover:underline">Ministérios</a>.</p>
+  </div>
+{% endblock %}

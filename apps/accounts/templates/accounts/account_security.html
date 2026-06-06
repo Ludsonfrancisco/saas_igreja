@@ -1,41 +1,34 @@
-{% comment %}
-Seguranca da conta — entrada pt-BR para o MFA opt-in (Frente 6 / RF-018a). Mostra
-o status do MFA e leva as telas NATIVAS do allauth.mfa (sob /contas/2fa/) para
-ativar TOTP (QR code), ver/regerar recovery codes e desativar. Markup minimo;
-styling Athos fica para a frente de frontend.
-{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="utf-8">
-  <title>Seguranca da conta</title>
-</head>
-<body>
-  <h1>Seguranca da conta</h1>
+{% extends 'app_base.html' %}
+{% comment %}Segurança da conta — MFA opt-in (RF-018a). Sprint 6.5 / Bloco 3. Leva às
+telas nativas do allauth.mfa (TOTP/recovery).{% endcomment %}
+{% block title %}Segurança da conta · Oikonos{% endblock %}
 
-  {% if messages %}
-    <ul>
-      {% for message in messages %}
-        <li>{{ message }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
+{% block content %}
+  <div class="mx-auto max-w-2xl">
+    <h1 class="font-display text-2xl font-bold tracking-tight text-ink">Segurança da conta</h1>
+    <p class="mt-1 text-sm text-muted">Proteja seu acesso com verificação em duas etapas.</p>
 
-  <section>
-    <h2>Verificacao em duas etapas (MFA)</h2>
-    {% if mfa_enabled %}
-      <p>Status: <strong>Ativada</strong>.</p>
-      <p>
-        <a href="{% url 'mfa_index' %}">Gerenciar MFA</a>
-        (ver recovery codes, desativar)
-      </p>
-    {% else %}
-      <p>Status: <strong>Desativada</strong>.</p>
-      <p>
-        Proteja sua conta com um aplicativo autenticador (TOTP).
-        <a href="{% url 'mfa_activate_totp' %}">Ativar MFA</a>
-      </p>
-    {% endif %}
-  </section>
-</body>
-</html>
+    <div class="card mt-5 p-6">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-start gap-3">
+          <span class="grid h-10 w-10 place-items-center rounded-xl2 bg-accent/10 text-accent"><i data-lucide="shield-check" class="h-5 w-5"></i></span>
+          <div>
+            <h2 class="font-display text-base font-semibold text-ink">Verificação em duas etapas (MFA)</h2>
+            <p class="mt-0.5 text-sm text-muted">Um código do app autenticador (TOTP), além da senha.</p>
+            <div class="mt-2">
+              {% if mfa_enabled %}{% include 'components/badge.html' with text='Ativada' variant='success' %}{% else %}{% include 'components/badge.html' with text='Desativada' variant='muted' %}{% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-5 border-t border-hairline pt-4">
+        {% if mfa_enabled %}
+          <a href="{% url 'mfa_index' %}" class="inline-flex items-center gap-2 rounded-lg border border-line bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-bg-soft"><i data-lucide="settings" class="h-4 w-4"></i> Gerenciar MFA</a>
+          <p class="mt-2 text-xs text-muted">Ver recovery codes ou desativar.</p>
+        {% else %}
+          <a href="{% url 'mfa_activate_totp' %}" class="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="shield-plus" class="h-4 w-4"></i> Ativar MFA</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

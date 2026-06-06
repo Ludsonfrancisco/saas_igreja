@@ -1,16 +1,24 @@
-{% comment %}Confirmação de exclusão de Arquivo (Sprint 6 / Bloco 4). Só Pastor
-alcança esta view (ACCESS_MATRIX §3.8). CSRF + POST confirma. Markup mínimo pt-BR.{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="utf-8"><title>Excluir arquivo</title></head>
-<body>
-  <h1>Excluir este arquivo?</h1>
-  <p>{{ file_asset.filename }} ({{ file_asset.mime_type }}, {{ file_asset.size_bytes|filesizeformat }})</p>
-  <p>Esta ação não pode ser desfeita.</p>
-  <form method="post">
-    {% csrf_token %}
-    <button type="submit">Excluir definitivamente</button>
-  </form>
-  <p><a href="{% url 'files:list' %}">Cancelar</a></p>
-</body>
-</html>
+{% extends 'app_base.html' %}
+{% comment %}Confirmação de exclusão de Arquivo (Sprint 6.5 / Bloco 3). Só Pastor (§3.8).{% endcomment %}
+{% block title %}Excluir arquivo · Oikonos{% endblock %}
+
+{% block content %}
+  <div class="mx-auto max-w-lg">
+    <a href="{% url 'files:list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Arquivos</a>
+    <div class="card mt-3 overflow-hidden">
+      <div class="flex items-center gap-3 border-b border-hairline bg-danger/5 px-6 py-4">
+        <i data-lucide="trash-2" class="h-6 w-6 text-danger"></i>
+        <h1 class="font-display text-lg font-semibold text-danger">Excluir este arquivo?</h1>
+      </div>
+      <div class="space-y-4 p-6">
+        <p class="text-sm text-ink">{{ file_asset.filename }} <span class="text-muted">({{ file_asset.mime_type }}, {{ file_asset.size_bytes|filesizeformat }})</span></p>
+        <p class="text-sm text-muted">Esta ação não pode ser desfeita.</p>
+        <form method="post" class="flex items-center gap-2">
+          {% csrf_token %}
+          <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-danger px-4 py-2 text-sm font-medium text-paper hover:opacity-90"><i data-lucide="trash-2" class="h-4 w-4"></i> Excluir definitivamente</button>
+          <a href="{% url 'files:list' %}" class="rounded-lg border border-line bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-bg-soft">Cancelar</a>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

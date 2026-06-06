@@ -1,33 +1,31 @@
-{% comment %}
-Listagem de usuarios da igreja (Frente 3). Markup minimo pt-BR; styling Athos
-fica para a frente de frontend. Papeis exibidos como chips.
-{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="utf-8">
-  <title>Usuarios</title>
-</head>
-<body>
-  <h1>Gestão de Acessos</h1>
+{% extends 'app_base.html' %}
+{% comment %}Gestão de Acessos — usuários da igreja (Sprint 6.5 / Bloco 3).{% endcomment %}
+{% block title %}Gestão de Acessos · Oikonos{% endblock %}
 
-  {% if messages %}
-    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+{% block content %}
+  <div class="mb-6">
+    <h1 class="font-display text-2xl font-bold tracking-tight text-ink">Gestão de Acessos</h1>
+    <p class="mt-1 text-sm text-muted">Usuários e funções da sua igreja.</p>
+  </div>
+
+  {% if users %}
+    <div class="card divide-y divide-hairline">
+      {% for u in users %}
+        <div class="flex flex-wrap items-center justify-between gap-3 p-4">
+          <div class="flex items-center gap-3">
+            {% include 'components/avatar.html' with name=u.email %}
+            <div>
+              <p class="font-medium text-ink">{{ u.email }}{% if not u.is_active %} <span class="ml-1 align-middle">{% include 'components/badge.html' with text='Inativo' variant='danger' %}</span>{% endif %}</p>
+              <div class="mt-1 flex flex-wrap gap-1">
+                {% for role in u.roles %}{% include 'components/badge.html' with text=role variant='accent' %}{% endfor %}
+              </div>
+            </div>
+          </div>
+          <a href="{% url 'accounts:user_access' pk=u.pk %}" class="inline-flex items-center gap-2 rounded-lg border border-line bg-paper px-3 py-2 text-sm font-medium text-ink hover:bg-bg-soft"><i data-lucide="settings-2" class="h-4 w-4"></i> Gerenciar acesso</a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    {% include 'components/empty_state.html' with title='Nenhum usuário' message='Convide líderes e administradores na aba Convites.' %}
   {% endif %}
-
-  <ul>
-    {% for u in users %}
-      <li>
-        <span>{{ u.email }}</span>
-        {% if not u.is_active %}<span>(inativo)</span>{% endif %}
-        {% for role in u.roles %}
-          <span class="chip">{{ role }}</span>
-        {% endfor %}
-        <a href="{% url 'accounts:user_access' pk=u.pk %}">Gerenciar acesso</a>
-      </li>
-    {% empty %}
-      <li>Nenhum usuario cadastrado.</li>
-    {% endfor %}
-  </ul>
-</body>
-</html>
+{% endblock %}

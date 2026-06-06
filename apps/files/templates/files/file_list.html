@@ -1,69 +1,67 @@
-{% comment %}Lista de Arquivos (Sprint 6 / Bloco 4). Markup mínimo pt-BR, igual às
-demais listas (sem design system ainda — Athos é passo posterior). Escopo por
-papel/contexto é resolvido no queryset da view; o filtro abaixo só restringe
-dentro do que o papel já permite. Exclusão (link) só para Pastor.{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="utf-8"><title>Arquivos</title></head>
-<body>
-  <h1>Arquivos</h1>
+{% extends 'app_base.html' %}
+{% comment %}Lista de Arquivos (Sprint 6.5 / Bloco 3). Escopo por papel/contexto resolvido
+no queryset; filtro só restringe dentro do escopo. Excluir só p/ Pastor.{% endcomment %}
+{% block title %}Arquivos · Oikonos{% endblock %}
 
-  {% if messages %}
-    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
-  {% endif %}
+{% block content %}
+  <div class="mb-6">
+    <h1 class="font-display text-2xl font-bold tracking-tight text-ink">Arquivos</h1>
+    <p class="mt-1 text-sm text-muted">Documentos e PDFs da sua igreja.</p>
+  </div>
 
-  <form method="get">
-    <label for="related_model">Contexto</label>
-    <select name="related_model" id="related_model">
-      <option value="">Todos</option>
+  {# Filtro por contexto #}
+  <form method="get" class="card mb-5 flex flex-wrap items-center gap-3 p-4">
+    <select name="related_model" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
+      <option value="">Todos os contextos</option>
       <option value="community" {% if filters.related_model == 'community' %}selected{% endif %}>Comunidade</option>
       <option value="ministry" {% if filters.related_model == 'ministry' %}selected{% endif %}>Ministério</option>
       <option value="finance" {% if filters.related_model == 'finance' %}selected{% endif %}>Financeiro</option>
     </select>
-    <label for="related_object_id">ID do contexto</label>
-    <input type="text" name="related_object_id" id="related_object_id"
-           value="{{ filters.related_object_id|default:'' }}" inputmode="numeric">
-    <button type="submit">Filtrar</button>
-    <a href="{% url 'files:list' %}">Limpar</a>
+    <input type="text" name="related_object_id" value="{{ filters.related_object_id|default:'' }}" inputmode="numeric" placeholder="ID do contexto"
+           class="w-32 rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink placeholder:text-muted-2 focus:border-accent focus:ring-2 focus:ring-accent/20">
+    <button type="submit" class="rounded-lg border border-line bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-bg-soft">Filtrar</button>
+    <a href="{% url 'files:list' %}" class="text-sm text-muted hover:text-ink">Limpar</a>
   </form>
 
-  <table>
-    <thead>
-      <tr><th>Nome</th><th>Tipo</th><th>Tamanho</th><th>Contexto</th><th>Enviado em</th><th>Ações</th></tr>
-    </thead>
-    <tbody>
-      {% for file_asset in file_assets %}
-        <tr>
-          <td>{{ file_asset.filename }}</td>
-          <td>{{ file_asset.mime_type }}</td>
-          <td>{{ file_asset.size_bytes|filesizeformat }}</td>
-          <td>
-            {% if file_asset.related_model %}{{ file_asset.related_model }} #{{ file_asset.related_object_id }}{% else %}—{% endif %}
-          </td>
-          <td>{{ file_asset.created_at|date:'d/m/Y H:i' }}</td>
-          <td>
-            <a href="{% url 'files:download' pk=file_asset.pk %}">Baixar</a>
-            {% if 'pastor' in user.roles %}
-              · <a href="{% url 'files:delete' pk=file_asset.pk %}">Excluir</a>
-            {% endif %}
-          </td>
-        </tr>
-      {% empty %}
-        <tr><td colspan="6">Nenhum arquivo encontrado.</td></tr>
+  {% if file_assets %}
+    <div class="card hidden overflow-hidden md:block">
+      <table class="w-full text-sm">
+        <thead class="bg-bg-soft text-left text-muted">
+          <tr><th class="px-4 py-3 font-medium">Nome</th><th class="px-4 py-3 font-medium">Tipo</th><th class="px-4 py-3 font-medium">Tamanho</th><th class="px-4 py-3 font-medium">Contexto</th><th class="px-4 py-3 font-medium">Enviado</th><th class="px-4 py-3 text-right font-medium">Ações</th></tr>
+        </thead>
+        <tbody class="divide-y divide-hairline">
+          {% for f in file_assets %}
+            <tr class="hover:bg-bg-soft/50">
+              <td class="px-4 py-3 font-medium text-ink">{{ f.filename }}</td>
+              <td class="px-4 py-3 text-muted">{{ f.mime_type }}</td>
+              <td class="px-4 py-3 text-muted">{{ f.size_bytes|filesizeformat }}</td>
+              <td class="px-4 py-3 text-muted">{% if f.related_model %}{{ f.related_model }} #{{ f.related_object_id }}{% else %}—{% endif %}</td>
+              <td class="px-4 py-3 text-muted">{{ f.created_at|date:'d/m/Y' }}</td>
+              <td class="px-4 py-3 text-right whitespace-nowrap">
+                <a href="{% url 'files:download' pk=f.pk %}" class="text-accent hover:underline">Baixar</a>
+                {% if 'pastor' in user.roles %} · <a href="{% url 'files:delete' pk=f.pk %}" class="text-danger hover:underline">Excluir</a>{% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="grid gap-3 md:hidden">
+      {% for f in file_assets %}
+        <div class="card p-4">
+          <div class="flex items-center justify-between gap-3">
+            <div class="min-w-0"><p class="truncate font-medium text-ink">{{ f.filename }}</p><p class="mt-0.5 text-xs text-muted">{{ f.mime_type }} · {{ f.size_bytes|filesizeformat }} · {{ f.created_at|date:'d/m/Y' }}</p></div>
+            <i data-lucide="file" class="h-5 w-5 shrink-0 text-muted"></i>
+          </div>
+          <div class="mt-3 flex gap-3 text-sm">
+            <a href="{% url 'files:download' pk=f.pk %}" class="text-accent hover:underline">Baixar</a>
+            {% if 'pastor' in user.roles %}<a href="{% url 'files:delete' pk=f.pk %}" class="text-danger hover:underline">Excluir</a>{% endif %}
+          </div>
+        </div>
       {% endfor %}
-    </tbody>
-  </table>
-
-  {% if is_paginated %}
-    <nav aria-label="Paginação">
-      {% if page_obj.has_previous %}
-        <a href="?{% if filters.related_model %}related_model={{ filters.related_model }}&{% endif %}{% if filters.related_object_id %}related_object_id={{ filters.related_object_id }}&{% endif %}page={{ page_obj.previous_page_number }}">Anterior</a>
-      {% endif %}
-      <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
-      {% if page_obj.has_next %}
-        <a href="?{% if filters.related_model %}related_model={{ filters.related_model }}&{% endif %}{% if filters.related_object_id %}related_object_id={{ filters.related_object_id }}&{% endif %}page={{ page_obj.next_page_number }}">Próxima</a>
-      {% endif %}
-    </nav>
+    </div>
+    {% include 'components/pagination.html' %}
+  {% else %}
+    {% include 'components/empty_state.html' with title='Nenhum arquivo' message='Os arquivos enviados aparecem aqui, conforme seu acesso.' %}
   {% endif %}
-</body>
-</html>
+{% endblock %}

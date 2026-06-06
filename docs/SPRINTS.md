@@ -561,13 +561,14 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 - [x] (P0) Navegação por papel (`components/nav.html` + tag `nav_extras.nav_link` c/ item ativo): admin (Pastor/Secretário) vê Administração (Acessos/Convites); Líder vê gestão escopada; Tesoureiro vê Arquivos; todos veem Painel/Conta — espelha ACCESS_MATRIX. Verificado (leader não vê Acessos).
 - [x] (P0) Home pós-login = painel do papel: view `/` (`apps/core/views.home`) redireciona Pastor→`dashboard:pastor`, Secretário/Líder→`dashboard:leader` — **corrige o gap em que `LOGIN_REDIRECT_URL='/'` caía em 404**. Dashboards re-skinados (extend `app_base`, KPI cards + Chart.js temático).
 
-#### Bloco 3 — Telas ADMIN (Pastor / Secretário / Tesoureiro) — desktop + mobile
-- [ ] (P0) Dashboard completo (Pastor): cards de KPI + gráfico Chart.js estilizado ao tema.
-- [ ] (P0) Pessoas: lista (tabela densa no desktop / cards no mobile), detalhe, form, import CSV, anonimizar (confirmação dupla — OD-014).
-- [ ] (P0) Comunidades e Ministérios: lista/detalhe/form.
-- [ ] (P0) Gestão de Acessos / Usuários / Convites / SupportAccess.
-- [ ] (P0) Segurança da conta / setup de MFA (prepara o enforce da Sprint 7).
-- [ ] (P0) Arquivos: lista/filtros/confirm-delete (estiliza o que o Bloco 4 da Sprint 6 entregou cru).
+#### Bloco 3 — Telas ADMIN (Pastor / Secretário / Tesoureiro) — desktop + mobile ✅
+- [x] (P0) Dashboard completo (Pastor): stat-pills + Chart.js no acento da igreja (Bloco 2/3).
+- [x] (P0) Pessoas: lista (tabela desktop / cards mobile + filtros), detalhe, form, import CSV, anonimizar (confirmação dupla — OD-014). **52 testes.**
+- [x] (P0) Comunidades e Ministérios: lista/detalhe/form/excluir. **35 testes.**
+- [x] (P0) Gestão de Acessos / Usuários / Convites. **105 testes (accounts).** _(SupportAccess = contexto PlatformAdmin, sem shell → fica cru por ora.)_
+- [x] (P0) Segurança da conta / setup de MFA (card de status + link allauth.mfa).
+- [x] (P0) Arquivos: lista/filtros/confirm-delete. **30 testes.**
+- _Infra criada e reutilizada: `components/form`+`form_field`+`add_class` (forms estilizados), padrões de lista/detalhe/confirm. Telas públicas (aceite de convite/login) → Bloco 5 (Auth)._
 
 #### Bloco 4 — Telas OPERACIONAIS (Líder / Coordenador) — mobile-first
 - [ ] (P0) Dashboard simplificado (comunidade/ministério) em cards mobile.

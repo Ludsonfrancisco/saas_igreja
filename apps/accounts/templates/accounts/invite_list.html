@@ -1,52 +1,39 @@
-{% comment %}
-Convites pendentes da igreja (Frente 4). Markup minimo pt-BR; styling Athos
-fica para a frente de frontend. Papeis exibidos como chips.
-{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="utf-8">
-  <title>Convites</title>
-</head>
-<body>
-  <h1>Convites pendentes</h1>
+{% extends 'app_base.html' %}
+{% comment %}Convites pendentes da igreja (Sprint 6.5 / Bloco 3).{% endcomment %}
+{% block title %}Convites · Oikonos{% endblock %}
 
-  {% if messages %}
-    <ul>
-      {% for message in messages %}
-        <li>{{ message }}</li>
+{% block content %}
+  <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h1 class="font-display text-2xl font-bold tracking-tight text-ink">Convites pendentes</h1>
+      <p class="mt-1 text-sm text-muted">Convide líderes e administradores por e-mail.</p>
+    </div>
+    <a href="{% url 'accounts:invite_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="mail-plus" class="h-4 w-4"></i> Novo convite</a>
+  </div>
+
+  {% if invites %}
+    <div class="card divide-y divide-hairline">
+      {% for invite in invites %}
+        <div class="flex flex-wrap items-center justify-between gap-3 p-4">
+          <div>
+            <p class="font-medium text-ink">{{ invite.email }}</p>
+            <div class="mt-1 flex flex-wrap items-center gap-1">
+              {% for role in invite.roles %}{% include 'components/badge.html' with text=role variant='accent' %}{% endfor %}
+              <span class="text-xs text-muted-2">· expira {{ invite.expires_at|date:'d/m/Y' }} · por {{ invite.invited_by.email }}</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <form method="post" action="{% url 'accounts:invite_resend' pk=invite.pk %}">{% csrf_token %}
+              <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg border border-line bg-paper px-3 py-1.5 text-sm font-medium text-ink hover:bg-bg-soft"><i data-lucide="send" class="h-4 w-4"></i> Reenviar</button>
+            </form>
+            <form method="post" action="{% url 'accounts:invite_cancel' pk=invite.pk %}">{% csrf_token %}
+              <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg border border-danger/30 bg-danger/5 px-3 py-1.5 text-sm font-medium text-danger hover:bg-danger/10"><i data-lucide="x" class="h-4 w-4"></i> Cancelar</button>
+            </form>
+          </div>
+        </div>
       {% endfor %}
-    </ul>
+    </div>
+  {% else %}
+    {% include 'components/empty_state.html' with title='Nenhum convite pendente' message='Envie um convite para adicionar um líder ou administrador.' cta_url='/configuracoes/convites/novo/' cta_label='Novo convite' %}
   {% endif %}
-
-  <p><a href="{% url 'accounts:invite_create' %}">Novo convite</a></p>
-
-  <ul>
-    {% for invite in invites %}
-      <li>
-        <span>{{ invite.email }}</span>
-        {% for role in invite.roles %}
-          <span class="chip">{{ role }}</span>
-        {% endfor %}
-        <span>Expira em: {{ invite.expires_at }}</span>
-        <span>Convidado por: {{ invite.invited_by.email }}</span>
-
-        <form method="post"
-              action="{% url 'accounts:invite_resend' pk=invite.pk %}"
-              style="display:inline">
-          {% csrf_token %}
-          <button type="submit">Reenviar</button>
-        </form>
-        <form method="post"
-              action="{% url 'accounts:invite_cancel' pk=invite.pk %}"
-              style="display:inline">
-          {% csrf_token %}
-          <button type="submit">Cancelar</button>
-        </form>
-      </li>
-    {% empty %}
-      <li>Nenhum convite pendente.</li>
-    {% endfor %}
-  </ul>
-</body>
-</html>
+{% endblock %}

@@ -1,22 +1,19 @@
-{% comment %}
-Formulario de criacao de convite (Frente 4). Markup minimo pt-BR; styling Athos
-fica para a frente de frontend.
-{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="utf-8">
-  <title>Novo convite</title>
-</head>
-<body>
-  <h1>Novo convite</h1>
+{% extends 'app_base.html' %}
+{% comment %}Criação de convite (Sprint 6.5 / Bloco 3).{% endcomment %}
+{% block title %}Novo convite · Oikonos{% endblock %}
 
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Enviar convite</button>
-  </form>
+{% block content %}
+  <div class="mx-auto max-w-2xl">
+    <a href="{% url 'accounts:invite_list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Convites</a>
+    <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">Novo convite</h1>
 
-  <p><a href="{% url 'accounts:invite_list' %}">Voltar para convites</a></p>
-</body>
-</html>
+    <form method="post" class="card mt-4 space-y-4 p-6">
+      {% csrf_token %}
+      {% include 'components/form.html' with form=form %}
+      <div class="flex items-center gap-2 pt-2">
+        <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="send" class="h-4 w-4"></i> Enviar convite</button>
+        <a href="{% url 'accounts:invite_list' %}" class="rounded-lg border border-line bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-bg-soft">Cancelar</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}
