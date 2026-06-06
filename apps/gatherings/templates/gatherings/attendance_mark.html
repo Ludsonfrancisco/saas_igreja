@@ -1,33 +1,38 @@
-{% comment %}Marcação de presença em lote (Sprint 4 / Frente 2). CSRF obrigatório.{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="utf-8"><title>Presença — {{ gathering }}</title></head>
-<body>
-  <h1>Marcar presença</h1>
-  <p>{{ gathering }}</p>
+{% extends 'app_base.html' %}
+{% comment %}Marcar presença em lote (Sprint 6.5 / Bloco 4 — fluxo-estrela mobile).
+Linhas grandes (toque ≥44px), botão fixo no rodapé. POST com checkboxes `present`.{% endcomment %}
+{% block title %}Marcar presença · Oikonos{% endblock %}
 
-  {% if messages %}
-    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
-  {% endif %}
+{% block content %}
+  <div class="mx-auto max-w-xl pb-20">
+    <a href="{% url 'gatherings:detail' pk=gathering.pk %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Voltar ao encontro</a>
+    <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">Marcar presença</h1>
+    <p class="mt-1 text-sm text-muted">{{ gathering }}</p>
 
-  <form method="post">
-    {% csrf_token %}
-    <ul>
-      {% for person in roster %}
-        <li>
-          <label>
-            <input type="checkbox" name="present" value="{{ person.pk }}"
-                   {% if person.pk in present_ids %}checked{% endif %}>
-            {{ person.name }}
-          </label>
-        </li>
-      {% empty %}
-        <li>Nenhuma pessoa elegível para este encontro.</li>
-      {% endfor %}
-    </ul>
-    <button type="submit">Salvar presença</button>
-  </form>
+    <form method="post" x-data="{ n: {{ present_ids|length }} }" class="mt-4">
+      {% csrf_token %}
+      {% if roster %}
+        <div class="card divide-y divide-hairline overflow-hidden">
+          {% for person in roster %}
+            <label class="flex cursor-pointer items-center gap-3 px-4 py-3 hover:bg-bg-soft">
+              <input type="checkbox" name="present" value="{{ person.pk }}" @change="n += $event.target.checked ? 1 : -1"
+                     {% if person.pk in present_ids %}checked{% endif %}
+                     class="h-5 w-5 rounded border-line text-accent focus:ring-accent/30">
+              <span class="text-sm text-ink">{{ person.name }}</span>
+            </label>
+          {% endfor %}
+        </div>
 
-  <p><a href="{% url 'gatherings:detail' pk=gathering.pk %}">Voltar</a></p>
-</body>
-</html>
+        {# Barra de ação fixa (mobile-friendly) #}
+        <div class="fixed inset-x-0 bottom-0 z-20 border-t border-hairline bg-paper/95 px-4 py-3 backdrop-blur md:static md:mt-4 md:border-0 md:bg-transparent md:p-0">
+          <div class="mx-auto flex max-w-xl items-center justify-between gap-3">
+            <span class="text-sm text-muted"><strong x-text="n" class="text-ink"></strong> presente(s)</span>
+            <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="check" class="h-4 w-4"></i> Salvar presença</button>
+          </div>
+        </div>
+      {% else %}
+        {% include 'components/empty_state.html' with title='Ninguém elegível' message='Não há pessoas elegíveis para marcar presença neste encontro.' %}
+      {% endif %}
+    </form>
+  </div>
+{% endblock %}

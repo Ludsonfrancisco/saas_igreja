@@ -1,26 +1,27 @@
-{% comment %}Detalhe de Escala (Sprint 5 / Frente 1). Markup mínimo pt-BR.{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="utf-8"><title>Escala</title></head>
-<body>
-  <h1>Escala</h1>
+{% extends 'app_base.html' %}
+{% comment %}Detalhe de Escala (Sprint 6.5 / Bloco 4).{% endcomment %}
+{% block title %}Escala · Oikonos{% endblock %}
 
-  {% if messages %}
-    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
-  {% endif %}
+{% block content %}
+  <div class="mb-6 flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <a href="{% url 'schedules:list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Escalas</a>
+      <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">{{ schedule.person.name|default:'(removida)' }}</h1>
+      <p class="mt-0.5 text-sm text-muted">{{ schedule.ministry.name }}</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="{% url 'schedules:update' pk=schedule.pk %}" class="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="pencil" class="h-4 w-4"></i> Editar</a>
+      <a href="{% url 'schedules:delete' pk=schedule.pk %}" class="inline-flex items-center gap-2 rounded-lg border border-danger/30 bg-danger/5 px-3 py-2 text-sm font-medium text-danger hover:bg-danger/10"><i data-lucide="trash-2" class="h-4 w-4"></i> Excluir</a>
+    </div>
+  </div>
 
-  <dl>
-    <dt>Encontro</dt><dd>{{ schedule.gathering }}</dd>
-    <dt>Ministério</dt><dd>{{ schedule.ministry.name }}</dd>
-    <dt>Voluntário</dt><dd>{{ schedule.person.name|default:'(removida)' }}</dd>
-    <dt>Função</dt><dd>{{ schedule.role|default:'—' }}</dd>
-    <dt>Observações</dt><dd>{{ schedule.notes|default:'—' }}</dd>
-  </dl>
-
-  <p>
-    <a href="{% url 'schedules:update' pk=schedule.pk %}">Editar</a> ·
-    <a href="{% url 'schedules:delete' pk=schedule.pk %}">Excluir</a> ·
-    <a href="{% url 'schedules:list' %}">Voltar</a>
-  </p>
-</body>
-</html>
+  <div class="card max-w-3xl p-6">
+    <dl class="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
+      <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Encontro</dt><dd class="mt-0.5 text-sm text-ink">{{ schedule.gathering }}</dd></div>
+      <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Ministério</dt><dd class="mt-0.5 text-sm text-ink">{{ schedule.ministry.name }}</dd></div>
+      <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Voluntário</dt><dd class="mt-0.5 text-sm text-ink">{{ schedule.person.name|default:'(removida)' }}</dd></div>
+      <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Função</dt><dd class="mt-0.5 text-sm text-ink">{{ schedule.role|default:'—' }}</dd></div>
+      <div class="sm:col-span-2"><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Observações</dt><dd class="mt-0.5 text-sm text-ink">{{ schedule.notes|default:'—' }}</dd></div>
+    </dl>
+  </div>
+{% endblock %}

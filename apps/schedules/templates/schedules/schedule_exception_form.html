@@ -1,18 +1,24 @@
-{% comment %}Aprovação de exceção de conflito de escala (Sprint 5 / Frente 2). CSRF.{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="utf-8"><title>Aprovar exceção de conflito</title></head>
-<body>
-  <h1>Aprovar exceção de conflito</h1>
-  <p>Use esta tela quando a pessoa já está escalada em outro encontro na mesma data
-     e o conflito precisa ser autorizado. A justificativa é registrada e auditada.</p>
+{% extends 'app_base.html' %}
+{% comment %}Aprovação de exceção de conflito de escala (Sprint 6.5 / Bloco 4). CSRF.{% endcomment %}
+{% block title %}Aprovar exceção · Oikonos{% endblock %}
 
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Aprovar e criar escala</button>
-  </form>
+{% block content %}
+  <div class="mx-auto max-w-2xl">
+    <a href="{% url 'schedules:list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Escalas</a>
+    <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">Aprovar exceção de conflito</h1>
 
-  <p><a href="{% url 'schedules:list' %}">Voltar</a></p>
-</body>
-</html>
+    <div class="mt-4 flex items-start gap-3 rounded-xl border border-hot/30 bg-hot/5 p-4">
+      <i data-lucide="alert-triangle" class="mt-0.5 h-5 w-5 shrink-0 text-hot"></i>
+      <p class="text-sm text-ink">Use esta tela quando a pessoa já está escalada em outro encontro na mesma data e o conflito precisa ser autorizado. A justificativa é registrada e auditada.</p>
+    </div>
+
+    <form method="post" class="card mt-4 space-y-4 p-6">
+      {% csrf_token %}
+      {% include 'components/form.html' with form=form %}
+      <div class="flex items-center gap-2 pt-2">
+        <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="check" class="h-4 w-4"></i> Aprovar e criar escala</button>
+        <a href="{% url 'schedules:list' %}" class="rounded-lg border border-line bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-bg-soft">Cancelar</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

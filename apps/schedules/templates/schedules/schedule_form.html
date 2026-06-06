@@ -1,16 +1,18 @@
-{% comment %}Cadastro/edição de Escala (Sprint 5 / Frente 1). CSRF obrigatório.{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="utf-8"><title>Escala</title></head>
-<body>
-  <h1>{% if form.instance.pk %}Editar escala{% else %}Nova escala{% endif %}</h1>
+{% extends 'app_base.html' %}
+{% comment %}Cadastro/edição de Escala (Sprint 6.5 / Bloco 4).{% endcomment %}
+{% block title %}{% if form.instance.pk %}Editar escala{% else %}Nova escala{% endif %} · Oikonos{% endblock %}
 
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Salvar</button>
-  </form>
-
-  <p><a href="{% url 'schedules:list' %}">Voltar</a></p>
-</body>
-</html>
+{% block content %}
+  <div class="mx-auto max-w-2xl">
+    <a href="{% url 'schedules:list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Escalas</a>
+    <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">{% if form.instance.pk %}Editar escala{% else %}Nova escala{% endif %}</h1>
+    <form method="post" class="card mt-4 space-y-4 p-6">
+      {% csrf_token %}
+      {% include 'components/form.html' with form=form %}
+      <div class="flex items-center gap-2 pt-2">
+        <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="check" class="h-4 w-4"></i> Salvar</button>
+        <a href="{% url 'schedules:list' %}" class="rounded-lg border border-line bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-bg-soft">Cancelar</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

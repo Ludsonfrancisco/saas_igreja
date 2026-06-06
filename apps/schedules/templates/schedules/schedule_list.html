@@ -1,33 +1,47 @@
-{% comment %}Lista de Escalas (Sprint 5 / Frente 1). Markup mínimo pt-BR.{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="utf-8"><title>Escalas</title></head>
-<body>
-  <h1>Escalas</h1>
+{% extends 'app_base.html' %}
+{% comment %}Lista de Escalas (Sprint 6.5 / Bloco 4).{% endcomment %}
+{% block title %}Escalas · Oikonos{% endblock %}
 
-  {% if messages %}
-    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
-  {% endif %}
+{% block content %}
+  <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h1 class="font-display text-2xl font-bold tracking-tight text-ink">Escalas</h1>
+      <p class="mt-1 text-sm text-muted">Voluntários escalados por encontro e ministério.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="{% url 'schedules:exception' %}" class="inline-flex items-center gap-2 rounded-lg border border-line bg-paper px-3 py-2 text-sm font-medium text-ink hover:bg-bg-soft"><i data-lucide="alert-triangle" class="h-4 w-4"></i> Aprovar exceção</a>
+      <a href="{% url 'schedules:create' %}" class="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="plus" class="h-4 w-4"></i> Nova escala</a>
+    </div>
+  </div>
 
-  <p>
-    <a href="{% url 'schedules:create' %}">Nova escala</a> ·
-    <a href="{% url 'schedules:exception' %}">Aprovar exceção de conflito</a>
-  </p>
-
-  <table>
-    <thead><tr><th>Encontro</th><th>Ministério</th><th>Voluntário</th><th>Função</th></tr></thead>
-    <tbody>
-      {% for schedule in schedules %}
-        <tr>
-          <td><a href="{% url 'schedules:detail' pk=schedule.pk %}">{{ schedule.gathering }}</a></td>
-          <td>{{ schedule.ministry.name }}</td>
-          <td>{{ schedule.person.name|default:'(removida)' }}</td>
-          <td>{{ schedule.role|default:'—' }}</td>
-        </tr>
-      {% empty %}
-        <tr><td colspan="4">Nenhuma escala cadastrada.</td></tr>
+  {% if schedules %}
+    <div class="card hidden overflow-hidden md:block">
+      <table class="w-full text-sm">
+        <thead class="bg-bg-soft text-left text-muted">
+          <tr><th class="px-4 py-3 font-medium">Encontro</th><th class="px-4 py-3 font-medium">Ministério</th><th class="px-4 py-3 font-medium">Voluntário</th><th class="px-4 py-3 font-medium">Função</th></tr>
+        </thead>
+        <tbody class="divide-y divide-hairline">
+          {% for s in schedules %}
+            <tr class="hover:bg-bg-soft/50">
+              <td class="px-4 py-3"><a href="{% url 'schedules:detail' pk=s.pk %}" class="font-medium text-ink hover:text-accent">{{ s.gathering }}</a></td>
+              <td class="px-4 py-3 text-muted">{{ s.ministry.name }}</td>
+              <td class="px-4 py-3 text-ink">{{ s.person.name|default:'(removida)' }}</td>
+              <td class="px-4 py-3 text-muted">{{ s.role|default:'—' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="grid gap-3 md:hidden">
+      {% for s in schedules %}
+        <a href="{% url 'schedules:detail' pk=s.pk %}" class="card p-4">
+          <p class="font-medium text-ink">{{ s.person.name|default:'(removida)' }}{% if s.role %} · {{ s.role }}{% endif %}</p>
+          <p class="mt-0.5 text-xs text-muted">{{ s.ministry.name }} · {{ s.gathering }}</p>
+        </a>
       {% endfor %}
-    </tbody>
-  </table>
-</body>
-</html>
+    </div>
+    {% include 'components/pagination.html' %}
+  {% else %}
+    {% include 'components/empty_state.html' with title='Nenhuma escala' message='Monte a primeira escala de voluntários para um encontro.' cta_url='/escalas/nova/' cta_label='Nova escala' %}
+  {% endif %}
+{% endblock %}

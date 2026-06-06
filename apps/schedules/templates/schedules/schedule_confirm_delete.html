@@ -1,15 +1,24 @@
-{% comment %}Confirmação de exclusão de Escala (Sprint 5 / Frente 1). CSRF.{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="utf-8"><title>Excluir escala</title></head>
-<body>
-  <h1>Excluir esta escala?</h1>
-  <p>{{ schedule.person.name|default:'(removida)' }} — {{ schedule.ministry.name }} @ {{ schedule.gathering }}</p>
-  <p>Esta ação não pode ser desfeita.</p>
-  <form method="post">
-    {% csrf_token %}
-    <button type="submit">Excluir definitivamente</button>
-  </form>
-  <p><a href="{% url 'schedules:detail' pk=schedule.pk %}">Cancelar</a></p>
-</body>
-</html>
+{% extends 'app_base.html' %}
+{% comment %}Confirmação de exclusão de Escala (Sprint 6.5 / Bloco 4). CSRF.{% endcomment %}
+{% block title %}Excluir escala · Oikonos{% endblock %}
+
+{% block content %}
+  <div class="mx-auto max-w-lg">
+    <a href="{% url 'schedules:detail' pk=schedule.pk %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Voltar</a>
+    <div class="card mt-3 overflow-hidden">
+      <div class="flex items-center gap-3 border-b border-hairline bg-danger/5 px-6 py-4">
+        <i data-lucide="trash-2" class="h-6 w-6 text-danger"></i>
+        <h1 class="font-display text-lg font-semibold text-danger">Excluir esta escala?</h1>
+      </div>
+      <div class="space-y-4 p-6">
+        <p class="text-sm text-ink">{{ schedule.person.name|default:'(removida)' }} — {{ schedule.ministry.name }} @ {{ schedule.gathering }}</p>
+        <p class="text-sm text-muted">Esta ação não pode ser desfeita.</p>
+        <form method="post" class="flex items-center gap-2">
+          {% csrf_token %}
+          <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-danger px-4 py-2 text-sm font-medium text-paper hover:opacity-90"><i data-lucide="trash-2" class="h-4 w-4"></i> Excluir definitivamente</button>
+          <a href="{% url 'schedules:detail' pk=schedule.pk %}" class="rounded-lg border border-line bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-bg-soft">Cancelar</a>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

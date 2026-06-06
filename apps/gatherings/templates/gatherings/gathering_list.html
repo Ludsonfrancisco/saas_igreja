@@ -1,41 +1,54 @@
-{% comment %}Lista de Encontros (Sprint 4 / Frente 1). Markup mínimo pt-BR.{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="utf-8"><title>Encontros</title></head>
-<body>
-  <h1>Encontros</h1>
+{% extends 'app_base.html' %}
+{% comment %}Lista de Encontros (Sprint 6.5 / Bloco 4).{% endcomment %}
+{% block title %}Encontros · Oikonos{% endblock %}
 
-  {% if messages %}
-    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
-  {% endif %}
+{% block content %}
+  <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h1 class="font-display text-2xl font-bold tracking-tight text-ink">Encontros</h1>
+      <p class="mt-1 text-sm text-muted">Cultos, células, eventos e reuniões.</p>
+    </div>
+    <a href="{% url 'gatherings:create' %}" class="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="plus" class="h-4 w-4"></i> Novo encontro</a>
+  </div>
 
-  <p><a href="{% url 'gatherings:create' %}">Novo encontro</a></p>
-
-  <form method="get">
-    <label>Tipo:
-      <select name="type" onchange="this.form.submit()">
-        <option value="">Todos</option>
-        {% for value, label in type_choices %}
-          <option value="{{ value }}" {% if filters.type == value %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
-    </label>
+  <form method="get" class="card mb-5 flex flex-wrap items-center gap-3 p-4">
+    <select name="type" onchange="this.form.submit()" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
+      <option value="">Todos os tipos</option>
+      {% for value, label in type_choices %}<option value="{{ value }}" {% if filters.type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
   </form>
 
-  <table>
-    <thead><tr><th>Data</th><th>Tipo</th><th>Título</th><th>Comunidade</th></tr></thead>
-    <tbody>
-      {% for gathering in gatherings %}
-        <tr>
-          <td><a href="{% url 'gatherings:detail' pk=gathering.pk %}">{{ gathering.date }}</a></td>
-          <td>{{ gathering.get_gathering_type_display }}</td>
-          <td>{{ gathering.title|default:'—' }}</td>
-          <td>{{ gathering.community.name|default:'—' }}</td>
-        </tr>
-      {% empty %}
-        <tr><td colspan="4">Nenhum encontro cadastrado.</td></tr>
+  {% if gatherings %}
+    <div class="card hidden overflow-hidden md:block">
+      <table class="w-full text-sm">
+        <thead class="bg-bg-soft text-left text-muted">
+          <tr><th class="px-4 py-3 font-medium">Data</th><th class="px-4 py-3 font-medium">Tipo</th><th class="px-4 py-3 font-medium">Título</th><th class="px-4 py-3 font-medium">Comunidade</th></tr>
+        </thead>
+        <tbody class="divide-y divide-hairline">
+          {% for g in gatherings %}
+            <tr class="hover:bg-bg-soft/50">
+              <td class="px-4 py-3"><a href="{% url 'gatherings:detail' pk=g.pk %}" class="font-medium text-ink hover:text-accent">{{ g.date|date:'d/m/Y' }}</a></td>
+              <td class="px-4 py-3">{% include 'components/badge.html' with text=g.get_gathering_type_display variant='accent' %}</td>
+              <td class="px-4 py-3 text-ink">{{ g.title|default:'—' }}</td>
+              <td class="px-4 py-3 text-muted">{{ g.community.name|default:'—' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="grid gap-3 md:hidden">
+      {% for g in gatherings %}
+        <a href="{% url 'gatherings:detail' pk=g.pk %}" class="card p-4">
+          <div class="flex items-center justify-between gap-3">
+            <p class="font-medium text-ink">{{ g.title|default:g.get_gathering_type_display }}</p>
+            {% include 'components/badge.html' with text=g.get_gathering_type_display variant='accent' %}
+          </div>
+          <p class="mt-0.5 text-xs text-muted">{{ g.date|date:'d/m/Y' }}{% if g.community.name %} · {{ g.community.name }}{% endif %}</p>
+        </a>
       {% endfor %}
-    </tbody>
-  </table>
-</body>
-</html>
+    </div>
+    {% include 'components/pagination.html' %}
+  {% else %}
+    {% include 'components/empty_state.html' with title='Nenhum encontro' message='Crie o primeiro culto, célula ou evento.' cta_url='/encontros/novo/' cta_label='Novo encontro' %}
+  {% endif %}
+{% endblock %}

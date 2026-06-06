@@ -1,28 +1,33 @@
-{% comment %}Detalhe de Encontro (Sprint 4 / Frente 1). Markup mínimo pt-BR.{% endcomment %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="utf-8"><title>{{ gathering }}</title></head>
-<body>
-  <h1>{{ gathering }}</h1>
+{% extends 'app_base.html' %}
+{% comment %}Detalhe de Encontro (Sprint 6.5 / Bloco 4).{% endcomment %}
+{% block title %}{{ gathering }} · Oikonos{% endblock %}
 
-  {% if messages %}
-    <ul>{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
-  {% endif %}
+{% block content %}
+  <div class="mb-6 flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <a href="{% url 'gatherings:list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Encontros</a>
+      <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">{{ gathering.title|default:gathering.get_gathering_type_display }}</h1>
+      <p class="mt-0.5 text-sm text-muted">{{ gathering.date|date:'d/m/Y' }}</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      {% if can_mark %}<a href="{% url 'gatherings:attendance' pk=gathering.pk %}" class="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="check-square" class="h-4 w-4"></i> Marcar presença</a>{% endif %}
+      <a href="{% url 'gatherings:update' pk=gathering.pk %}" class="inline-flex items-center gap-2 rounded-lg border border-line bg-paper px-3 py-2 text-sm font-medium text-ink hover:bg-bg-soft"><i data-lucide="pencil" class="h-4 w-4"></i> Editar</a>
+      <a href="{% url 'gatherings:delete' pk=gathering.pk %}" class="inline-flex items-center gap-2 rounded-lg border border-danger/30 bg-danger/5 px-3 py-2 text-sm font-medium text-danger hover:bg-danger/10"><i data-lucide="trash-2" class="h-4 w-4"></i> Excluir</a>
+    </div>
+  </div>
 
-  <dl>
-    <dt>Tipo</dt><dd>{{ gathering.get_gathering_type_display }}</dd>
-    <dt>Data</dt><dd>{{ gathering.date }}</dd>
-    <dt>Título</dt><dd>{{ gathering.title|default:'—' }}</dd>
-    <dt>Comunidade</dt><dd>{{ gathering.community.name|default:'—' }}</dd>
-    <dt>Descrição</dt><dd>{{ gathering.description|default:'—' }}</dd>
-    <dt>Presentes</dt><dd>{{ present_count }}</dd>
-  </dl>
-
-  <p>
-    {% if can_mark %}<a href="{% url 'gatherings:attendance' pk=gathering.pk %}">Marcar presença</a> · {% endif %}
-    <a href="{% url 'gatherings:update' pk=gathering.pk %}">Editar</a> ·
-    <a href="{% url 'gatherings:delete' pk=gathering.pk %}">Excluir</a> ·
-    <a href="{% url 'gatherings:list' %}">Voltar</a>
-  </p>
-</body>
-</html>
+  <div class="grid gap-4 sm:grid-cols-3">
+    <div class="card p-5 sm:col-span-2">
+      <dl class="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
+        <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Tipo</dt><dd class="mt-0.5 text-sm text-ink">{{ gathering.get_gathering_type_display }}</dd></div>
+        <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Data</dt><dd class="mt-0.5 text-sm text-ink">{{ gathering.date|date:'d/m/Y' }}</dd></div>
+        <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Comunidade</dt><dd class="mt-0.5 text-sm text-ink">{{ gathering.community.name|default:'—' }}</dd></div>
+        <div class="sm:col-span-2"><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Descrição</dt><dd class="mt-0.5 text-sm text-ink">{{ gathering.description|default:'—' }}</dd></div>
+      </dl>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-icon"><i data-lucide="users"></i></div>
+      <div><div class="stat-num">{{ present_count }}</div><p class="stat-label">Presentes</p></div>
+    </div>
+  </div>
+{% endblock %}
