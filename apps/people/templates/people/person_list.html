@@ -27,15 +27,15 @@ Header + ações · filtros em card · tabela (desktop) / cards (mobile) · pagi
       <input type="text" name="q" value="{{ filters.q }}" placeholder="Buscar por nome"
              class="w-full rounded-lg border border-line bg-paper py-2 pl-9 pr-3 text-sm text-ink placeholder:text-muted-2 focus:border-accent focus:ring-2 focus:ring-accent/20">
     </div>
-    <select name="status" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
+    <select name="status" aria-label="Filtrar por situação" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
       <option value="">Todos os status</option>
       {% for value, label in status_choices %}<option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
     </select>
-    <select name="community" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
+    <select name="community" aria-label="Filtrar por comunidade" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
       <option value="">Todas as comunidades</option>
       {% for c in communities %}<option value="{{ c.id }}" {% if filters.community == c.id|stringformat:'s' %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
     </select>
-    <select name="ministry" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
+    <select name="ministry" aria-label="Filtrar por ministério" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
       <option value="">Todos os ministérios</option>
       {% for m in ministries %}<option value="{{ m.id }}" {% if filters.ministry == m.id|stringformat:'s' %}selected{% endif %}>{{ m.name }}</option>{% endfor %}
     </select>

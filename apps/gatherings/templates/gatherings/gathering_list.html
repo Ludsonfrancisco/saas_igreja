@@ -12,7 +12,7 @@
   </div>
 
   <form method="get" class="card mb-5 flex flex-wrap items-center gap-3 p-4">
-    <select name="type" onchange="this.form.submit()" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
+    <select name="type" onchange="this.form.submit()" aria-label="Filtrar por tipo" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
       <option value="">Todos os tipos</option>
       {% for value, label in type_choices %}<option value="{{ value }}" {% if filters.type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
     </select>

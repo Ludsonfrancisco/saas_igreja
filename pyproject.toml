@@ -64,6 +64,8 @@ dev = [
     # Node/node_modules). Build do CSS do design system (Sprint 6.5):
     #   uv run tailwindcss -i static/src/input.css -o static/css/app.css --minify
     "pytailwindcss>=0.3",
+    "pytest-playwright>=0.8.0",
+    "playwright>=1.60.0",
 ]
 
 # ----------------------------------------------------------------------------

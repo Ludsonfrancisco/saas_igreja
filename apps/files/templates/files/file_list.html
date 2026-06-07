@@ -11,7 +11,7 @@ no queryset; filtro só restringe dentro do escopo. Excluir só p/ Pastor.{% end
 
   {# Filtro por contexto #}
   <form method="get" class="card mb-5 flex flex-wrap items-center gap-3 p-4">
-    <select name="related_model" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
+    <select name="related_model" aria-label="Filtrar por contexto" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
       <option value="">Todos os contextos</option>
       <option value="community" {% if filters.related_model == 'community' %}selected{% endif %}>Comunidade</option>
       <option value="ministry" {% if filters.related_model == 'ministry' %}selected{% endif %}>Ministério</option>
