@@ -17,7 +17,7 @@ Esta pasta contém os documentos derivados que aprofundam áreas específicas do
 | [`TECH_SPEC.md`](TECH_SPEC.md) | Stack, modelos, estrutura de apps, princípios arquiteturais (P-ARQ-01..08, TENANT-01..07, STYLE-01..05, SEC-01..07, OPS-01..04) e anti-padrões (AP-01..13) | Antes de codar qualquer feature; durante revisão de PR |
 | [`ACCESS_MATRIX.md`](ACCESS_MATRIX.md) | Matriz detalhada de permissões por módulo × ação × papel | Ao criar view, service ou queryset sensível; ao adicionar novo papel |
 | [`TEST_STRATEGY.md`](TEST_STRATEGY.md) | Estratégia de testes, fixtures, factories, gates de cobertura e Definition of Done | Ao escrever testes; ao fechar sprint |
-| [`SPRINTS.md`](SPRINTS.md) | Detalhamento operacional das 9 sprints do MVP (Sprint 0 → 7, com **6.5 Design/UI Athos** entre 6 e 7) | No planejamento e na execução de sprint |
+| [`SPRINTS.md`](SPRINTS.md) | Detalhamento operacional das sprints do MVP (Sprint 0 → 7, com **6.5 Design/UI Athos**, **6.6 Athos v2** e **6.7 Financeiro** entre 6 e 7) | No planejamento e na execução de sprint |
 | [`OPEN_DECISIONS.md`](OPEN_DECISIONS.md) | Decisões em aberto com owner, prazo, impacto e status | Antes de tomar decisão que afete áreas em aberto; revisão semanal |
 
 ## Regras de governança (inviolável)

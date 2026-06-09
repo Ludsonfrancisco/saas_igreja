@@ -196,6 +196,8 @@ auditado (`role_change`); RN-004 (último Pastor) intacta.
 | Dashboard simplificado da comunidade | ❌ | ✅ | 🟡 (sua) | ❌ | ❌ | ❌ |
 | Dashboard simplificado do ministério | ❌ | ✅ | ❌ | 🟡 (seu) | ❌ | ❌ |
 | Próprio histórico | — | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Home: calendário de agenda + próximas programações (RF-102/103) | ❌ | ✅ | 🟡 (sua comunidade) | 🟡 (seu ministério) | ✅ | — |
+| Home: card "Saúde do Ministério" / GAP de voluntários (RF-104) | ❌ | ✅ (todos) | ❌ | 🟡 (seu) | ❌ | ❌ |
 
 ### 3.10 Auditoria
 

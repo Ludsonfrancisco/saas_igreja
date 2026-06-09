@@ -513,6 +513,76 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 
 ---
 
+### OD-026 — Agenda oficial da igreja via Google Calendar (sync, pós-piloto Sprint 9)
+
+| Campo | Valor |
+|---|---|
+| Status | ✅ Decidida (2026-06-08) — integração **pós-MVP/pós-piloto (Sprint 9)**, opt-in |
+| Impacto | Médio-alto (integração externa, OAuth, ToS Google, manutenção) |
+| Owner | Produto + Segurança |
+| Decisão | A **agenda oficial** da igreja sincroniza com o **Google Calendar** (não Google Drive/arquivo): eventos com data/hora e recorrência vêm do calendário da igreja. **Pastor(es) ou Secretário** sobem/conectam a agenda oficial. Integração **opt-in por igreja**, sob o guarda-chuva do **OD-008 (OAuth2 Google)**. **No MVP**, o card de Agenda (F4) usa eventos nativos do app (`Gathering`); o sync com Google entra na **Sprint 9**, junto da faixa de integrações externas |
+
+**Contexto:** o dono propôs (2026-06-08) "agenda da igreja conectada no Google, o pastor ou o secretário sobe a agenda oficial". Esclarecido que o sentido é **Google Calendar (sync de eventos)**, não subir arquivo no Drive. É a **fonte de dados** do card de Agenda do **F4** (ver [[post-6_7-backlog-design-v2]]).
+
+**Quem pode subir/conectar:** `pastor` e `secretary` (alinha à ACCESS_MATRIX — Secretário é admin sem financeiro; OD-019).
+
+**Implicações / riscos (decisão de olhos abertos):**
+- **OAuth Google (OD-008):** exige fluxo de consentimento, escopo `calendar.readonly`/`calendar.events`, refresh token por tenant, armazenamento seguro de credenciais.
+- **ToS / cota:** uso da Google Calendar API tem limites; sync deve ser via fila Celery, não em request.
+- **Conflito com domínio:** a agenda Google pode **cruzar com `Gathering`/`Schedule`** — definir se é só leitura (exibir) ou bidirecional (criar/atualizar). **Recorte inicial sugerido: read-only/exibição** (espelha eventos no card), sem escrever de volta no Google.
+- **LGPD:** evento pode conter PII (nomes/contatos no corpo) — sanitizar exibição.
+
+**Aberto (resolver na Sprint 9):** read-only vs bidirecional; um calendário por igreja vs múltiplos; mapeamento Calendar↔`Gathering`.
+
+---
+
+### OD-027 — Múltiplos pastores por igreja (Pr e Pra) — suportado nativamente
+
+| Campo | Valor |
+|---|---|
+| Status | ✅ Decidida (2026-06-08) — **confirmação**, sem mudança de modelo |
+| Impacto | Baixo (arquitetura já cobre; só revisão de cópia de UI) |
+| Owner | Produto |
+| Decisão | Uma igreja pode ter **mais de um pastor** (ex.: **Pr e Pra**). São **usuários distintos**, cada um com a role `pastor` no `User.roles` (`ArrayField`, RN-003a). **Não há trava de "1 pastor por igreja"** — já funciona hoje (`apps/accounts/models.py`). Permissões somam pela união das roles |
+
+**Contexto:** o dono levantou (2026-06-08) que "pode ter mais de 1 pastor por igreja". Verificado no código: `roles` é `ArrayField` por usuário e `PASTOR` é apenas uma role; múltiplos usuários do mesmo tenant podem ter `pastor` simultaneamente.
+
+**Implicação (único ajuste):** textos de UI que assumem "o pastor" no singular (ex.: cabeçalhos, `Church.leader_title`) devem ser revisados para suportar plural/múltiplos titulares. É **ajuste de cópia**, não de modelo — endereçar junto do re-skin (F7/Sprint 6.6) ou em polimento de UI.
+
+---
+
+### OD-028 — Posicionamento do Design v2: Sprint 6.6 "Athos v2" antes da 6.7
+
+| Campo | Valor |
+|---|---|
+| Status | ✅ Decidida (2026-06-08) — opção **A** |
+| Impacto | Médio-alto (ordem de sprints, retrabalho de UI) |
+| Owner | Produto + Dono |
+| Decisão | O re-skin para a direção visual nova (sidebar **vertical** + paleta Oikonos v2 + tipografia Inter/Poppins/`tabular-nums` + **home nova** com calendário/agenda) vira a **Sprint 6.6 "Athos v2"**, executada **ANTES** da 6.7 (Financeiro). Assim o Financeiro nasce no layout definitivo, sem retrabalho na tela financeira |
+
+**Contexto:** o protótipo do Claude Design ("Oikonos personalizado") confirmou a direção — **sidebar vertical**, Inter+Poppins+`tabular-nums`, paleta terra/laranja/âmbar. O dono pediu (2026-06-08) a **home nova** (calendário expansível com dias de evento marcados + lista de próximas programações + cards re-skinados) e autorizou abrir a 6.6 antes da 6.7. Escolha A/B = **A** (re-skin primeiro). Ver [[post-6_7-backlog-design-v2]].
+
+**Escopo da 6.6:** F7 (shell+re-skin) + F4 (calendário/agenda na home, fonte `Gathering.date`) + F5 parcial (`Ministry.volunteers_needed` + card GAP). **Fora:** F2 (renomear Células/Departamentos), F3 (presets de paleta), F6 (convite WhatsApp).
+
+**Implicações:** reescreve `app_base.html` (horizontal→vertical); atualiza `TECH_SPEC §11` (tipografia + shell v2); novos RF-102..105; mantém gates da 6.5 (Lighthouse mobile ≥ 90, WCAG AA, zero regressão). Referência visual versionada: `referencias/templates/igreja_saas_personalizado.html`.
+
+---
+
+### OD-029 — "Saúde do Ministério" = GAP de voluntários (não score composto)
+
+| Campo | Valor |
+|---|---|
+| Status | ✅ Decidida (2026-06-08) |
+| Impacto | Baixo-médio (define a métrica de um card sem RF prévio) |
+| Owner | Produto + Dono |
+| Decisão | O card **"Saúde do Ministério"** (aparecia no protótipo sem RF) mede o **GAP de voluntários**: voluntários/coordenadores atuais **×** `Ministry.volunteers_needed` (meta). **Não** é um score composto/subjetivo. Ancora em dado real, mensurável (F5) |
+
+**Contexto:** o protótipo trazia "Saúde Ministerial" como score sem definição. Para não inventar fórmula (G-05), o dono escolheu (2026-06-08) ancorar no **GAP de voluntários** (F5) — concreto e já modelável. Score composto (GAP + presença + cobertura de escala) fica como evolução futura, se desejado.
+
+**Implicações:** adiciona `Ministry.volunteers_needed` (PositiveIntegerField, default 0) na Sprint 6.6; novo RF-104; card na home + na página do ministério. Presença/cobertura como sinais adicionais ficam para uma futura iteração (nova OD se virar score).
+
+---
+
 ## Histórico — decisões fechadas
 
 | ID | Decisão | Data | Resultado |
@@ -529,6 +599,10 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 | OD-023 | Nome do produto | 2026-06-05 | **Oikonos** (marca) + CasaIgreja (reserva/descritivo); substitui placeholder "Comunhão"; registro de domínio + INPI pendentes do dono |
 | OD-024 | Módulo Financeiro (básico MVP + avançado) | 2026-06-05 | **Básico no MVP — Sprint 6.7** (lançamentos/dízimos/saldo/**dashboard**/CSV + Tesoureiro ativo); **avançado — Sprint 8** (recibos PDF/conciliação/relatório assembleia/doação online). Produto nasceu de necessidade financeira |
 | OD-025 | Comunicação WhatsApp | 2026-06-05 | Via **Evolution API** self-hosted (transacional/opt-in); Business Cloud API oficial fora; pós-piloto **Sprint 9**; riscos ToS/ban/LGPD documentados |
+| OD-026 | Agenda oficial via Google Calendar | 2026-06-08 | **Sync com Google Calendar** (não Drive); Pastor/Secretário conectam; opt-in sob OD-008; **MVP usa agenda nativa (`Gathering`)**, sync na **Sprint 9**; recorte inicial read-only |
+| OD-027 | Múltiplos pastores por igreja (Pr e Pra) | 2026-06-08 | **Já suportado** — usuários distintos com role `pastor` no `ArrayField` (RN-003a); sem trava de 1/igreja; só revisar cópia de UI singular |
+| OD-028 | Posicionamento do Design v2 | 2026-06-08 | **Sprint 6.6 "Athos v2"** (sidebar vertical + re-skin + home nova) **antes** da 6.7; opção A do A/B do F7; RF-102..105 |
+| OD-029 | Métrica "Saúde do Ministério" | 2026-06-08 | **GAP de voluntários** (atuais × `Ministry.volunteers_needed`), não score composto; RF-104; campo novo na Sprint 6.6 |
 | OD-003a | Storage de mídia | 2026-05-27 | Cloudflare R2 (S3-compatible) desde Sprint 6 |
 | OD-006 | VPS definitivo | 2026-05-27 | Hostinger KVM 2 (8GB, 2 vCPU, 100GB NVMe) |
 | OD-007 | Storage offsite | 2026-05-27 | Cloudflare R2 (mesma conta de OD-003a) |

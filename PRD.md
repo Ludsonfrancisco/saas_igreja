@@ -407,6 +407,15 @@ ID `RF-XXX` · Título · Descrição · Ator · Prioridade (P0/P1/P2) · Módul
 | RF-090 | Dashboard do Pastor | Pastor/Admin | P0 | Dashboard | Total de pessoas por status, presença no último mês, comunidades/ministérios ativos; escopo do tenant | `test_dashboard_scoped_no_leak` | 6 |
 | RF-091 | Dashboard do Líder/Coordenador | Líder, Coordenador | P1 | Dashboard | Versão simplificada limitada à sua comunidade/ministério | `test_dashboard_leader_scope` | 6 |
 
+### 11.10b Home / Agenda / Design v2 (Sprint 6.6 — Athos v2)
+
+| ID | Título | Ator | Prio | Módulo | Critério de aceite | Teste | Sprint |
+|---|---|---|---|---|---|---|---|
+| RF-102 | Calendário de agenda na home | Todos (escopado por papel) | P1 | Home | Calendário expansível na home marca os dias do mês que têm `Gathering`; troca de mês; clicar no dia mostra os encontros do dia; escopado ao tenant/papel | `test_calendar_event_days` | 6.6 |
+| RF-103 | Próximas programações na home | Todos (escopado por papel) | P1 | Home | Card lista os próximos `Gathering` (futuros) ordenados por data, escopados ao papel/comunidade; sem vazamento cross-tenant | `test_home_upcoming_gatherings_scope` | 6.6 |
+| RF-104 | Saúde do Ministério (GAP de voluntários) | Pastor, Coordenador | P1 | Ministérios/Home | `Ministry.volunteers_needed` define a meta; card "Saúde do Ministério" mostra voluntários atuais × necessários (GAP) por ministério (OD-029) | `test_ministry_volunteer_gap` | 6.6 |
+| RF-105 | Shell Athos v2 (sidebar vertical + re-skin) | Sistema | P1 | UI/Design | `app_base.html` com sidebar **vertical**; re-skin de 100% das telas na paleta Oikonos v2; tipografia Inter (corpo) + Poppins (display) + `tabular-nums`; Lighthouse mobile ≥ 90, WCAG AA, zero regressão (OD-028) | `test_base_template_renders_church_theme` + Lighthouse/axe | 6.6 |
+
 ### 11.11 Backup e restore
 
 | ID | Título | Ator | Prio | Módulo | Critério de aceite | Teste | Sprint |
@@ -1191,6 +1200,14 @@ Uma sprint só é considerada pronta quando:
 - **Entregáveis:** app com identidade Athos, mobile-first, acessível, performático; voluntário escalado vê as próprias escalas via magic-link.
 - **Critério de conclusão:** 100% das telas no design system; Lighthouse mobile ≥ 90; WCAG AA; fluxos HTMX/Alpine verdes (zero regressão); **aprovação visual do dono**.
 - **Detalhe operacional:** ver `docs/SPRINTS.md` (princípios DS-01..08, matriz persona × dispositivo, 6 blocos). Marca ≠ tema (OD da direção Terracota & Âmbar) e acesso do voluntário (OD-022).
+
+### Sprint 6.6 — Athos v2 (Design v2 + Home nova · OD-028)
+
+- **Objetivo:** evoluir o shell para **sidebar vertical** + re-skin de todas as telas (Athos v2) e construir a **home nova** (calendário de agenda + próximas programações + card "Saúde do Ministério"), **antes** da 6.7 — para o Financeiro nascer no layout definitivo, sem retrabalho.
+- **Escopo:** **F7** (shell sidebar vertical + re-skin + paleta Oikonos v2 + tipografia Inter/Poppins/`tabular-nums`) · **F4** (calendário/agenda na home, fonte `Gathering.date`) · **F5 parcial** (`Ministry.volunteers_needed` + card GAP). RF-102..105. **Fora:** F2 (renomear Células/Departamentos), F3 (presets de paleta), F6 (convite WhatsApp).
+- **Dependências:** Sprints 1–6 + 6.5. Sem dependência de infra.
+- **Critério:** sidebar vertical + re-skin v2 em 100% das telas; home com calendário/programações/Saúde do Ministério escopados; Lighthouse mobile ≥ 90; WCAG AA; suíte verde (zero regressão); aprovação visual do dono.
+- **Decisões:** OD-028 (posicionamento Design v2 = antes da 6.7), OD-029 (Saúde do Ministério = GAP de voluntários). Referência visual: `referencias/templates/igreja_saas_personalizado.html`.
 
 ### Sprint 6.7 — Financeiro Básico (MVP · OD-024a)
 

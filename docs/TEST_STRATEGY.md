@@ -401,6 +401,21 @@ E2E com **Playwright** (Django test client não roda JS), snapshots visuais e ac
 
 > Gate da Sprint 6.5: fluxos HTMX/Alpine existentes seguem verdes (zero regressão), WCAG AA e Lighthouse mobile ≥ 90.
 
+### 6.14b Design v2 / Home nova (Sprint 6.6 — Athos v2)
+
+Re-skin do shell (sidebar vertical) + home nova (calendário/agenda, próximas programações, Saúde do Ministério). Unit/integração no backend da home + E2E Playwright no re-skin.
+
+| Teste | Cobre |
+|---|---|
+| `test_ministry_volunteer_gap` (GAP = voluntários atuais × `volunteers_needed`) | RF-104 / OD-029 |
+| `test_home_upcoming_gatherings_scope` (próximas programações escopadas por papel, sem vazamento) | RF-103 |
+| `test_calendar_event_days` (dias marcados = dias com `Gathering` do mês/tenant) | RF-102 |
+| E2E `expandir_calendario`, `ver_dia_marcado`, `lista_programacoes_carrega` (mobile 360×640 + desktop) | RF-102/103 |
+| a11y (axe) sem violações críticas na home v2; Lighthouse mobile ≥ 90 | RF-105 |
+| `test_tenant_isolation_matrix` / `test_permissions_matrix` (atualizados com views da home) | RISK-001 |
+
+> Gate da Sprint 6.6: sidebar vertical + re-skin sem regressão (suíte HTMX/Alpine verde), WCAG AA, Lighthouse mobile ≥ 90, matrizes de isolamento/permissão verdes.
+
 ---
 
 ## 7. Padrões de Teste

@@ -613,6 +613,57 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 
 ---
 
+## Sprint 6.6 — Athos v2 (Design v2 + Home nova) — MVP · OD-028
+
+**Objetivo:** evoluir o shell visual para a direção **"Athos v2"** (sidebar **vertical**, re-skin de todas as telas) e construir a **home nova** (calendário de agenda + próximas programações + card "Saúde do Ministério"), **antes** da 6.7 — para o Financeiro já nascer no layout definitivo, sem retrabalho.
+**Posição:** **depois da 6.5** (consolida o design system) e **antes da 6.7/7**. Resolve o A/B do F7 → **OD-028 = opção A**.
+**Referência visual:** `referencias/templates/igreja_saas_personalizado.html` (versionado — o pacote do Claude Design era efêmero).
+**Dependências:** Sprints 1–6 + 6.5. **Sem dependência de infra.**
+**Riscos:** migração de shell (horizontal→vertical) quebrar telas/fluxos HTMX; regressão de Lighthouse; over-design atrasar a 6.7.
+**Recorte:** entram **F7** (shell+re-skin), **F4** (calendário/agenda na home), **F5 parcial** (`Ministry.volunteers_needed` + card GAP). **Fora:** F2 (renomear Células/Departamentos), F3 (presets de paleta), F6 (convite WhatsApp).
+
+### Bloco 1 — Shell / base (F7 · RF-105)
+- [ ] (P0) Reescrever `app_base.html`: **sidebar vertical** escura (sticky ~244px) substituindo o nav-rail horizontal; preservar nav-links por papel.
+- [ ] (P0) Tokens Tailwind v4 (`@theme`): paleta **Oikonos v2** (terra `#C2552C`/`#A8431F`, laranja `#E0892D`, âmbar `#EBB45C`, canvas `#F1EADF`) como base neutra temável por igreja.
+- [ ] (P0) Tipografia: **Inter** (corpo) + **Poppins** (display/marca) + `tabular-nums` em KPIs/números (TECH_SPEC §11 atualizado).
+- [ ] (P0) Re-skin dos componentes do design system (sidebar/navbar/card/badge/table) no visual v2.
+- [ ] (P0) Migração sem quebrar telas existentes; mobile-first ≥ 360px; WCAG AA; Lighthouse mobile ≥ 90 (mantém gate da 6.5).
+
+### Bloco 2 — Backend da home + F5 (RF-102/103/104)
+- [ ] (P0) `Ministry.volunteers_needed` (PositiveIntegerField, default 0) + migração.
+- [ ] (P0) Service/queryset da home (agregado no banco, **P-ARQ-09**, zero N+1): próximos `Gathering` (futuros, escopados por papel); dias do mês com evento (marcadores do calendário); GAP por ministério (voluntários/coordenadores atuais × `volunteers_needed`).
+- [ ] (P0) Escopo por papel (3 camadas: view/service/queryset); `TenantRequiredMixin`.
+
+### Bloco 3 — Home nova / Frontend (F4 + cards · RF-102/103/104)
+- [ ] (P0) **Calendário expansível** (Alpine.js) marcando os dias com `Gathering`; troca de mês via HTMX; clicar no dia → encontros do dia.
+- [ ] (P0) Card **"Próximas programações"** (lista de Gathering futuros, escopada).
+- [ ] (P0) Card **"Saúde do Ministério" = GAP de voluntários** (atual × necessário; barra/badge) — **OD-029**.
+- [ ] (P0) Re-skin dos cards do dashboard (Sprint 6) no visual v2; **estados vazio/loading obrigatórios**.
+
+### Bloco 4 — Matrizes / docs / fechamento
+- [ ] (P0) Atualizar `test_tenant_isolation_matrix` / `test_permissions_matrix` com as views novas da home.
+- [ ] (P0) `ACCESS_MATRIX.md §3.9` atualizada (Home/Agenda + Saúde do Ministério por papel).
+- [ ] (P0) Gate de cobertura dos apps tocados; regressão completa verde.
+
+### Testes mínimos da Sprint 6.6
+- [ ] (P0) `test_ministry_volunteer_gap` (GAP = atuais × `volunteers_needed`)
+- [ ] (P0) `test_home_upcoming_gatherings_scope` (próximas programações escopadas por papel, sem vazamento)
+- [ ] (P0) `test_calendar_event_days` (dias marcados = dias com `Gathering` do mês/tenant)
+- [ ] (P0) E2E Playwright: expandir calendário, ver dia marcado, lista de programações carrega (mobile 360×640 + desktop)
+- [ ] (P0) a11y (axe) sem violações críticas na home v2; **Lighthouse mobile ≥ 90**
+- [ ] (P0) Suíte de regressão inteira verde (zero regressão HTMX/Alpine no re-skin)
+- [ ] (P0) `test_tenant_isolation_matrix` / `test_permissions_matrix` atualizados e verdes
+
+### Critério de conclusão da Sprint 6.6
+- [ ] Shell **sidebar vertical** + re-skin v2 em **100% das telas** (zero markup do shell antigo)
+- [ ] Tipografia **Inter + Poppins + `tabular-nums`** aplicada; paleta **Oikonos v2** temável por igreja
+- [ ] Home nova com **calendário de agenda + próximas programações + card Saúde do Ministério (GAP)**, escopados e sem vazamento cross-tenant
+- [ ] **Lighthouse mobile ≥ 90** e **WCAG AA**; suíte verde (zero regressão)
+- [ ] **Aprovação visual do dono**
+- [ ] Docs atualizadas (PRD RF-102..105, OD-028/029, ACCESS_MATRIX §3.9, TECH_SPEC §11)
+
+---
+
 ## Sprint 6.7 — Financeiro Básico (`apps/finance`) — MVP · OD-024(a)
 
 **Objetivo:** dar **tesouraria básica** à igreja **dentro do MVP** — o produto **nasceu de uma necessidade financeira**, então financeiro é gênese, não add-on. O **piloto Athos entra com financeiro**.

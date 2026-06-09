@@ -37,7 +37,7 @@ Em caso de dúvida sobre escopo: **pergunte ao dono em vez de assumir.**
 | `docs/TECH_SPEC.md` | Stack, models completos, princípios P-ARQ-01..09, anti-padrões AP-01..13, healthcheck, CI/CD |
 | `docs/ACCESS_MATRIX.md` | Matriz papel × módulo × ação; mixins; multi-role; SupportAccess |
 | `docs/TEST_STRATEGY.md` | Fixtures, gates de cobertura, testes obrigatórios por categoria |
-| `docs/SPRINTS.md` | 9 sprints (0–7, com **6.5 Design/UI Athos** entre 6 e 7) com tasks `[ ]/[x]`, testes mínimos, critérios de conclusão |
+| `docs/SPRINTS.md` | Sprints 0–7 (com **6.5 Design/UI Athos**, **6.6 Athos v2** e **6.7 Financeiro** entre 6 e 7) com tasks `[ ]/[x]`, testes mínimos, critérios de conclusão |
 | `docs/OPEN_DECISIONS.md` | Decisões fechadas (histórico) e abertas (tracking) |
 
 Conflito entre documentos: prevalece o mais específico e recente. Conflito não resolvível → registrar em `OPEN_DECISIONS.md` e aplicar regra mais conservadora em segurança.
@@ -134,12 +134,13 @@ P-ARQ-01 App-per-Bounded-Context · P-ARQ-02 `BaseModel(created_at, updated_at)`
 
 ## Sprint progression (não pular foundation)
 
-Ordem obrigatória (MVP = 0..7 + 6.5 + 6.7; pós-MVP = 8, 9; depois lançamento):
+Ordem obrigatória (MVP = 0..7 + 6.5 + 6.6 + 6.7; pós-MVP = 8, 9; depois lançamento):
 
 ```
 Sprint 0 (docs) → 1 (Django+tenants+health) → 2 (auth+convites+autoriz+audit+SupportAccess+MFA opt-in)
 → 3 (Pessoas+Comunidades+Ministérios+LGPD) → 4 (Encontros+Presença) → 5 (Escalas+conflito)
 → 6 (Files R2+Dashboard) → 6.5 (Design System/UI Athos — base.html+Tailwind+tema por igreja, mobile-first, magic-link do voluntário OD-022)
+→ 6.6 (Athos v2 — sidebar vertical + re-skin + home nova: calendário/agenda+próximas programações+Saúde do Ministério/GAP; Inter+Poppins+tnum; RF-102..105, OD-028/029)
 → 6.7 (Financeiro Básico — apps/finance: lançamentos/dízimos/saldo/dashboard, ativa Tesoureiro, OD-024a — produto nasceu de necessidade financeira)
 → 7 (Deploy+Backup+Restore+MFA enforce+Pen test+Piloto Athos)
 --- fim do MVP / pós-piloto ---
@@ -148,6 +149,8 @@ Sprint 0 (docs) → 1 (Django+tenants+health) → 2 (auth+convites+autoriz+audit
 ```
 
 > **6.5 antes do Piloto:** a estilização das telas (design system Athos) e o Lighthouse mobile ≥90 saíram da Sprint 7 e viraram a Sprint 6.5 — o primeiro cliente (Athos) precisa ver o produto polido. Sem dependência de infra; pode correr em paralelo ao provisionamento da 7.
+>
+> **6.6 (Athos v2) antes da 6.7 (OD-028):** o re-skin para o layout novo (sidebar **vertical** + paleta Oikonos v2 + tipografia Inter/Poppins/`tabular-nums`) e a **home nova** (calendário/agenda + próximas programações + card "Saúde do Ministério" = GAP de voluntários/OD-029) entram **antes** do Financeiro, para o `apps/finance` nascer no layout definitivo. Referência visual: `referencias/templates/igreja_saas_personalizado.html`.
 >
 > **8 e 9 são pós-piloto:** Financeiro (DOR #1) e WhatsApp/Evolution (DOR #5) são grandes diferenciais, mas ficam **depois** do piloto para não estourar o MVP. O **MVP/piloto não tem divulgação de marca**; o **slogan/landing é do lançamento** (pós-Sprint 9), quando o produto já tem tudo.
 

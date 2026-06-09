@@ -443,6 +443,8 @@ class Ministry(BaseModel, AuditLogMixin):
     name = models.CharField(max_length=80)
     # OD-019: M2M, não FK — vários coordenadores por ministério.
     coordinators = models.ManyToManyField('people.Person', blank=True, related_name='ministries_led')
+    # Sprint 6.6 (RF-104/OD-029): meta de voluntários p/ card "Saúde do Ministério" (GAP = atuais × needed).
+    volunteers_needed = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
 ```
 
@@ -731,9 +733,10 @@ Regressão coberta por `test_list_users_requires_login` e
 - **Referência viva:** `referencias/templates/igreja_saas_novo.html` (padrão de qualidade do app) + `referencias/` (direção da marca). **Marca ≠ tema:** a marca/landing é **Terracota & Âmbar fixa** (Fraunces/Inter); o **app** usa a Paleta Athos abaixo como **base neutra temável por igreja**.
 - **Paleta do APP (premium — `referencias/templates/igreja_saas_personalizado.html`):** `#864507` (accent/primary), `#6A3302` (accent-2/hover), `#F59A17` (hot/âmbar), `#F8F1E8` (bg), `#F6EADC` (bg-soft), `#FFFEFA` (paper), `#161412` (ink), `#6C6259` (muted), `#EADFD2` (hairline), `#557A35` (success), `#B43A21` (danger). _(accent/hot são temáveis por igreja; o resto é base neutra.)_ **Premium:** body com radial-gradients quentes, `.card`/`.stat-pill` com sombras suaves, nav-rail com gradiente, hovers sutis, scrollbar fina.
 - **Logo/identidade:** o **logo** (símbolo terracota + wordmark OIKONOS) vem da identidade `oikonos_identidade_6_partes/` (mark terracota `#C75A3B`); convive com a UI premium (paleta quente). Logo em `static/img/oikonos-logo.png`.
-- **Tipografia:** **Poppins** (Semibold títulos/marca; Regular corpo).
+- **Tipografia (atualizada Sprint 6.6 / Athos v2):** **Inter** (corpo) + **Poppins** (display/títulos/marca) + `tabular-nums` em KPIs/números. _(Até a 6.5 o app usava Poppins para tudo; a v2 adota o pareamento Inter+Poppins confirmado pelo protótipo `igreja_saas_personalizado.html`.)_
 - **Customização por tenant:** `Church.accent_color`/`hot_color` (defaults `#864507`/`#F59A17`) + `Church.logo` injetados em CSS variables no `<html>` — base neutra + acento por igreja.
 - **Mobile-first (DS-03):** papéis operacionais (Líder/Coordenador/voluntário) priorizam mobile (bottom-nav); admin (Pastor/Secretário/Tesoureiro) cobrem desktop **e** mobile. Acessibilidade WCAG AA; Lighthouse mobile ≥ 90 (Sprint 6.5).
+- **Shell Athos v2 (Sprint 6.6 · RF-105/OD-028):** o `app_base.html` migra do nav-rail **horizontal** para **sidebar vertical** escura (sticky ~244px). Re-skin de 100% das telas na **paleta Oikonos v2** (terra `#C2552C`/`#A8431F`, laranja `#E0892D`, âmbar `#EBB45C`, canvas `#F1EADF`), mantida temável por igreja. Home nova: calendário de agenda (`Gathering.date`), próximas programações e card "Saúde do Ministério" (GAP de voluntários, OD-029).
 
 ### 11.1 TailwindCSS — build (v4, CSS-first; **implementado Sprint 6.5/Bloco 1**)
 
@@ -742,7 +745,7 @@ Tailwind **v4** (config no CSS via `@theme`, sem `tailwind.config.js`). Compilad
 - **Fonte:** `static/src/input.css` (`@import 'tailwindcss'` + `@theme` com a Paleta Athos + `@source` apontando para `templates/` e `apps/`).
 - **Acento temável por igreja:** no `@theme`, `--color-accent: var(--accent)` / `--color-hot: var(--hot)`; os defaults ficam em `:root` e são **sobrescritos por igreja** no `base.html` (`apps.core.context_processors.church_theme` lê `Church.accent_color`/`hot_color`/`logo`). A base neutra (bg/ink/paper/…) é fixa.
 - **Build:** `uv run tailwindcss -i static/src/input.css -o static/css/app.css --minify` → `app.css` servido via `{% static %}` (compilado/purgado, não CDN → DS-05/Lighthouse).
-- **Tipografia (Google Fonts):** Inter (corpo), Montserrat (display), Instrument Serif (destaque).
+- **Tipografia (Google Fonts — Athos v2):** **Inter** (corpo), **Poppins** (display/marca); `tabular-nums` nos números/KPIs.
 
 ```css
 /* static/src/input.css (trecho) */
@@ -753,8 +756,8 @@ Tailwind **v4** (config no CSS via `@theme`, sem `tailwind.config.js`). Compilad
   --color-accent: var(--accent);   /* Church.accent_color */
   --color-hot: var(--hot);         /* Church.hot_color */
   --color-bg: #efe7da; --color-paper: #fff; --color-ink: #161412; /* … base neutra fixa */
-  --font-sans: 'Poppins', system-ui, sans-serif;
-  --font-display: 'Poppins', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;      /* corpo (Athos v2) */
+  --font-display: 'Poppins', system-ui, sans-serif; /* display/marca */
 }
 :root { --accent: #864507; --hot: #f59a17; }  /* defaults premium; base.html sobrescreve por igreja */
 ```
