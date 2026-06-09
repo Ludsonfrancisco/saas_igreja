@@ -8,11 +8,13 @@ O tenant atual é resolvido pelo `TenantMiddleware` (django-tenants) em
 public, sem tenant) ou se algo faltar, caímos nos defaults Athos — nunca quebra.
 """
 
-# Defaults = MARCA OIKONOS (identidade: terracota + âmbar). Espelham o input.css.
-# Uma igreja sem cor customizada herda a identidade Oikonos.
-_DEFAULT_ACCENT = '#864507'
-_DEFAULT_ACCENT_2 = '#6A3302'
-_DEFAULT_HOT = '#F59A17'
+# Defaults = MARCA OIKONOS v2 (terra + âmbar). Espelham o :root do input.css.
+# Uma igreja sem cor customizada herda a identidade Oikonos v2 (Athos v2 · Sprint 6.6).
+# Accent ajustado de #C2552C → #BC5028 p/ passar WCAG AA (texto branco-quente
+# sobre o accent). Espelha o :root do input.css. Confirmar com o dono (G-05).
+_DEFAULT_ACCENT = '#BC5028'
+_DEFAULT_ACCENT_2 = '#A8431F'
+_DEFAULT_HOT = '#EBB45C'
 
 
 def church_theme(request):

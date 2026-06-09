@@ -1,0 +1,6 @@
+{% comment %}Item da sidebar vertical (Athos v2 · renderizado por {% side_link %}).
+Props: path, label, icon, active. Usado na sidebar desktop e no drawer mobile.{% endcomment %}
+<a href="{{ path }}" class="side-item{% if active %} is-active{% endif %}"{% if active %} aria-current="page"{% endif %}>
+  <i data-lucide="{{ icon }}" aria-hidden="true"></i>
+  <span>{{ label }}</span>
+</a>

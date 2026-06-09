@@ -31,5 +31,7 @@ def test_church_theme_falls_back_to_oikonos_without_tenant(rf):
     # rf não seta request.tenant → getattr cai no fallback.
     ctx = church_theme(request)
 
-    assert ctx['theme_accent'] == '#864507'
+    # Default = acento da marca Oikonos v2 (Athos v2 · Sprint 6.6). #BC5028 = #C2552C
+    # ajustado p/ contraste WCAG AA do botão primário.
+    assert ctx['theme_accent'] == '#BC5028'
     assert ctx['church_name'] == 'Oikonos'

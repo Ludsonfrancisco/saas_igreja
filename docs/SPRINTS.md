@@ -570,41 +570,43 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 - [x] (P0) Arquivos: lista/filtros/confirm-delete. **30 testes.**
 - _Infra criada e reutilizada: `components/form`+`form_field`+`add_class` (forms estilizados), padrões de lista/detalhe/confirm. Telas públicas (aceite de convite/login) → Bloco 5 (Auth)._
 
-#### Bloco 4 — Telas OPERACIONAIS (Líder / Coordenador) — mobile-first
-- [ ] (P0) Dashboard simplificado (comunidade/ministério) em cards mobile.
-- [ ] (P0) **Marcar presença** — o fluxo-estrela do Líder: lista de pessoas, marcação em lote, HTMX swap, feedback imediato, otimizado para uma mão. (Tela mais usada do produto.)
-- [ ] (P0) Encontros: lista/detalhe mobile.
-- [ ] (P0) Escalas: minha escala / escalas do ministério; **aprovação de exceção** (Coordenador) com justificativa.
-- [ ] (P0) Pessoas no escopo (comunidade/ministério) em cards mobile.
+#### Bloco 4 — Telas OPERACIONAIS (Líder / Coordenador) — mobile-first ✅
+- [x] (P0) Dashboard simplificado (comunidade/ministério) em cards mobile.
+- [x] (P0) **Marcar presença** — o fluxo-estrela do Líder: lista de pessoas, marcação em lote, HTMX swap, feedback imediato, otimizado para uma mão. (Tela mais usada do produto.) — `attendance_mark.html`.
+- [x] (P0) Encontros: lista/detalhe mobile.
+- [x] (P0) Escalas: minha escala / escalas do ministério; **aprovação de exceção** (Coordenador) com justificativa.
+- [x] (P0) Pessoas no escopo (comunidade/ministério) em cards mobile.
 
-#### Bloco 5 — Auth, polish transversal e Voluntário escalado (OD-022)
-- [ ] (P0) Telas de autenticação (login, reset de senha, **aceite de convite**) — primeira impressão da marca; aqui a identidade pode beirar a marca Terracota.
-- [ ] (P0) Estados globais consistentes: vazio/erro/sucesso, toasts, skeletons de loading.
-- [ ] (P1) **Voluntário escalado — magic-link (OD-022):** acesso read-only "minhas escalas"/"próximos encontros", mobile, **sem conta/senha/MFA**. Distinto do Membro geral (OD-004, sem acesso). Inclui **sub-tarefa de backend** (não é só UI): gerar token assinado escopado à `Person` (TTL); view tokenizada read-only que só mostra os dados da própria pessoa; disparar o link na notificação de escala; avaliar `SecurityLog` no acesso.
-- [ ] (P2) Dark mode — fora do MVP (registrar como ideia futura).
+#### Bloco 5 — Auth, polish transversal e Voluntário escalado (OD-022) ✅
+- [x] (P0) Telas de autenticação (login, reset de senha, **aceite de convite**) — primeira impressão da marca; aqui a identidade pode beirar a marca Terracota. (via `templates/allauth/layouts/base.html`.)
+- [x] (P0) Estados globais consistentes: vazio/erro/sucesso, toasts, skeletons de loading.
+- [x] (P1) **Voluntário escalado — magic-link (OD-022):** acesso read-only "minhas escalas"/"próximos encontros", mobile, **sem conta/senha/MFA**. Distinto do Membro geral (OD-004, sem acesso). Inclui **sub-tarefa de backend** (não é só UI): gerar token assinado escopado à `Person` (TTL); view tokenizada read-only que só mostra os dados da própria pessoa; disparar o link na notificação de escala; avaliar `SecurityLog` no acesso. — `apps/schedules/tokens.py` + `volunteer_schedule.html`.
+- [ ] (P2) Dark mode — **adiado (fora do MVP, ideia futura)** — não implementado, não bloqueia o fechamento.
 
-#### Bloco 6 — QA visual, acessibilidade e performance
-- [ ] (P0) E2E com **Playwright** dos fluxos-chave por papel (login, marcar presença mobile, criar pessoa, aprovar exceção) — `qa-pytest-playwright`.
-- [ ] (P0) Snapshots visuais **mobile (360×640) + desktop** das telas principais.
-- [ ] (P0) Auditoria de acessibilidade (axe / checagens WCAG AA): contraste, foco, teclado.
-- [ ] (P0) **Lighthouse mobile ≥ 90** nas telas principais (este é o critério que estava na Sprint 7 — passa a ser entregue aqui).
-- [ ] (P0) Regressão: suíte existente (HTMX/Alpine flows) continua verde após a estilização.
+#### Bloco 6 — QA visual, acessibilidade e performance ✅
+- [x] (P0) E2E com **Playwright** dos fluxos-chave por papel (login, marcar presença mobile, criar pessoa, aprovar exceção) — `apps/e2e/test_e2e_flows.py`.
+- [x] (P0) Snapshots visuais **mobile (360×640) + desktop** das telas principais.
+- [x] (P0) Auditoria de acessibilidade (axe / checagens WCAG AA): contraste, foco, teclado — `apps/e2e/test_e2e_a11y.py` + `axe.min.js`.
+- [x] (P0) **Lighthouse mobile ≥ 90** nas telas principais (este é o critério que estava na Sprint 7 — passa a ser entregue aqui).
+- [x] (P0) Regressão: suíte existente (HTMX/Alpine flows) continua verde após a estilização.
 
 ### Testes mínimos da Sprint 6.5
-- [ ] (P0) `test_base_template_renders_church_theme` (CSS vars do tema da Church na resposta)
-- [ ] (P0) E2E Playwright: `login`, `marcar_presenca_mobile`, `criar_pessoa_desktop`, `aprovar_excecao`
-- [ ] (P0) Snapshot visual mobile+desktop das telas principais (sem regressão visual)
-- [ ] (P0) a11y (axe) sem violações críticas nas telas principais
-- [ ] (P0) Lighthouse mobile ≥ 90 (telas principais)
-- [ ] (P0) Suíte de regressão (pytest) inteira verde — fluxos HTMX/Alpine preservados
+- [x] (P0) `test_base_template_renders_church_theme` (CSS vars do tema da Church na resposta)
+- [x] (P0) E2E Playwright: `login`, `marcar_presenca_mobile`, `criar_pessoa_desktop`, `aprovar_excecao`
+- [x] (P0) Snapshot visual mobile+desktop das telas principais (sem regressão visual)
+- [x] (P0) a11y (axe) sem violações críticas nas telas principais
+- [x] (P0) Lighthouse mobile ≥ 90 (telas principais)
+- [x] (P0) Suíte de regressão (pytest) inteira verde — fluxos HTMX/Alpine preservados
 
 ### Critério de conclusão da Sprint 6.5
-- [ ] `base.html` + design system + tema por igreja aplicados a **100% das telas** (zero markup mínimo restante)
-- [ ] Mobile-first validado nos papéis operacionais (Líder/Coordenador); desktop **e** mobile nos papéis admin (Pastor/Secretário/Tesoureiro)
-- [ ] **Lighthouse mobile ≥ 90** e **WCAG AA** nas telas principais
-- [ ] Fluxos HTMX/Alpine preservados (suíte verde) — zero regressão funcional
-- [ ] **Aprovação visual do dono** (preview por papel, mobile + desktop)
-- [ ] Voluntário escalado: magic-link read-only (OD-022) implementado e funcional no mobile
+- [x] `base.html` + design system + tema por igreja aplicados a **100% das telas** (zero markup mínimo restante)
+- [x] Mobile-first validado nos papéis operacionais (Líder/Coordenador); desktop **e** mobile nos papéis admin (Pastor/Secretário/Tesoureiro)
+- [x] **Lighthouse mobile ≥ 90** e **WCAG AA** nas telas principais
+- [x] Fluxos HTMX/Alpine preservados (suíte verde) — zero regressão funcional
+- [x] **Aprovação visual do dono** (preview por papel, mobile + desktop)
+- [x] Voluntário escalado: magic-link read-only (OD-022) implementado e funcional no mobile
+
+> **Sprint 6.5 fechada (commit `ec87cd5`).** Checkboxes formalizados em 2026-06-08. Único item não entregue: Dark mode (P2, adiado/fora do MVP por decisão). Navegação mobile entregue como **nav-rail horizontal ícone-only rolável** (não bottom-nav/hambúrguer) — na Sprint 6.6 a **sidebar vertical** terá no mobile **menu hambúrguer + drawer off-canvas** (decidido pelo dono 2026-06-08).
 
 ### Decisões a registrar em `OPEN_DECISIONS.md`
 - **Tailwind compilado vs CDN** (recomendação: compilado, por Lighthouse/DS-05).
@@ -624,6 +626,7 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 
 ### Bloco 1 — Shell / base (F7 · RF-105)
 - [ ] (P0) Reescrever `app_base.html`: **sidebar vertical** escura (sticky ~244px) substituindo o nav-rail horizontal; preservar nav-links por papel.
+- [ ] (P0) **Mobile = menu hambúrguer + drawer off-canvas (decidido pelo dono 2026-06-08):** no mobile a sidebar vertical fica **escondida** e abre como **drawer deslizante da esquerda** acionado por botão hambúrguer no header (Alpine: `x-data`/`@click`, overlay com `@click.outside`/`escape`, `aria-expanded`, foco preso). **Proibido** sidebar fixa aberta no mobile (inviável navegar). Desktop (`lg+`) = sidebar sempre visível.
 - [ ] (P0) Tokens Tailwind v4 (`@theme`): paleta **Oikonos v2** (terra `#C2552C`/`#A8431F`, laranja `#E0892D`, âmbar `#EBB45C`, canvas `#F1EADF`) como base neutra temável por igreja.
 - [ ] (P0) Tipografia: **Inter** (corpo) + **Poppins** (display/marca) + `tabular-nums` em KPIs/números (TECH_SPEC §11 atualizado).
 - [ ] (P0) Re-skin dos componentes do design system (sidebar/navbar/card/badge/table) no visual v2.
@@ -649,6 +652,7 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 - [ ] (P0) `test_ministry_volunteer_gap` (GAP = atuais × `volunteers_needed`)
 - [ ] (P0) `test_home_upcoming_gatherings_scope` (próximas programações escopadas por papel, sem vazamento)
 - [ ] (P0) `test_calendar_event_days` (dias marcados = dias com `Gathering` do mês/tenant)
+- [ ] (P0) E2E Playwright (mobile 360×640): **abrir o menu hambúrguer** → drawer desliza, navegar, fechar (overlay/escape); desktop = sidebar fixa visível
 - [ ] (P0) E2E Playwright: expandir calendário, ver dia marcado, lista de programações carrega (mobile 360×640 + desktop)
 - [ ] (P0) a11y (axe) sem violações críticas na home v2; **Lighthouse mobile ≥ 90**
 - [ ] (P0) Suíte de regressão inteira verde (zero regressão HTMX/Alpine no re-skin)

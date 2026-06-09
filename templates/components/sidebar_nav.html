@@ -1,0 +1,21 @@
+{% comment %}Links de navegação por papel (Athos v2 · Sprint 6.6). Espelha a ACCESS_MATRIX
+— MESMA lógica de papéis do antigo components/nav.html. Renderiza apenas a LISTA de
+itens (`.side-item`); o container (sidebar desktop OU drawer mobile) é de quem inclui.
+Conta/Sair vivem no menu do usuário (header), não aqui.{% endcomment %}
+{% load nav_extras %}
+{% side_link '/' 'Painel' 'layout-dashboard' match='/painel' %}
+{% if 'pastor' in user.roles or 'secretary' in user.roles or 'leader' in user.roles %}
+  {% side_link '/pessoas/' 'Pessoas' 'users' %}
+  {% side_link '/comunidades/' 'Comunidades' 'home' %}
+  {% side_link '/ministerios/' 'Ministérios' 'heart-handshake' %}
+  {% side_link '/encontros/' 'Encontros' 'calendar' %}
+  {% side_link '/escalas/' 'Escalas' 'clipboard-list' %}
+{% endif %}
+{% if 'pastor' in user.roles or 'secretary' in user.roles or 'leader' in user.roles or 'treasurer' in user.roles %}
+  {% side_link '/arquivos/' 'Arquivos' 'folder' %}
+{% endif %}
+{% if 'pastor' in user.roles or 'secretary' in user.roles %}
+  <div class="side-section">Administração</div>
+  {% side_link '/configuracoes/usuarios/' 'Acessos' 'shield' %}
+  {% side_link '/configuracoes/convites/' 'Convites' 'mail' %}
+{% endif %}

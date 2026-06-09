@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
-{% comment %}Styleguide do design system Oikonos (Sprint 6.5 / Bloco 1). Dev-only.
+{% load static %}
+{% comment %}Styleguide do design system Oikonos — Athos v2 (Sprint 6.6 / Bloco 1). Dev-only.
 Vitrine de tokens e componentes para revisão visual. NÃO é tela de produto.{% endcomment %}
 {% block title %}Styleguide · Oikonos{% endblock %}
 
 {% block content %}
-  {% include 'components/page_header.html' with title='Design System — Oikonos' subtitle='Vitrine de tokens e componentes (Sprint 6.5). O acento muda por igreja (Church.accent/hot).' %}
+  {% include 'components/page_header.html' with title='Design System — Oikonos (Athos v2)' subtitle='Vitrine de tokens e componentes (Sprint 6.6). Sidebar vertical + Inter/Poppins; o acento muda por igreja (Church.accent/hot).' %}
 
   {# ── Cores ── #}
   <section class="mb-10">
@@ -13,9 +14,30 @@ Vitrine de tokens e componentes para revisão visual. NÃO é tela de produto.{%
       <div class="rounded-xl2 border border-hairline bg-accent p-4 text-paper shadow-soft"><span class="text-xs">accent (igreja)</span></div>
       <div class="rounded-xl2 border border-hairline bg-accent-2 p-4 text-paper shadow-soft"><span class="text-xs">accent-2</span></div>
       <div class="rounded-xl2 border border-hairline bg-hot p-4 text-ink shadow-soft"><span class="text-xs">hot (igreja)</span></div>
-      <div class="rounded-xl2 border border-hairline bg-bg p-4 text-ink"><span class="text-xs">bg</span></div>
+      <div class="rounded-xl2 border border-hairline bg-orange p-4 text-paper shadow-soft"><span class="text-xs">orange</span></div>
+      <div class="rounded-xl2 border border-hairline bg-bg p-4 text-ink"><span class="text-xs">bg (canvas)</span></div>
       <div class="rounded-xl2 border border-hairline bg-bg-soft p-4 text-ink"><span class="text-xs">bg-soft</span></div>
       <div class="rounded-xl2 border border-hairline bg-paper p-4 text-ink shadow-soft"><span class="text-xs">paper</span></div>
+      <div class="rounded-xl2 border border-hairline bg-sidebar p-4 text-sidebar-ink"><span class="text-xs">sidebar</span></div>
+    </div>
+  </section>
+
+  {# ── Shell: sidebar vertical (Athos v2) ── #}
+  <section class="mb-10">
+    <h2 class="mb-3 font-display text-lg font-semibold">Shell — sidebar vertical</h2>
+    <p class="mb-3 text-sm text-muted">Desktop: sidebar escura fixa à esquerda. Mobile: escondida + hambúrguer abre drawer off-canvas. Demonstração estática (1 item ativo):</p>
+    <div class="sidebar w-[244px] max-w-full overflow-hidden rounded-xl2">
+      <div class="sidebar-brand flex h-16 items-center gap-2.5 px-5">
+        <img src="{% static 'img/oikonos-logo.png' %}" alt="" width="32" height="32" class="h-8 w-8">
+        <span class="font-display text-lg font-semibold tracking-wide">OIKONOS</span>
+      </div>
+      <nav class="space-y-1 px-3 pb-4 pt-2">
+        <a href="#" class="side-item is-active" aria-current="page"><i data-lucide="layout-dashboard" aria-hidden="true"></i><span>Painel</span></a>
+        <a href="#" class="side-item"><i data-lucide="users" aria-hidden="true"></i><span>Pessoas</span></a>
+        <a href="#" class="side-item"><i data-lucide="calendar" aria-hidden="true"></i><span>Encontros</span></a>
+        <div class="side-section">Administração</div>
+        <a href="#" class="side-item"><i data-lucide="shield" aria-hidden="true"></i><span>Acessos</span></a>
+      </nav>
     </div>
   </section>
 
@@ -24,8 +46,9 @@ Vitrine de tokens e componentes para revisão visual. NÃO é tela de produto.{%
     <h2 class="mb-3 font-display text-lg font-semibold">Tipografia</h2>
     <div class="space-y-2 rounded-xl2 border border-hairline bg-paper p-6 shadow-soft">
       <p class="font-display text-3xl font-semibold tracking-wide">POPPINS SEMIBOLD — marca / títulos</p>
-      <p class="font-sans text-base">Poppins — corpo de texto. Organize a igreja, fortaleça o ministério.</p>
-      <p class="font-sans text-sm text-muted">Poppins regular — texto de apoio</p>
+      <p class="font-sans text-base">Inter — corpo de texto. Organize a igreja, fortaleça o ministério.</p>
+      <p class="font-sans text-sm text-muted">Inter regular — texto de apoio</p>
+      <p class="tnum font-sans text-2xl font-bold">R$ 12.340,00 · 1.234 presenças <span class="text-sm font-normal text-muted">(tabular-nums)</span></p>
     </div>
   </section>
 

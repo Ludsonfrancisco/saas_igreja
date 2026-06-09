@@ -566,6 +566,8 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 
 **Implicações:** reescreve `app_base.html` (horizontal→vertical); atualiza `TECH_SPEC §11` (tipografia + shell v2); novos RF-102..105; mantém gates da 6.5 (Lighthouse mobile ≥ 90, WCAG AA, zero regressão). Referência visual versionada: `referencias/templates/igreja_saas_personalizado.html`.
 
+**Ajuste de cor (decidido 2026-06-09):** o accent terra do protótipo `#C2552C` reprovava no **WCAG AA** (texto branco-quente sobre ele = 4.46:1 < 4.5:1). Accent default da v2 fixado em **`#BC5028`** (mesma família terra, 4.79:1) — aprovado pelo dono. Continua **temável por igreja** (`Church.accent_color`); a11y prevalece sobre o hex exato do protótipo.
+
 ---
 
 ### OD-029 — "Saúde do Ministério" = GAP de voluntários (não score composto)

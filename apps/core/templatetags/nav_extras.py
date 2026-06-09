@@ -1,7 +1,8 @@
-"""Template tags da navegação do app (Sprint 6.5 / Bloco 2).
+"""Template tags da navegação do app.
 
-`nav_link` renderia um item de menu com estado ATIVO derivado de `request.path`
-(`exact=True` para a home `/`; senão, prefixo). Usado no sidebar e no drawer mobile.
+`side_link` (Sprint 6.6 / Athos v2) renderiza um item VERTICAL da sidebar
+(`.side-item`) — usado tanto na sidebar desktop quanto no drawer mobile.
+Deriva o estado ATIVO de `request.path`.
 """
 
 from django import template
@@ -9,20 +10,23 @@ from django import template
 register = template.Library()
 
 
-@register.inclusion_tag('components/_nav_link.html', takes_context=True)
-def nav_link(context, path, label, icon, exact=False, match=None):
-    """Item de navegação (link + ícone Lucide) com destaque do item atual.
+def _is_active(request, path, exact=False, match=None):
+    """Estado ativo de um item a partir de `request.path`.
 
-    `match` (opcional) = prefixo de caminho usado SÓ para o estado ativo, quando o
-    `href` difere da rota real (ex.: "Painel" aponta para `/` mas destaca em
-    `/painel*`). Sem `match`: `exact` compara igualdade; senão, prefixo do `path`.
+    `match` (opcional) = prefixo usado SÓ para o ativo, quando o `href` difere da
+    rota real (ex.: "Painel" aponta para `/` mas destaca em `/painel*`). Sem
+    `match`: `exact` compara igualdade; senão, prefixo do `path`.
     """
-    request = context.get('request')
     current = getattr(request, 'path', '') or ''
     if match:
-        active = current.startswith(match)
-    elif exact:
-        active = current == path
-    else:
-        active = path != '/' and current.startswith(path)
+        return current.startswith(match)
+    if exact:
+        return current == path
+    return path != '/' and current.startswith(path)
+
+
+@register.inclusion_tag('components/_side_link.html', takes_context=True)
+def side_link(context, path, label, icon, exact=False, match=None):
+    """Item de navegação VERTICAL da sidebar/drawer (Athos v2) com destaque do item atual."""
+    active = _is_active(context.get('request'), path, exact=exact, match=match)
     return {'path': path, 'label': label, 'icon': icon, 'active': active}

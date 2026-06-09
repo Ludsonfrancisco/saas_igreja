@@ -22,12 +22,15 @@ mensagens (toasts Alpine) + skip-link (a11y). O shell de navegação por papel
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  {# Athos v2 (Sprint 6.6): Inter (corpo) + Poppins (display/marca) #}
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 
   <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
   <link rel="stylesheet" href="{% static 'css/app.css' %}">
 
   <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+  {# Alpine Focus plugin (x-trap) ANTES do core — foco preso no drawer mobile (a11y). #}
+  <script src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.14.1/dist/cdn.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
   <script src="https://unpkg.com/lucide@0.469.0" defer></script>
   {% block head_extra %}{% endblock %}

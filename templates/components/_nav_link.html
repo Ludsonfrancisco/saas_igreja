@@ -1,5 +1,0 @@
-{% comment %}Item do nav-rail horizontal (renderizado por {% nav_link %}). Props: path, label, icon, active.{% endcomment %}
-<a href="{{ path }}" class="nav-item{% if active %} is-active{% endif %}"{% if active %} aria-current="page"{% endif %}>
-  <i data-lucide="{{ icon }}" class="h-[1.1rem] w-[1.1rem] shrink-0"></i>
-  <span class="lbl">{{ label }}</span>
-</a>
