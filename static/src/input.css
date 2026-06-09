@@ -161,3 +161,140 @@
     opacity: 0.75;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   Athos v3 — "Painel Oikonos" (design igreja-athos-dashboard, Sprint 6.6)
+   Shell flutuante (sidebar arredondada + topbar em card) + cards do painel.
+   Reusa os tokens Oikonos v2; acento temável por igreja (--accent).
+   ════════════════════════════════════════════════════════════════════ */
+@layer components {
+  /* ── Shell flutuante ── */
+  .app-shell { display: flex; min-height: 100vh; gap: 16px; padding: 14px; }
+  @media (min-width: 1024px) { .app-shell { gap: 18px; padding: 16px; } }
+
+  /* Sidebar flutuante arredondada (desktop). No mobile vira drawer (.sidebar). */
+  .app-sidebar {
+    width: 244px; flex: none; align-self: stretch;
+    background: linear-gradient(180deg, var(--color-sidebar), #16110d);
+    border-radius: 26px; padding: 24px 16px 20px;
+    display: flex; flex-direction: column;
+    position: sticky; top: 16px; height: calc(100vh - 32px);
+  }
+  .app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+
+  /* ── Topbar em card ── */
+  .topbar-card {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--color-paper); border: 1px solid var(--athos-line);
+    border-radius: 18px; padding: 9px 12px; box-shadow: var(--shadow-soft);
+  }
+  .topbar-search {
+    flex: 1; display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; background: var(--color-bg-soft); border-radius: 13px;
+  }
+  .topbar-search input {
+    border: none; background: transparent; outline: none; width: 100%;
+    font-family: inherit; font-size: 0.86rem; color: var(--color-ink);
+  }
+  .topbar-search input::placeholder { color: var(--color-muted-2); }
+  .icon-btn {
+    position: relative; width: 42px; height: 42px; border-radius: 12px; flex: none;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--color-bg-soft); color: var(--color-muted); cursor: pointer;
+    transition: background-color .15s ease;
+  }
+  .icon-btn:hover { background: color-mix(in srgb, var(--color-bg-soft) 88%, #000 8%); color: var(--color-ink); }
+  .icon-btn i, .icon-btn svg { width: 1.18rem; height: 1.18rem; }
+  .badge-dot {
+    position: absolute; top: 6px; right: 7px; min-width: 15px; height: 15px; padding: 0 3px;
+    border-radius: 99px; background: var(--color-danger); color: #fff;
+    font-size: 0.56rem; font-weight: 700; line-height: 1;
+    display: flex; align-items: center; justify-content: center; border: 2px solid var(--color-paper);
+  }
+
+  /* ── Cards do painel (mais arredondados que .card, sombra em camadas) ── */
+  .panel-card {
+    background: var(--color-paper); border: 1px solid var(--athos-line);
+    border-radius: 20px; box-shadow: var(--shadow-soft);
+  }
+  .panel-card-hover { transition: transform .18s ease, box-shadow .18s ease; }
+  .panel-card-hover:hover { transform: translateY(-2px); box-shadow: var(--shadow-md2); }
+
+  /* Card escuro (Saúde do Ministério) */
+  .panel-dark {
+    background: linear-gradient(165deg, #221a14, #18120e);
+    border-radius: 20px; color: var(--color-sidebar-ink);
+    position: relative; overflow: hidden;
+  }
+
+  /* Eyebrow (título de seção com ícone) */
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-display); font-size: 0.92rem; font-weight: 600; color: var(--color-ink);
+  }
+  .eyebrow .ic {
+    width: 30px; height: 30px; border-radius: 9px; flex: none;
+    display: flex; align-items: center; justify-content: center;
+    background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent);
+  }
+  .eyebrow .ic i, .eyebrow .ic svg { width: 1.06rem; height: 1.06rem; }
+
+  /* Ícone de KPI (gradiente colorido) */
+  .stat-ic {
+    width: 44px; height: 44px; border-radius: 13px; flex: none; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .stat-ic i, .stat-ic svg { width: 1.35rem; height: 1.35rem; }
+  .kpi-num { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+  .delta-up { color: var(--color-success); font-size: 0.72rem; font-weight: 600; }
+  .delta-down { color: var(--color-danger); font-size: 0.72rem; font-weight: 600; }
+
+  /* Botões do painel */
+  .btn-terra {
+    display: inline-flex; align-items: center; gap: 8px; cursor: pointer; white-space: nowrap;
+    font-family: var(--font-sans); font-weight: 600; font-size: 0.82rem;
+    padding: 11px 17px; border-radius: 13px; border: 1px solid transparent; color: #fff;
+    background: linear-gradient(180deg, var(--accent), var(--accent-2));
+    box-shadow: 0 10px 22px color-mix(in srgb, var(--accent-2) 28%, transparent);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-terra:hover { transform: translateY(-1px); }
+  .btn-soft {
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    background: var(--color-paper); border: 1px solid var(--athos-line); color: var(--color-muted);
+    font-size: 0.74rem; font-weight: 500; padding: 7px 13px; border-radius: 10px; box-shadow: var(--shadow-soft);
+  }
+  .btn-soft:hover { background: var(--color-bg-soft); }
+  .btn-soft i, .btn-soft svg { width: 0.9rem; height: 0.9rem; }
+  .pill-dark {
+    background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.12); color: #f3e9dc;
+    font-size: 0.74rem; font-weight: 500; padding: 8px 14px; border-radius: 10px; cursor: pointer;
+  }
+  .pill-dark:hover { background: rgba(255,255,255,.16); }
+
+  /* Item de lista (Radar / Próximas / Atividades) */
+  .list-row { display: flex; align-items: center; gap: 14px; padding: 13px 6px; border-radius: 14px; }
+  .list-row + .list-row { border-top: 1px solid var(--color-hairline); }
+  .list-ic { width: 40px; height: 40px; border-radius: 12px; flex: none; display: flex; align-items: center; justify-content: center; }
+  .list-ic i, .list-ic svg { width: 1.18rem; height: 1.18rem; }
+
+  /* Selo "Em breve" (seções sem backend ainda) */
+  .soon-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.66rem; font-weight: 600; padding: 3px 9px; border-radius: 99px;
+    background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent);
+  }
+  .soon-pane {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    gap: 6px; min-height: 150px; border: 1px dashed var(--color-line); border-radius: 14px;
+    background: var(--color-bg-soft); color: var(--color-muted); padding: 20px;
+  }
+
+  /* Card de plano (rodapé da sidebar) */
+  .plan-card {
+    margin-top: auto; background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.07); border-radius: 16px; padding: 15px 16px;
+  }
+  .plan-bar { height: 6px; border-radius: 99px; background: rgba(255,255,255,.1); margin-top: 7px; overflow: hidden; }
+  .plan-bar > span { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--color-orange), var(--hot)); }
+}

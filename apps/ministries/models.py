@@ -24,6 +24,11 @@ class Ministry(BaseModel, AuditLogMixin):
         blank=True,
         related_name='ministries_led',
     )
+    # OD-029 (Sprint 6.6): meta de voluntários do ministério. Alimenta o card
+    # "Saúde do Ministério" = GAP de voluntários (atuais × esta meta). `default=0`
+    # significa "sem meta definida" (GAP zerado). Voluntários atuais = membros
+    # (`Person.ministries`); a contagem vive em `dashboard.services`.
+    volunteers_needed = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):

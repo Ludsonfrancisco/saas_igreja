@@ -3,7 +3,15 @@
 itens (`.side-item`); o container (sidebar desktop OU drawer mobile) é de quem inclui.
 Conta/Sair vivem no menu do usuário (header), não aqui.{% endcomment %}
 {% load nav_extras %}
-{% side_link '/' 'Painel' 'layout-dashboard' match='/painel' %}
+{% comment %}Início = home nova (Sprint 6.6, RF-102/103/104), aberta a todos.
+`exact` p/ não acender em todas as rotas. Painel = métricas (Sprint 6), só quem
+tem dashboard de papel (§3.9).{% endcomment %}
+{% side_link '/' 'Início' 'layout-dashboard' exact=True %}
+{% if 'pastor' in user.roles or 'secretary' in user.roles %}
+  {% side_link '/painel/' 'Painel' 'bar-chart-3' match='/painel' %}
+{% elif 'leader' in user.roles %}
+  {% side_link '/painel/comunidade/' 'Painel' 'bar-chart-3' match='/painel' %}
+{% endif %}
 {% if 'pastor' in user.roles or 'secretary' in user.roles or 'leader' in user.roles %}
   {% side_link '/pessoas/' 'Pessoas' 'users' %}
   {% side_link '/comunidades/' 'Comunidades' 'home' %}

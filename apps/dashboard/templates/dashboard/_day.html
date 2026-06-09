@@ -1,0 +1,25 @@
+{% comment %}Encontros de um dia (Sprint 6.6 / Bloco 3 · RF-102). Devolvido por
+`HomeDayView` no `hx-get` ao clicar numa célula do calendário; injetado em
+`#day-panel`. Nome do encontro em texto (sem link p/ detalhe — `/encontros/*` é
+escopado a papéis de gestão, §3.6; a home é "Todos").{% endcomment %}
+<div class="card p-5" aria-live="polite">
+  <div class="mb-3 flex items-center gap-2">
+    <i data-lucide="calendar-days" class="h-4 w-4 text-accent" aria-hidden="true"></i>
+    <h3 class="font-display text-base font-semibold text-ink">Encontros de {{ day|date:'d/m/Y' }}</h3>
+  </div>
+  {% if day_gatherings %}
+    <ul class="divide-y divide-hairline">
+      {% for g in day_gatherings %}
+        <li class="flex items-center justify-between gap-3 py-2.5">
+          <div class="min-w-0">
+            <span class="block truncate text-sm font-medium text-ink">{{ g }}</span>
+            {% if g.community %}<span class="text-xs text-muted">{{ g.community.name }}</span>{% endif %}
+          </div>
+          {% include 'components/badge.html' with text=g.get_gathering_type_display variant='muted' %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-sm text-muted">Nenhum encontro neste dia.</p>
+  {% endif %}
+</div>

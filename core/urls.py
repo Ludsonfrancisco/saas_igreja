@@ -9,12 +9,14 @@ entram em blocos posteriores da Sprint 1.
 from django.conf import settings
 from django.urls import include, path
 
-from apps.core.views import health, home, ready
+from apps.core.views import health, ready
+from apps.dashboard.views import HomeView
 
 urlpatterns: list[path] = [
-    # Home pós-login: redireciona para o painel do papel (Sprint 6.5/Bloco 2).
-    # Precede os includes (que casam só subprefixos como `pessoas/`).
-    path('', home, name='home'),
+    # Home nova (Sprint 6.6 / RF-102/103/104): agenda + calendário + GAP, aberta a
+    # todo usuário logado do tenant. Substitui o antigo redirect por papel. Precede
+    # os includes (que casam só subprefixos como `pessoas/`).
+    path('', HomeView.as_view(), name='home'),
     path('health/', health, name='health'),
     path('ready/', ready, name='ready'),
     # App accounts: UM unico include na raiz, com namespace unico 'accounts'.

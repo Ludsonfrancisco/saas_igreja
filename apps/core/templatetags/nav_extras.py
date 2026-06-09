@@ -27,6 +27,6 @@ def _is_active(request, path, exact=False, match=None):
 
 @register.inclusion_tag('components/_side_link.html', takes_context=True)
 def side_link(context, path, label, icon, exact=False, match=None):
-    """Item de navegação VERTICAL da sidebar/drawer (Athos v2) com destaque do item atual."""
+    """Item VERTICAL da sidebar/drawer (Athos v2), com destaque do item atual."""
     active = _is_active(context.get('request'), path, exact=exact, match=match)
     return {'path': path, 'label': label, 'icon': icon, 'active': active}

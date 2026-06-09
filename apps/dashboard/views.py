@@ -25,6 +25,10 @@ aplicado a um Ministerio (mesma convencao de `files`/`schedules`). Por isso o
 `Ministry.coordinators__user_id`.
 """
 
+from datetime import date
+
+from django.http import Http404
+from django.utils import timezone
 from django.views.generic import TemplateView
 
 from apps.communities.models import Community
@@ -33,8 +37,188 @@ from apps.core.mixins import (
     PastorRequiredMixin,
     TenantRequiredMixin,
 )
-from apps.dashboard.services import church_metrics
+from apps.dashboard.services import (
+    MONTH_NAMES_PT,
+    WEEKDAY_LABELS_PT,
+    build_calendar_weeks,
+    church_metrics,
+    event_days,
+    gatherings_on_day,
+    home_growth_series,
+    ministry_health,
+    ministry_volunteer_gaps,
+    upcoming_gatherings,
+)
 from apps.ministries.models import Ministry
+
+
+def _scoped_ministry_ids(user):
+    """ids dos ministérios no escopo do `user` p/ a Saúde do Ministério (§3.9).
+
+    Pastor/Secretário => `None` (todos). Demais => os que coordenam
+    (`Ministry.coordinators__user_id`); quem não coordena nada => `[]` (vazio =
+    zero, conservador, nunca a visão completa).
+    """
+    if user.has_any_role('pastor', 'secretary'):
+        return None
+    return list(
+        Ministry.objects.filter(coordinators__user_id=user.id).values_list(
+            'id', flat=True
+        )
+    )
+
+
+def _scoped_ministry_gaps(user):
+    """GAP de voluntários no escopo do `user` (lista) — retrocompat p/ templates."""
+    return ministry_volunteer_gaps(ministry_ids=_scoped_ministry_ids(user))
+
+
+def _sparkline(values, *, width=100, height=30, pad=3):
+    """Converte uma série numérica em pontos SVG (polyline) + último ponto.
+
+    Escala linear min→max no eixo Y (invertido p/ SVG). Série constante vira uma
+    linha no meio. Retorna `{'points': 'x,y ...', 'last_x', 'last_y'}` (1 casa).
+    """
+    n = len(values)
+    if n == 0:
+        return {'points': '', 'last_x': 0, 'last_y': height / 2}
+    lo, hi = min(values), max(values)
+    span = hi - lo or 1
+    inner = height - 2 * pad
+    step = width / (n - 1) if n > 1 else 0
+    pts = []
+    for i, v in enumerate(values):
+        x = round(i * step, 1)
+        y = round(pad + inner - (v - lo) / span * inner, 1)
+        pts.append((x, y))
+    return {
+        'points': ' '.join(f'{x},{y}' for x, y in pts),
+        'last_x': pts[-1][0],
+        'last_y': pts[-1][1],
+    }
+
+
+def _calendar_year_month(request):
+    """(year, month) do calendário, vindos de `?year=&month=` ou o mês atual (RF-102).
+
+    Tolera ausência/lixo nos parâmetros (cai no mês atual) e valida `1 <= month <= 12`.
+    A troca de mês na home chega por estes parâmetros via HTMX (`HomeCalendarView`).
+    """
+    today = timezone.localdate()
+    try:
+        year = int(request.GET.get('year', today.year))
+        month = int(request.GET.get('month', today.month))
+    except (TypeError, ValueError):
+        return today.year, today.month
+    if not 1 <= month <= 12:
+        return today.year, today.month
+    return year, month
+
+
+def _calendar_context(request):
+    """Contexto do calendário do mês pedido (RF-102), compartilhado entre a página
+    inteira (`HomeView`) e o fragmento de troca de mês (`HomeCalendarView`).
+
+    Inclui a matriz de semanas (dias com evento marcados), os rótulos pt-BR, o mês
+    anterior/seguinte (para os botões de navegação) e `today`.
+    """
+    today = timezone.localdate()
+    year, month = _calendar_year_month(request)
+    days = event_days(year=year, month=month)
+    prev_year, prev_month = (year - 1, 12) if month == 1 else (year, month - 1)
+    next_year, next_month = (year + 1, 1) if month == 12 else (year, month + 1)
+    return {
+        'calendar_year': year,
+        'calendar_month': month,
+        'calendar_label': f'{MONTH_NAMES_PT[month]} {year}',
+        'calendar_weekdays': WEEKDAY_LABELS_PT,
+        'calendar_weeks': build_calendar_weeks(
+            year=year, month=month, event_days=days, today=today
+        ),
+        'calendar_prev': {'year': prev_year, 'month': prev_month},
+        'calendar_next': {'year': next_year, 'month': next_month},
+        'event_days': days,
+        'today_iso': today.isoformat(),
+    }
+
+
+class HomeView(TenantRequiredMixin, TemplateView):
+    """Home nova "Painel Oikonos" (Sprint 6.6 / design igreja-athos-dashboard).
+
+    Aberta a qualquer usuário logado do tenant (RF-102/103 "Todos") — o gate é só
+    `TenantRequiredMixin` (TENANT-05/AP-09). Composição (decisões do dono 2026-06-09):
+
+    - KPIs (Pessoas/Comunidades/Ministérios/Presenças): `church_metrics()` do tenant
+      (visão da igreja — contagens agregadas, P-ARQ-09).
+    - Saúde do Ministério = GAP de voluntários (RF-104 / OD-029): card escuro, dado
+      REAL, escopado por papel (Pastor vê todos; Coordenador só os que coordena).
+    - Próximas programações (RF-103): encontros futuros do tenant.
+    - Escalas (próximas): contagem de `Schedule` de encontros futuros.
+    - Seções sem backend (Financeiro, Tendências, Frequência, Radar, Atividades):
+      placeholder "Em breve" no template (sem números fictícios).
+
+    O calendário (RF-102) saiu da home (decisão do dono) — será wirado em Encontros;
+    os fragmentos `HomeCalendarView`/`HomeDayView` seguem disponíveis para isso.
+    """
+
+    template_name = 'dashboard/home.html'
+
+    def get_context_data(self, **kwargs):
+        from apps.schedules.models import Schedule
+
+        context = super().get_context_data(**kwargs)
+        today = timezone.localdate()
+        context['metrics'] = church_metrics()
+        # Saúde do Ministério = GAP em % + por ministério (escopado por papel).
+        context['health'] = ministry_health(
+            ministry_ids=_scoped_ministry_ids(self.request.user)
+        )
+        context['upcoming_gatherings'] = upcoming_gatherings()
+        # KPI "Escalas" = escalas de encontros futuros (contagem no banco).
+        context['upcoming_schedules_count'] = Schedule.objects.filter(
+            gathering__date__gte=today
+        ).count()
+        # Sparklines reais (crescimento mensal) p/ os cards de KPI.
+        series = home_growth_series()
+        context['spark_people'] = _sparkline(series['people'])
+        context['spark_communities'] = _sparkline(series['communities'])
+        context['spark_schedules'] = _sparkline(series['schedules'])
+        return context
+
+
+class HomeCalendarView(TenantRequiredMixin, TemplateView):
+    """Fragmento do calendário (RF-102) — troca de mês via HTMX (`hx-get`).
+
+    Devolve só o card do calendário (`_calendar.html`) para o swap. Mesmo gate de
+    tenant da home; sem dados sensíveis (só dias com encontro do mês pedido).
+    """
+
+    template_name = 'dashboard/_calendar.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(_calendar_context(self.request))
+        return context
+
+
+class HomeDayView(TenantRequiredMixin, TemplateView):
+    """Fragmento "encontros do dia" (RF-102) — clique numa célula do calendário.
+
+    Recebe a data ISO na URL; devolve a lista de encontros daquele dia (`_day.html`).
+    Data inválida => 404 (não vaza). Visão do tenant inteiro (§3.6).
+    """
+
+    template_name = 'dashboard/_day.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            day = date.fromisoformat(self.kwargs['day'])
+        except (TypeError, ValueError):
+            raise Http404('Data inválida.') from None
+        context['day'] = day
+        context['day_gatherings'] = gatherings_on_day(day)
+        return context
 
 
 class DashboardPastorView(TenantRequiredMixin, PastorRequiredMixin, TemplateView):

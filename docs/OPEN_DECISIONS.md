@@ -583,6 +583,8 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 
 **Implicações:** adiciona `Ministry.volunteers_needed` (PositiveIntegerField, default 0) na Sprint 6.6; novo RF-104; card na home + na página do ministério. Presença/cobertura como sinais adicionais ficam para uma futura iteração (nova OD se virar score).
 
+**Clarificação (2026-06-09, Bloco 2):** "voluntários atuais" = **número de membros** (`Person.ministries`, M2M reverse `ministry.members`), **excluindo anonimizadas**. **Coordenadores não entram na contagem** (são liderança, não a meta de voluntários). GAP = `max(volunteers_needed − atuais, 0)`. Decisão do dono entre "só membros / membros+coordenadores / só coordenadores" — escolhido **só membros** (query limpa, 1 M2M, sem dupla contagem). Implementado em `dashboard.services.ministry_volunteer_gaps` (agregação no banco, P-ARQ-09).
+
 ---
 
 ## Histórico — decisões fechadas

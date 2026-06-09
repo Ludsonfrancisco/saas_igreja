@@ -1,0 +1,183 @@
+{% extends 'app_base.html' %}
+{% comment %}Home "Painel Oikonos" — Athos v3 (Sprint 6.6 / design igreja-athos-dashboard).
+
+Decisões do dono (2026-06-09): design vira a home, adaptado a dados REAIS.
+- Hero: "Saúde do Ministério" (card escuro) = GAP de voluntários REAL (OD-029, não
+  score) + "Próximas programações" (RF-103, real).
+- KPIs: Pessoas/Comunidades/Escalas reais; Contribuições = "Em breve" (Sprint 6.7).
+- Tendência/Frequência/Atividades = "Em breve" (sem backend ainda).
+- Calendário saiu da home (vai para Encontros).{% endcomment %}
+{% block title %}Painel · Oikonos{% endblock %}
+{% block content %}
+  {# ── Cabeçalho ── #}
+  <div class="flex items-start justify-between gap-4 px-1">
+    <div>
+      <div class="flex items-center gap-2.5">
+        <i data-lucide="church" class="h-6 w-6 text-accent" aria-hidden="true"></i>
+        <h1 class="font-display text-[1.7rem] font-bold tracking-tight text-ink">Painel Oikonos</h1>
+      </div>
+      <p class="mt-1 text-sm text-muted">Gestão ministerial com clareza, cuidado e ação.</p>
+    </div>
+    {% if 'pastor' in user.roles or 'secretary' in user.roles or 'leader' in user.roles %}
+      <a href="{% url 'gatherings:create' %}" class="btn-terra shrink-0">
+        <i data-lucide="plus" aria-hidden="true"></i> Novo encontro
+      </a>
+    {% endif %}
+  </div>
+
+  {# ── Hero: Saúde do Ministério (GAP) + Próximas programações ── #}
+  <section class="grid grid-cols-1 gap-5 lg:grid-cols-12">
+    {# Saúde do Ministério = GAP de voluntários em % + barras por ministério (OD-029) #}
+    <div class="panel-dark p-5 lg:col-span-7">
+      <div class="mb-4 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <h2 class="font-display text-base font-semibold text-white">Saúde do Ministério</h2>
+          <i data-lucide="info" class="h-3.5 w-3.5 text-sidebar-muted" aria-hidden="true"></i>
+        </div>
+        <span class="text-[0.72rem] text-sidebar-muted">voluntários atuais × meta</span>
+      </div>
+      {% if health.items %}
+        <div class="flex items-end gap-6">
+          {# % de preenchimento (GAP agregado) #}
+          <div class="flex-none">
+            <div class="font-display text-[2.5rem] font-bold leading-none text-white tnum">{{ health.pct }}<small class="text-[1.05rem] font-semibold text-orange">%</small></div>
+            <div class="mt-1.5 text-sm font-semibold text-white">preenchidos</div>
+            <div class="mt-1 text-[0.76rem] text-amber-soft">{{ health.met }} <span class="text-sidebar-muted">de {{ health.total }} com meta</span></div>
+          </div>
+          {# Barras por ministério (como cada um está) #}
+          <div class="flex h-28 min-w-0 flex-1 items-end gap-2.5">
+            {% for m in health.items %}
+              <div class="flex min-w-0 flex-1 flex-col items-center gap-1.5" title="{{ m.name }}: {{ m.current }}/{{ m.needed }}">
+                <div class="relative h-24 w-full overflow-hidden rounded-md bg-white/10">
+                  <div class="absolute bottom-0 w-full rounded-md {% if m.is_met %}bg-success{% endif %}"
+                       style="height: {% widthratio m.current m.needed 100 %}%;{% if not m.is_met %} background: linear-gradient(180deg, var(--color-orange), var(--accent-2));{% endif %}"></div>
+                </div>
+                <span class="w-full truncate text-center text-[0.6rem] text-sidebar-muted">{{ m.name }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% else %}
+        <div class="flex min-h-[120px] flex-col items-center justify-center gap-1 text-center">
+          <i data-lucide="heart-handshake" class="h-7 w-7 text-sidebar-muted" aria-hidden="true"></i>
+          <p class="text-sm text-sidebar-muted">Nenhum ministério no seu escopo.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    {# Próximas programações (RF-103) #}
+    <div class="panel-card panel-card-hover p-5 lg:col-span-5">
+      <div class="mb-2 flex items-center justify-between">
+        <span class="eyebrow"><span class="ic"><i data-lucide="calendar-clock" aria-hidden="true"></i></span> Próximas programações</span>
+        {% if 'pastor' in user.roles or 'secretary' in user.roles or 'leader' in user.roles %}
+          <a href="{% url 'gatherings:list' %}" class="btn-soft">Ver todos</a>
+        {% endif %}
+      </div>
+      {% if upcoming_gatherings %}
+        <div>
+          {% for g in upcoming_gatherings %}
+            <div class="list-row">
+              <span class="list-ic" style="background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent);">
+                <i data-lucide="calendar" aria-hidden="true"></i>
+              </span>
+              <div class="min-w-0 flex-1">
+                <div class="truncate text-[0.85rem] font-semibold text-ink">{{ g }}</div>
+                <div class="text-[0.74rem] text-muted">
+                  {{ g.date|date:'d/m' }}{% if g.community %} · {{ g.community.name }}{% endif %}
+                </div>
+              </div>
+              <span class="tnum shrink-0 text-xs font-medium text-muted">{{ g.date|date:'D' }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="soon-pane">
+          <i data-lucide="calendar-x" class="h-6 w-6" aria-hidden="true"></i>
+          <p class="text-sm">Nenhum encontro futuro agendado.</p>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  {# ── KPIs (com sparkline real de crescimento) ── #}
+  <section class="grid grid-cols-2 gap-5 lg:grid-cols-4">
+    <div class="panel-card panel-card-hover p-5">
+      <div class="flex items-start gap-3">
+        <span class="stat-ic" style="background: linear-gradient(135deg, #6E8C45, #5E7B3B);"><i data-lucide="users" aria-hidden="true"></i></span>
+        <div>
+          <div class="text-[0.82rem] font-medium text-muted">Pessoas ativas</div>
+          <div class="kpi-num mt-0.5 text-2xl font-bold text-ink">{{ metrics.people_total }}</div>
+        </div>
+      </div>
+      <svg viewBox="0 0 100 30" preserveAspectRatio="none" class="mt-3 block h-8 w-full" aria-hidden="true">
+        <polyline fill="none" stroke="#5E7B3B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" points="{{ spark_people.points }}"></polyline>
+      </svg>
+    </div>
+    <div class="panel-card panel-card-hover p-5">
+      <div class="flex items-start gap-3">
+        <span class="stat-ic" style="background: linear-gradient(135deg, #E89A3A, #E0892D);"><i data-lucide="home" aria-hidden="true"></i></span>
+        <div>
+          <div class="text-[0.82rem] font-medium text-muted">Comunidades</div>
+          <div class="kpi-num mt-0.5 text-2xl font-bold text-ink">{{ metrics.active_communities }}</div>
+        </div>
+      </div>
+      <svg viewBox="0 0 100 30" preserveAspectRatio="none" class="mt-3 block h-8 w-full" aria-hidden="true">
+        <polyline fill="none" stroke="#E0892D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" points="{{ spark_communities.points }}"></polyline>
+      </svg>
+    </div>
+    <div class="panel-card panel-card-hover p-5">
+      <div class="flex items-start gap-3">
+        <span class="stat-ic" style="background: linear-gradient(135deg, #CF5E33, #C2552C);"><i data-lucide="calendar-check" aria-hidden="true"></i></span>
+        <div>
+          <div class="text-[0.82rem] font-medium text-muted">Escalas próximas</div>
+          <div class="kpi-num mt-0.5 text-2xl font-bold text-ink">{{ upcoming_schedules_count }}</div>
+        </div>
+      </div>
+      <svg viewBox="0 0 100 30" preserveAspectRatio="none" class="mt-3 block h-8 w-full" aria-hidden="true">
+        <polyline fill="none" stroke="#C2552C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" points="{{ spark_schedules.points }}"></polyline>
+      </svg>
+    </div>
+    <div class="panel-card p-5">
+      <div class="flex items-start gap-3">
+        <span class="stat-ic" style="background: linear-gradient(135deg, #B6A99A, #8A7F74);"><i data-lucide="hand-coins" aria-hidden="true"></i></span>
+        <div>
+          <div class="text-[0.82rem] font-medium text-muted">Contribuições do mês</div>
+          <div class="mt-1"><span class="soon-badge"><i data-lucide="clock" class="h-3 w-3" aria-hidden="true"></i> Em breve</span></div>
+        </div>
+      </div>
+      <div class="mt-3 flex h-8 items-center text-[0.7rem] text-muted-2">Disponível na Sprint financeira</div>
+    </div>
+  </section>
+
+  {# ── Linha inferior: seções sem backend ainda (Em breve) ── #}
+  <section class="grid grid-cols-1 gap-5 lg:grid-cols-12">
+    <div class="panel-card p-5 lg:col-span-5">
+      <h2 class="mb-3 font-display text-[0.95rem] font-semibold text-ink">Tendência de participação</h2>
+      <div class="soon-pane">
+        <i data-lucide="line-chart" class="h-6 w-6" aria-hidden="true"></i>
+        <p class="text-sm">Gráfico de presenças e visitantes</p>
+        <span class="soon-badge">Em breve</span>
+      </div>
+    </div>
+    <div class="panel-card p-5 lg:col-span-4">
+      <h2 class="mb-3 font-display text-[0.95rem] font-semibold text-ink">Frequência das comunidades</h2>
+      <div class="soon-pane">
+        <i data-lucide="bar-chart-3" class="h-6 w-6" aria-hidden="true"></i>
+        <p class="text-sm">Comparativo por comunidade</p>
+        <span class="soon-badge">Em breve</span>
+      </div>
+    </div>
+    <div class="panel-card p-5 lg:col-span-3">
+      <h2 class="mb-3 font-display text-[0.95rem] font-semibold text-ink">Atividades recentes</h2>
+      <div class="soon-pane">
+        <i data-lucide="history" class="h-6 w-6" aria-hidden="true"></i>
+        <p class="text-sm">Últimas ações da igreja</p>
+        <span class="soon-badge">Em breve</span>
+      </div>
+    </div>
+  </section>
+
+  <footer class="pb-1 pt-2 text-center text-[11px] text-muted-2">
+    {% if request.tenant.name %}{{ request.tenant.name }} · {% endif %}servir, amar, cuidar · {% now "Y" %}
+  </footer>
+{% endblock %}
