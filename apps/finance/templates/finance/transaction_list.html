@@ -1,0 +1,64 @@
+{% extends 'app_base.html' %}
+{% load finance_extras %}
+{% comment %}Extrato de lançamentos filtrável (Sprint 6.7 / Bloco 2).{% endcomment %}
+{% block title %}Extrato · Oikonos{% endblock %}
+{% block content %}
+  <div class="flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <a href="{% url 'finance:dashboard' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4" aria-hidden="true"></i> Financeiro</a>
+      <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">Extrato de lançamentos</h1>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="{% url 'finance:export_csv' %}?{{ filters.urlencode }}" class="btn-soft px-4 py-2 text-sm font-semibold"><i data-lucide="download" aria-hidden="true"></i> Exportar CSV</a>
+      <a href="{% url 'finance:create' %}?tipo=entrada" class="btn-terra"><i data-lucide="plus" aria-hidden="true"></i> Novo lançamento</a>
+    </div>
+  </div>
+
+  {# Filtros #}
+  <form method="get" class="panel-card flex flex-wrap items-center gap-3 p-4">
+    <select name="kind" onchange="this.form.submit()" aria-label="Tipo" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
+      <option value="">Todos os tipos</option>
+      {% for value, label in kind_choices %}<option value="{{ value }}" {% if filters.kind == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <select name="category" onchange="this.form.submit()" aria-label="Categoria" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
+      <option value="">Todas as categorias</option>
+      {% for c in categories %}<option value="{{ c.id }}" {% if filters.category == c.id|stringformat:'s' %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+    <input type="date" name="start" value="{{ filters.start }}" aria-label="De" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
+    <input type="date" name="end" value="{{ filters.end }}" aria-label="Até" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
+    <button type="submit" class="btn-soft px-4 py-2 text-sm font-medium">Filtrar</button>
+  </form>
+
+  {% if transactions %}
+    <div class="panel-card overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="border-b border-hairline text-left text-xs uppercase tracking-wide text-muted">
+          <tr>
+            <th class="px-4 py-3 font-semibold">Data</th>
+            <th class="px-4 py-3 font-semibold">Categoria</th>
+            <th class="px-4 py-3 font-semibold">Descrição</th>
+            <th class="px-4 py-3 text-right font-semibold">Valor</th>
+            <th class="px-4 py-3 text-right font-semibold">Ações</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-hairline">
+          {% for t in transactions %}
+            <tr class="hover:bg-bg-soft/50">
+              <td class="tnum whitespace-nowrap px-4 py-3 text-muted">{{ t.date|date:'d/m/Y' }}</td>
+              <td class="px-4 py-3"><span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full {% if t.category.kind == 'income' %}bg-success{% else %}bg-danger{% endif %}"></span>{{ t.category.name }}</span></td>
+              <td class="px-4 py-3 text-ink">{{ t.description|default:'—' }}</td>
+              <td class="tnum whitespace-nowrap px-4 py-3 text-right font-semibold {% if t.category.kind == 'income' %}text-success{% else %}text-ink{% endif %}">{% if t.category.kind == 'income' %}+{% else %}−{% endif %} {{ t.amount|brl }}</td>
+              <td class="whitespace-nowrap px-4 py-3 text-right">
+                <a href="{% url 'finance:edit' t.pk %}" class="text-muted hover:text-accent" aria-label="Editar"><i data-lucide="pencil" class="inline h-4 w-4"></i></a>
+                <a href="{% url 'finance:delete' t.pk %}" class="ml-2 text-muted hover:text-danger" aria-label="Excluir"><i data-lucide="trash-2" class="inline h-4 w-4"></i></a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include 'components/pagination.html' %}
+  {% else %}
+    {% include 'components/empty_state.html' with title='Nenhum lançamento' message='Ajuste os filtros ou registre um novo lançamento.' cta_url='/financeiro/lancamentos/novo/?tipo=entrada' cta_label='Novo lançamento' %}
+  {% endif %}
+{% endblock %}

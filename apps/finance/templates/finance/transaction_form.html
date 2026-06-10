@@ -1,0 +1,17 @@
+{% extends 'app_base.html' %}
+{% comment %}Form de lançamento (Sprint 6.7 / Bloco 2).{% endcomment %}
+{% block title %}{{ title }} · Oikonos{% endblock %}
+{% block content %}
+  <div>
+    <a href="{% url 'finance:dashboard' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4" aria-hidden="true"></i> Financeiro</a>
+    <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">{{ title }}</h1>
+  </div>
+  <form method="post" class="panel-card max-w-2xl space-y-4 p-6">
+    {% csrf_token %}
+    {% include 'components/form.html' with form=form %}
+    <div class="flex items-center gap-2 pt-2">
+      <button type="submit" class="btn-terra"><i data-lucide="check" class="h-4 w-4" aria-hidden="true"></i> Salvar</button>
+      <a href="{% url 'finance:dashboard' %}" class="btn-soft px-4 py-2 text-sm font-medium">Cancelar</a>
+    </div>
+  </form>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'app_base.html' %}
+{% load finance_extras %}
+{% comment %}Gestão Financeira (Sprint 6.7 / Bloco 2 — design financeiro.html, dados reais).
+KPIs (saldo/entradas/saídas/dizimistas) + totais por categoria + movimentações
+recentes. Metas/Fundos não existem no modelo → "Em breve".{% endcomment %}
+{% block title %}Financeiro · Oikonos{% endblock %}
+{% block content %}
+  {# ── Cabeçalho + ações ── #}
+  <section class="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+    <div>
+      <p class="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-accent">Tesouraria</p>
+      <h1 class="font-display text-[1.7rem] font-bold tracking-tight text-ink">Gestão Financeira</h1>
+      <p class="mt-1 text-sm text-muted">Dízimos, ofertas, despesas e saldo — {{ period_label }}.</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+      <form method="get" class="contents">
+        <select name="month" onchange="this.form.year.value=this.selectedOptions[0].dataset.year; this.form.submit()" aria-label="Mês" class="rounded-xl border border-line bg-paper px-3 py-2 text-sm font-medium text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
+          {% for m in months %}
+            <option value="{{ m.month }}" data-year="{{ m.year }}" {% if m.month == period_month and m.year == period_year %}selected{% endif %}>{{ m.label }}</option>
+          {% endfor %}
+        </select>
+        <input type="hidden" name="year" value="{{ period_year }}">
+      </form>
+      <a href="{% url 'finance:create' %}?tipo=saida" class="btn-soft px-4 py-2 text-sm font-semibold"><i data-lucide="minus" aria-hidden="true"></i> Nova despesa</a>
+      <a href="{% url 'finance:create' %}?tipo=entrada" class="btn-terra"><i data-lucide="plus" aria-hidden="true"></i> Nova entrada</a>
+    </div>
+  </section>
+
+  {# ── KPIs ── #}
+  <section class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div class="stat-pill">
+      <div class="stat-icon"><i data-lucide="wallet" aria-hidden="true"></i></div>
+      <div><div class="stat-num tnum">{{ total_balance.balance|brl }}</div><p class="stat-label">Saldo geral</p></div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-icon" style="background: rgba(85,122,53,.15); color: var(--color-success);"><i data-lucide="arrow-up" aria-hidden="true"></i></div>
+      <div><div class="stat-num tnum" style="color: var(--color-success);">{{ month_balance.income|brl }}</div><p class="stat-label">Entradas ({{ period_label }})</p></div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-icon" style="background: rgba(180,58,33,.12); color: var(--color-danger);"><i data-lucide="arrow-down" aria-hidden="true"></i></div>
+      <div><div class="stat-num tnum" style="color: var(--color-danger);">{{ month_balance.expense|brl }}</div><p class="stat-label">Saídas ({{ period_label }})</p></div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-icon"><i data-lucide="users" aria-hidden="true"></i></div>
+      <div><div class="stat-num tnum">{{ contributors }}</div><p class="stat-label">Dizimistas no mês</p></div>
+    </div>
+  </section>
+
+  {# ── Totais por categoria + Movimentações recentes ── #}
+  <section class="grid grid-cols-1 gap-5 xl:grid-cols-2">
+    {# Totais por categoria (real — substitui "Saldos por conta/fundo" do mock) #}
+    <div class="panel-card p-5">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="font-display text-base font-semibold text-ink">Totais por categoria · {{ period_label }}</h2>
+        <a href="{% url 'finance:category_list' %}" class="btn-soft">Categorias</a>
+      </div>
+      {% if by_category %}
+        <div class="space-y-2.5">
+          {% for c in by_category %}
+            <div class="flex items-center justify-between gap-3 rounded-xl border border-hairline bg-bg-soft/50 px-4 py-3">
+              <div class="flex items-center gap-2.5">
+                <span class="h-2.5 w-2.5 rounded-full {% if c.kind == 'income' %}bg-success{% else %}bg-danger{% endif %}" aria-hidden="true"></span>
+                <span class="text-sm font-medium text-ink">{{ c.name }}</span>
+              </div>
+              <span class="tnum text-sm font-bold {% if c.kind == 'income' %}text-success{% else %}text-ink{% endif %}">{% if c.kind == 'income' %}+{% else %}−{% endif %} {{ c.total|brl }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="soon-pane">
+          <i data-lucide="pie-chart" class="h-6 w-6" aria-hidden="true"></i>
+          <p class="text-sm">Sem lançamentos neste mês.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    {# Movimentações recentes (real) #}
+    <div class="panel-card p-5">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="font-display text-base font-semibold text-ink">Movimentações recentes</h2>
+        <a href="{% url 'finance:list' %}" class="text-xs font-semibold text-accent hover:underline">Ver extrato completo</a>
+      </div>
+      {% if recent %}
+        <div class="divide-y divide-hairline">
+          {% for t in recent %}
+            <div class="flex items-center justify-between gap-3 py-2.5">
+              <span class="w-12 shrink-0 text-[0.65rem] font-semibold uppercase text-muted-2">{{ t.date|date:'d M' }}</span>
+              <span class="min-w-0 flex-1 truncate text-sm font-medium text-ink">{{ t.description|default:t.category.name }}</span>
+              <span class="tnum shrink-0 text-sm font-bold {% if t.category.kind == 'income' %}text-success{% else %}text-ink{% endif %}">{% if t.category.kind == 'income' %}+{% else %}−{% endif %} {{ t.amount|brl }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="soon-pane">
+          <i data-lucide="receipt" class="h-6 w-6" aria-hidden="true"></i>
+          <p class="text-sm">Nenhum lançamento ainda.</p>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  {# ── Metas/Fundos (sem modelo ainda) ── #}
+  <section class="panel-card p-5">
+    <h2 class="mb-3 font-display text-base font-semibold text-ink">Metas de arrecadação & fundos</h2>
+    <div class="soon-pane">
+      <i data-lucide="target" class="h-6 w-6" aria-hidden="true"></i>
+      <p class="text-sm">Fundos especiais e metas de arrecadação</p>
+      <span class="soon-badge">Em breve</span>
+    </div>
+  </section>
+
+  <footer class="pb-1 pt-2 text-center text-[11px] text-muted-2">
+    {% if request.tenant.name %}{{ request.tenant.name }} · {% endif %}servir, amar, cuidar · {% now "Y" %}
+  </footer>
+{% endblock %}

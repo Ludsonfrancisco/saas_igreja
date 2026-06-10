@@ -1,0 +1,29 @@
+{% extends 'app_base.html' %}
+{% comment %}Lista de categorias financeiras (Sprint 6.7 / Bloco 2).{% endcomment %}
+{% block title %}Categorias · Oikonos{% endblock %}
+{% block content %}
+  <div class="flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <a href="{% url 'finance:dashboard' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4" aria-hidden="true"></i> Financeiro</a>
+      <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">Categorias</h1>
+    </div>
+    <a href="{% url 'finance:category_create' %}" class="btn-terra"><i data-lucide="plus" aria-hidden="true"></i> Nova categoria</a>
+  </div>
+  {% if categories %}
+    <div class="panel-card divide-y divide-hairline">
+      {% for c in categories %}
+        <div class="flex items-center justify-between gap-3 px-5 py-3.5">
+          <span class="inline-flex items-center gap-2.5">
+            <span class="h-2.5 w-2.5 rounded-full {% if c.kind == 'income' %}bg-success{% else %}bg-danger{% endif %}" aria-hidden="true"></span>
+            <span class="text-sm font-medium text-ink">{{ c.name }}</span>
+            <span class="rounded-full bg-line/40 px-2 py-0.5 text-xs text-muted">{{ c.get_kind_display }}</span>
+            {% if not c.is_active %}<span class="text-xs text-muted-2">(inativa)</span>{% endif %}
+          </span>
+          <a href="{% url 'finance:category_edit' c.pk %}" class="text-muted hover:text-accent" aria-label="Editar"><i data-lucide="pencil" class="h-4 w-4"></i></a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    {% include 'components/empty_state.html' with title='Nenhuma categoria' message='Crie categorias de entrada (dízimo, oferta) e saída (aluguel, energia).' cta_url='/financeiro/categorias/nova/' cta_label='Nova categoria' %}
+  {% endif %}
+{% endblock %}

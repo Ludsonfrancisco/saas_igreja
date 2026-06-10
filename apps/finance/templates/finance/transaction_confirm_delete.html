@@ -1,0 +1,20 @@
+{% extends 'app_base.html' %}
+{% load finance_extras %}
+{% comment %}Confirmação de exclusão de lançamento (Sprint 6.7).{% endcomment %}
+{% block title %}Excluir lançamento · Oikonos{% endblock %}
+{% block content %}
+  <div class="panel-card max-w-lg space-y-4 p-6">
+    <h1 class="font-display text-xl font-bold text-ink">Excluir lançamento?</h1>
+    <p class="text-sm text-muted">
+      {{ object.date|date:'d/m/Y' }} · {{ object.category.name }} ·
+      <span class="tnum font-semibold text-ink">{{ object.amount|brl }}</span>
+      {% if object.description %}<br>{{ object.description }}{% endif %}
+    </p>
+    <p class="text-sm text-danger">Esta ação não pode ser desfeita.</p>
+    <form method="post" class="flex items-center gap-2">
+      {% csrf_token %}
+      <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-danger px-4 py-2 text-sm font-medium text-paper hover:opacity-90"><i data-lucide="trash-2" class="h-4 w-4" aria-hidden="true"></i> Excluir</button>
+      <a href="{% url 'finance:list' %}" class="btn-soft px-4 py-2 text-sm font-medium">Cancelar</a>
+    </form>
+  </div>
+{% endblock %}
