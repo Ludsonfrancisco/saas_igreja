@@ -67,6 +67,7 @@ TENANT_APPS = [
     'apps.schedules',
     'apps.files',
     'apps.dashboard',
+    'apps.finance',
 ]
 
 INSTALLED_APPS = list(SHARED_APPS) + [

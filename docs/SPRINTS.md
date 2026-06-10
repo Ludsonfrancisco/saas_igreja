@@ -677,20 +677,20 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 **Recorte (decidido OD-024):** básico aqui; avançado (recibo PDF, conciliação, relatório p/ assembleia, doação online) → **Sprint 8**.
 
 ### Tasks
-- [ ] (P0) `apps/finance` (tenant): `Category` (entrada/saída), `Transaction` (tipo, categoria, data, valor, descrição, forma de pagamento), e dízimos/ofertas como entrada com **FK opcional a `Person` (`SET_NULL`/LGPD)**.
-- [ ] (P0) Service layer: criar/editar lançamento; **saldo e totais** por período e por categoria (agregação no banco, P-ARQ-09).
-- [ ] (P0) **Ativar papel `treasurer`** (hoje stub): CBV escopadas **Pastor + Tesoureiro** (ACCESS_MATRIX §3 financeiro); 3 camadas de permissão; `TenantRequiredMixin`.
-- [ ] (P0) **Página Financeiro + Dashboard:** KPIs (entradas/saídas/**saldo** do mês), por categoria, lista filtrável de lançamentos (por período/categoria). Estilo design system Athos (6.5).
-- [ ] (P0) **Exportar CSV** dos lançamentos.
-- [ ] (P0) LGPD + `AuditLog` (lançamentos auditados); isolamento de tenant.
+- [x] (P0) `apps/finance` (tenant): **`Category`** (`kind` entrada/saída = fonte da verdade) + **`Transaction`** (categoria FK `PROTECT`, data, valor `Decimal(12,2)`, descrição, `payment_method`), `contributor` **FK→`Person` `SET_NULL`** (dízimo/LGPD). Migration `0001`. *(Bloco 1)*
+- [x] (P0) Service layer: `create_transaction` (+`created_by`, recusa valor ≤0); **`balance`** (entradas−saídas) e **`totals_by_category`** por período/categoria — agregação no banco (P-ARQ-09). *(Bloco 1)*
+- [ ] (P0) **Ativar papel `treasurer`**: CBV escopadas **Pastor + Tesoureiro** (`TreasurerOrPastorMixin`+`TenantRequiredMixin`, 3 camadas) + CRUD categorias/lançamentos. *(Bloco 2)*
+- [ ] (P0) **Página Financeiro + Dashboard** (design `financeiro.html`): KPIs entradas/saídas/**saldo** do mês, por categoria, lista filtrável. *(Bloco 2)*
+- [ ] (P0) **Exportar CSV** dos lançamentos. *(Bloco 2)*
+- [x] (P0) LGPD + `AuditLog`: models herdam `AuditLogMixin` (lançamentos auditados); `contributor` `SET_NULL`; isolamento de tenant (TENANT_APPS). *(Bloco 1 — base; nav/escopo na 2)*
 
 ### Testes mínimos
-- [ ] (P0) `test_treasurer_scope` (Pastor+Tesoureiro acessam; demais 403)
-- [ ] (P0) `test_transaction_create_and_balance` (saldo = entradas − saídas)
-- [ ] (P0) `test_contribution_person_set_null` (LGPD: purge da Pessoa preserva o lançamento)
-- [ ] (P0) `test_finance_dashboard_totals` (KPIs corretos por período/categoria)
-- [ ] (P0) `test_finance_export_csv`
-- [ ] (P0) `test_tenant_isolation_matrix` / `test_permissions_matrix` (atualizados com `/financeiro/*`)
+- [ ] (P0) `test_treasurer_scope` (Pastor+Tesoureiro acessam; demais 403) *(Bloco 2)*
+- [x] (P0) `test_transaction_create_and_balance` (saldo = entradas − saídas) *(Bloco 1)*
+- [x] (P0) `test_contribution_person_set_null` (LGPD: purge da Pessoa preserva o lançamento) *(Bloco 1)*
+- [ ] (P0) `test_finance_dashboard_totals` (KPIs corretos por período/categoria) — *service `totals_by_category` já testado (Bloco 1); view na Bloco 2*
+- [ ] (P0) `test_finance_export_csv` *(Bloco 2)*
+- [ ] (P0) `test_tenant_isolation_matrix` / `test_permissions_matrix` (atualizados com `/financeiro/*`) *(Bloco 3)*
 
 ### Critério de conclusão
 - [ ] Tesoureiro lança entrada/saída, categoriza, vê **saldo e dashboard**, exporta CSV — tudo escopado e auditado; matrizes verdes; cobertura `finance` no gate.
