@@ -23,6 +23,13 @@ class GatheringForm(forms.ModelForm):
     class Meta:
         model = Gathering
         fields = ['gathering_type', 'title', 'date', 'community', 'description']
+        labels = {
+            'gathering_type': 'Tipo',
+            'title': 'Título',
+            'date': 'Data',
+            'community': 'Comunidade',
+            'description': 'Descrição',
+        }
         widgets = {'date': forms.DateInput(attrs={'type': 'date'})}
 
     def __init__(self, *args, user, church, **kwargs):

@@ -24,6 +24,13 @@ class ScheduleForm(forms.ModelForm):
     class Meta:
         model = Schedule
         fields = ['ministry', 'person', 'gathering', 'role', 'notes']
+        labels = {
+            'ministry': 'Ministério',
+            'person': 'Pessoa',
+            'gathering': 'Encontro',
+            'role': 'Função',
+            'notes': 'Observações',
+        }
 
     def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)

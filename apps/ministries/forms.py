@@ -21,6 +21,11 @@ class MinistryForm(forms.ModelForm):
     class Meta:
         model = Ministry
         fields = ['name', 'coordinators', 'volunteers_needed', 'is_active']
+        labels = {
+            'name': 'Nome',
+            'coordinators': 'Coordenadores',
+            'is_active': 'Ativo',
+        }
 
     def __init__(self, *args, can_set_coordinators=True, **kwargs):
         super().__init__(*args, **kwargs)

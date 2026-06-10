@@ -43,6 +43,17 @@ class PersonForm(forms.ModelForm):
             'ministries',
             'notes',
         ]
+        # Rótulos pt-BR (interface 100% pt-BR; nome do campo no código fica em inglês).
+        labels = {
+            'name': 'Nome',
+            'status': 'Situação',
+            'email': 'E-mail',
+            'phone': 'Telefone',
+            'birth_date': 'Data de nascimento',
+            'community': 'Comunidade',
+            'ministries': 'Ministérios',
+            'notes': 'Observações',
+        }
         widgets = {'birth_date': forms.DateInput(attrs={'type': 'date'})}
 
     def __init__(self, *args, church=None, **kwargs):

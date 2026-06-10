@@ -14,6 +14,13 @@ class CommunityForm(forms.ModelForm):
     class Meta:
         model = Community
         fields = ['name', 'leaders', 'meeting_day', 'meeting_time', 'is_active']
+        labels = {
+            'name': 'Nome',
+            'leaders': 'Líderes',
+            'meeting_day': 'Dia da reunião',
+            'meeting_time': 'Horário da reunião',
+            'is_active': 'Ativa',
+        }
         widgets = {'meeting_time': forms.TimeInput(attrs={'type': 'time'})}
 
     def __init__(self, *args, can_set_leaders=True, **kwargs):

@@ -15,6 +15,7 @@ class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
         fields = ['name', 'kind', 'is_active']
+        labels = {'name': 'Nome', 'kind': 'Tipo', 'is_active': 'Ativa'}
 
 
 class TransactionForm(forms.ModelForm):
@@ -28,6 +29,14 @@ class TransactionForm(forms.ModelForm):
             'payment_method',
             'contributor',
         ]
+        labels = {
+            'category': 'Categoria',
+            'date': 'Data',
+            'amount': 'Valor',
+            'description': 'Descrição',
+            'payment_method': 'Forma de pagamento',
+            'contributor': 'Contribuinte',
+        }
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
             'description': forms.TextInput(),
