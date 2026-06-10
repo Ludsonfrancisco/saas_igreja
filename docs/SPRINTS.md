@@ -690,10 +690,12 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 - [x] (P0) `test_contribution_person_set_null` (LGPD: purge da Pessoa preserva o lançamento) *(Bloco 1)*
 - [x] (P0) `test_finance_dashboard_totals` (KPIs corretos por período/categoria) *(Bloco 2)*
 - [x] (P0) `test_finance_export_csv` *(Bloco 2)*
-- [ ] (P0) `test_tenant_isolation_matrix` / `test_permissions_matrix` (atualizados com `/financeiro/*`) *(Bloco 3)*
+- [x] (P0) `test_tenant_isolation_matrix` / `test_permissions_matrix` (atualizados com `/financeiro/*`) *(Bloco 3 — 165 passed; +não-vazamento de lançamentos)*
 
 ### Critério de conclusão
-- [ ] Tesoureiro lança entrada/saída, categoriza, vê **saldo e dashboard**, exporta CSV — tudo escopado e auditado; matrizes verdes; cobertura `finance` no gate.
+- [x] Tesoureiro lança entrada/saída, categoriza, vê **saldo e dashboard**, exporta CSV — tudo escopado e auditado; matrizes verdes (165); cobertura `finance` **93%** (gate ✅); regressão completa **591 passed**. *(ACCESS_MATRIX §3.11.) Pendente leve: aprovação visual do dono.*
+
+> **Sprint 6.7 — gates técnicos FECHADOS** (2026-06-10). Bloco 1 commit `e5078f2`, Bloco 2 `cef57a0`; Bloco 3 (matrizes + ACCESS_MATRIX) **a versionar**.
 
 ---
 

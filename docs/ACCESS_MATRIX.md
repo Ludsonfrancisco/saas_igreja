@@ -210,6 +210,20 @@ auditado (`role_change`); RN-004 (último Pastor) intacta.
 | Ver `SecurityLog` da igreja | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Ver auditoria de Platform Admin (com `SupportAccess`) | ✅ próprio | ✅ da própria igreja | ❌ | ❌ | ❌ | ❌ |
 
+### 3.11 Financeiro (Sprint 6.7 · OD-024a)
+
+Gate: **`TreasurerOrPastorMixin`** (Pastor **ou** Tesoureiro) + `TenantRequiredMixin`.
+O **Secretário NÃO faz financeiro** (OD-019: admin geral, sem tesouraria). Lançamentos
+auditados (`AuditLogMixin`); `Transaction.contributor` → `Person` `SET_NULL` (LGPD).
+
+| Ação | Platform Admin | Pastor | Líder Com. | Coord. Min. | Tesoureiro | Membro |
+|---|---|---|---|---|---|---|
+| Painel financeiro (`/financeiro/`) — KPIs/saldo | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ |
+| Extrato + filtros (`/financeiro/lancamentos/`) | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ |
+| Criar/editar/excluir lançamento | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ |
+| Categorias (criar/editar) | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ |
+| Exportar CSV (auditado `export`) | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ |
+
 ---
 
 ## 4. Implementação

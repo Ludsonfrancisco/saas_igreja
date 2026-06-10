@@ -19,6 +19,8 @@ Requests rodam no host do tenant (`a.testserver`) ou do public (`localhost`).
 o public no teardown.
 """
 
+from decimal import Decimal
+
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
@@ -28,6 +30,7 @@ from django_tenants.utils import schema_context
 
 from apps.accounts.models import Invite, User
 from apps.files import services as files_services
+from apps.finance.models import Category, Transaction
 from apps.gatherings.models import Gathering
 from apps.ministries.models import Ministry
 from apps.people.models import Person
@@ -60,6 +63,12 @@ AUTHENTICATED_TENANT_URLS = [
     '/painel/',
     '/painel/comunidade/',
     '/painel/ministerio/',
+    # Financeiro (Sprint 6.7) — Pastor/Tesoureiro; as baterias abaixo testam anônimo
+    # (→ login) e schema public (→ 404), válidas para qualquer gate de papel.
+    '/financeiro/',
+    '/financeiro/lancamentos/',
+    '/financeiro/lancamentos/novo/',
+    '/financeiro/categorias/',
 ]
 
 
@@ -147,6 +156,11 @@ def test_tenant_isolation_matrix(tenant_a_client, church_a, church_b):
         Schedule.objects.create(
             ministry=ministry_a, person=volunteer_a, gathering=gathering_a
         )
+        # Financeiro (Sprint 6.7): lançamento da igreja A.
+        cat_a = Category.objects.create(name='Dizimo A', kind=Category.Kind.INCOME)
+        Transaction.objects.create(
+            category=cat_a, date=timezone.now().date(), amount=Decimal('100.00')
+        )
     with schema_context(church_b.schema_name):
         Person.objects.create(name='Pessoa B')
         gathering_b = Gathering.objects.create(
@@ -159,6 +173,10 @@ def test_tenant_isolation_matrix(tenant_a_client, church_a, church_b):
         volunteer_b.ministries.add(ministry_b)
         Schedule.objects.create(
             ministry=ministry_b, person=volunteer_b, gathering=gathering_b
+        )
+        cat_b = Category.objects.create(name='Dizimo B', kind=Category.Kind.INCOME)
+        Transaction.objects.create(
+            category=cat_b, date=timezone.now().date(), amount=Decimal('999.00')
         )
 
     # Arquivos (Sprint 6): um FileAsset em cada schema; o storage isola por tenant.
@@ -217,3 +235,10 @@ def test_tenant_isolation_matrix(tenant_a_client, church_a, church_b):
     file_names = {f.filename for f in resp.context['file_assets']}
     assert 'ata-a.pdf' in file_names
     assert 'ata-b.pdf' not in file_names
+
+    # Financeiro: A só enxerga os lançamentos da própria igreja (Sprint 6.7).
+    resp = tenant_a_client.get('/financeiro/lancamentos/')
+    assert resp.status_code == 200
+    txn_categories = {t.category.name for t in resp.context['transactions']}
+    assert 'Dizimo A' in txn_categories
+    assert 'Dizimo B' not in txn_categories

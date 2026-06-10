@@ -47,6 +47,12 @@ ACCOUNT_SECURITY = '/contas/seguranca/'
 HOME = '/'
 HOME_CALENDAR = '/inicio/calendario/'
 HOME_DAY = '/inicio/dia/2026-06-01/'
+# Financeiro (Sprint 6.7): Pastor + Tesoureiro.
+FINANCE_DASH = '/financeiro/'
+FINANCE_LIST = '/financeiro/lancamentos/'
+FINANCE_CREATE = '/financeiro/lancamentos/novo/'
+FINANCE_CSV = '/financeiro/lancamentos/csv/'
+FINANCE_CATEGORIES = '/financeiro/categorias/'
 
 
 def _admin(url):
@@ -114,6 +120,20 @@ def _pastor_only(url):
     ]
 
 
+def _treasurer_or_pastor(url):
+    """Financeiro (Sprint 6.7): Pastor + Tesoureiro 200; Secretário/Líder/Membro 403.
+
+    `TreasurerOrPastorMixin` — Secretário é admin geral, sem tesouraria (OD-019).
+    """
+    return [
+        ('pastor', url, 200),
+        ('treasurer', url, 200),
+        ('secretary', url, 403),
+        ('leader', url, 403),
+        ('member', url, 403),
+    ]
+
+
 def _login_only(url):
     return [(role, url, 200) for role in ('pastor', 'secretary', 'leader', 'member')]
 
@@ -155,6 +175,12 @@ PERMISSION_CASES = (
     + _login_only(HOME)
     + _login_only(HOME_CALENDAR)
     + _login_only(HOME_DAY)
+    # Financeiro (Sprint 6.7 / OD-024a): Pastor + Tesoureiro; demais 403.
+    + _treasurer_or_pastor(FINANCE_DASH)
+    + _treasurer_or_pastor(FINANCE_LIST)
+    + _treasurer_or_pastor(FINANCE_CREATE)
+    + _treasurer_or_pastor(FINANCE_CSV)
+    + _treasurer_or_pastor(FINANCE_CATEGORIES)
     + _login_only(ACCOUNT_SECURITY)
 )
 
