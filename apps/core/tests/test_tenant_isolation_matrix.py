@@ -40,6 +40,10 @@ PDF_BYTES = b'%PDF-1.4\n%\xe2\xe3\xcf\xd3\n1 0 obj\n<< >>\nendobj\n'
 # mas as duas baterias abaixo testam anônimo (→ login) e schema public (→ 404), que
 # valem para qualquer gate de papel.
 AUTHENTICATED_TENANT_URLS = [
+    # Home "Painel Oikonos" (Sprint 6.6) na raiz + fragmentos HTMX do calendário.
+    '/',
+    '/inicio/calendario/',
+    '/inicio/dia/2026-06-01/',
     '/configuracoes/usuarios/',
     '/configuracoes/convites/',
     '/configuracoes/convites/novo/',

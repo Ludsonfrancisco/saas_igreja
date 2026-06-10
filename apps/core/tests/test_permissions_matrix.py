@@ -42,6 +42,11 @@ DASHBOARD_PASTOR = '/painel/'
 DASHBOARD_LEADER = '/painel/comunidade/'
 DASHBOARD_COORDINATOR = '/painel/ministerio/'
 ACCOUNT_SECURITY = '/contas/seguranca/'
+# Home "Painel Oikonos" (Sprint 6.6) + fragmentos HTMX do calendário: abertos a
+# qualquer papel logado (TenantRequiredMixin; recorte por papel é por componente).
+HOME = '/'
+HOME_CALENDAR = '/inicio/calendario/'
+HOME_DAY = '/inicio/dia/2026-06-01/'
 
 
 def _admin(url):
@@ -145,6 +150,11 @@ PERMISSION_CASES = (
     + _pastor_only(DASHBOARD_PASTOR)
     + _staff_scoped(DASHBOARD_LEADER)
     + _staff_scoped(DASHBOARD_COORDINATOR)
+    # Home/Painel Oikonos (§3.9): aberta a TODO papel logado; o conteúdo é que se
+    # recorta (Saúde do Ministério escopada, KPIs church-wide). Fragmentos idem.
+    + _login_only(HOME)
+    + _login_only(HOME_CALENDAR)
+    + _login_only(HOME_DAY)
     + _login_only(ACCOUNT_SECURITY)
 )
 

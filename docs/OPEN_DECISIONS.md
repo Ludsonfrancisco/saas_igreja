@@ -585,6 +585,19 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 
 **Clarificação (2026-06-09, Bloco 2):** "voluntários atuais" = **número de membros** (`Person.ministries`, M2M reverse `ministry.members`), **excluindo anonimizadas**. **Coordenadores não entram na contagem** (são liderança, não a meta de voluntários). GAP = `max(volunteers_needed − atuais, 0)`. Decisão do dono entre "só membros / membros+coordenadores / só coordenadores" — escolhido **só membros** (query limpa, 1 M2M, sem dupla contagem). Implementado em `dashboard.services.ministry_volunteer_gaps` (agregação no banco, P-ARQ-09).
 
+### OD-030 — Home = painel "Painel Oikonos" (design igreja-athos-dashboard)
+
+| Campo | Valor |
+|---|---|
+| Status | ✅ Decidida (2026-06-09) |
+| Impacto | Médio (redefine a home da Sprint 6.6 e o shell do app) |
+| Owner | Dono |
+| Decisão | A home (`/`) adota o **design `igreja-athos-dashboard.html`** (bundle Claude Design): shell flutuante (sidebar arredondada + topbar em card) e painel "Painel Oikonos". **Adaptado a dados REAIS** (decisões do dono via revisão): KPIs da igreja + próximas programações (real); **Saúde do Ministério = GAP de voluntários** (mantém OD-029; % preenchido + barras por ministério, não score 84% inventado); seções sem backend (Financeiro/Tendência/Frequência/Radar/Atividades) = **placeholder "Em breve"** (sem números fictícios). Aberta a **todo papel logado** (`TenantRequiredMixin`). |
+
+**Contexto:** na revisão visual da Sprint 6.6 o dono forneceu o design premium e pediu fidelidade. Conflitava com a 6.6 original (home calendário-cêntrica, RF-102) e com OD-029 (GAP vs score). Resolvido: design vira a home com dado real; GAP preservado; futuro fica "Em breve".
+
+**Implicações:** (a) **calendário de agenda (RF-102) SAI da home** → vai para **Encontros/agenda** (código pronto: services `build_calendar_weeks`/`event_days`/`gatherings_on_day` + `HomeCalendarView`/`HomeDayView` em `/inicio/calendario/`,`/inicio/dia/`; **wiring pendente**). (b) sparklines dos KPIs = série real (`home_growth_series`, cumulativo por `created_at`). (c) gráfico de tendência histórico da Saúde exigiria snapshots mensais (feature futura). (d) "Contribuições" do KPI ativa na Sprint 6.7 (Financeiro). Commit `b019a6d`.
+
 ---
 
 ## Histórico — decisões fechadas
@@ -607,6 +620,7 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 | OD-027 | Múltiplos pastores por igreja (Pr e Pra) | 2026-06-08 | **Já suportado** — usuários distintos com role `pastor` no `ArrayField` (RN-003a); sem trava de 1/igreja; só revisar cópia de UI singular |
 | OD-028 | Posicionamento do Design v2 | 2026-06-08 | **Sprint 6.6 "Athos v2"** (sidebar vertical + re-skin + home nova) **antes** da 6.7; opção A do A/B do F7; RF-102..105 |
 | OD-029 | Métrica "Saúde do Ministério" | 2026-06-08 | **GAP de voluntários** (atuais × `Ministry.volunteers_needed`), não score composto; RF-104; campo novo na Sprint 6.6 |
+| OD-030 | Home = painel "Painel Oikonos" (design igreja-athos-dashboard) | 2026-06-09 | A home (`/`) adota o design analítico premium, **adaptado a dados reais**; Saúde do Ministério segue GAP (OD-029); seções sem backend = "Em breve"; **calendário (RF-102) sai da home → Encontros**; aberta a todo papel logado |
 | OD-003a | Storage de mídia | 2026-05-27 | Cloudflare R2 (S3-compatible) desde Sprint 6 |
 | OD-006 | VPS definitivo | 2026-05-27 | Hostinger KVM 2 (8GB, 2 vCPU, 100GB NVMe) |
 | OD-007 | Storage offsite | 2026-05-27 | Cloudflare R2 (mesma conta de OD-003a) |

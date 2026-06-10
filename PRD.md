@@ -411,8 +411,8 @@ ID `RF-XXX` · Título · Descrição · Ator · Prioridade (P0/P1/P2) · Módul
 
 | ID | Título | Ator | Prio | Módulo | Critério de aceite | Teste | Sprint |
 |---|---|---|---|---|---|---|---|
-| RF-102 | Calendário de agenda na home | Todos (escopado por papel) | P1 | Home | Calendário expansível na home marca os dias do mês que têm `Gathering`; troca de mês; clicar no dia mostra os encontros do dia; escopado ao tenant/papel | `test_calendar_event_days` | 6.6 |
-| RF-103 | Próximas programações na home | Todos (escopado por papel) | P1 | Home | Card lista os próximos `Gathering` (futuros) ordenados por data, escopados ao papel/comunidade; sem vazamento cross-tenant | `test_home_upcoming_gatherings_scope` | 6.6 |
+| RF-102 | Calendário de agenda (→ Encontros) | Todos (escopado por papel) | P1 | Encontros | Calendário expansível marca os dias do mês com `Gathering`; troca de mês (HTMX); clicar no dia mostra os encontros do dia; escopado ao tenant. **OD-030: saiu da home (que virou o painel Oikonos) → vai para Encontros; código pronto (`HomeCalendarView`/`HomeDayView`), wiring pendente** | `test_calendar_event_days` | 6.6 |
+| RF-103 | Próximas programações na home | Todos (logado) | P1 | Home | Card lista os próximos `Gathering` (futuros) ordenados por data; sem vazamento cross-tenant | `test_home_upcoming_gatherings_scope` | 6.6 |
 | RF-104 | Saúde do Ministério (GAP de voluntários) | Pastor, Coordenador | P1 | Ministérios/Home | `Ministry.volunteers_needed` define a meta; card "Saúde do Ministério" mostra voluntários atuais × necessários (GAP) por ministério (OD-029) | `test_ministry_volunteer_gap` | 6.6 |
 | RF-105 | Shell Athos v2 (sidebar vertical + re-skin) | Sistema | P1 | UI/Design | `app_base.html` com sidebar **vertical**; re-skin de 100% das telas na paleta Oikonos v2; tipografia Inter (corpo) + Poppins (display) + `tabular-nums`; Lighthouse mobile ≥ 90, WCAG AA, zero regressão (OD-028) | `test_base_template_renders_church_theme` + Lighthouse/axe | 6.6 |
 

@@ -637,34 +637,35 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 - [x] (P0) Service/queryset da home (agregado no banco, **P-ARQ-09**, zero N+1): próximos `Gathering` (futuros, escopados por papel); dias do mês com evento (marcadores do calendário); GAP por ministério (**voluntários atuais = membros `Person.ministries`** × `volunteers_needed`, OD-029). *(`dashboard.services`: `upcoming_gatherings`/`event_days`/`ministry_volunteer_gaps`)*
 - [x] (P0) Escopo por papel (3 camadas: view/service/queryset); `TenantRequiredMixin`. *(`HomeView` em `/inicio/`; GAP escopado por `coordinators__user_id`)*
 
-### Bloco 3 — Home nova / Frontend (F4 + cards · RF-102/103/104)
-- [x] (P0) **Calendário expansível** (Alpine.js) marcando os dias com `Gathering`; troca de mês via HTMX; clicar no dia → encontros do dia. *(`_calendar.html`/`_day.html`; fragmentos `HomeCalendarView`/`HomeDayView` em `/inicio/calendario/` e `/inicio/dia/<data>/`)*
-- [x] (P0) Card **"Próximas programações"** (lista de Gathering futuros, escopada). *(home.html, fonte `upcoming_gatherings`)*
-- [x] (P0) Card **"Saúde do Ministério" = GAP de voluntários** (atual × necessário; barra/badge) — **OD-029**. *(barra `widthratio` + badge Completo/Faltam N)*
-- [x] (P0) Re-skin dos cards do dashboard (Sprint 6) no visual v2; **estados vazio/loading obrigatórios**. *(home v2 + estados vazios em todos os blocos; `_metrics.html` da Sprint 6 já usa stat-pill/card v2. **`/` agora renderiza a Home nova** — rewire feito; nav "Início" + "Painel")*
+### Bloco 3 — Home nova / Frontend — **PIVÔ p/ design igreja-athos-dashboard (OD-030)**
+> **Pivô (2026-06-09, revisão do dono):** a home virou o **painel "Painel Oikonos"** (design premium), shell flutuante (sidebar arredondada + topbar em card). **Calendário (RF-102) saiu da home → vai para Encontros** (código mantido). Commit `b019a6d`.
+- [x] (P0) Calendário expansível (Alpine) + troca de mês HTMX + clique no dia → fragmentos `HomeCalendarView`/`HomeDayView` (`/inicio/calendario/`, `/inicio/dia/<data>/`). *Construído; **desligado da home** (OD-030) — wiring em Encontros pendente.*
+- [x] (P0) Card **"Próximas programações"** (Gathering futuros). *(home.html, `upcoming_gatherings`)*
+- [x] (P0) Card **"Saúde do Ministério" = GAP de voluntários** (OD-029). *(card escuro: % preenchido + barras por ministério; `ministry_health`)*
+- [x] (P0) Painel "Painel Oikonos" no visual v3: KPIs com **sparkline real** (`home_growth_series`), seções sem backend = **"Em breve"**; shell flutuante; estados vazios. **`/` renderiza a home** (rewire feito).
 
 ### Bloco 4 — Matrizes / docs / fechamento
-- [ ] (P0) Atualizar `test_tenant_isolation_matrix` / `test_permissions_matrix` com as views novas da home.
-- [ ] (P0) `ACCESS_MATRIX.md §3.9` atualizada (Home/Agenda + Saúde do Ministério por papel).
-- [ ] (P0) Gate de cobertura dos apps tocados; regressão completa verde.
+- [x] (P0) `test_tenant_isolation_matrix` (+`/`, `/inicio/calendario/`, `/inicio/dia/`) e `test_permissions_matrix` (+home/fragmentos = login-only) atualizados.
+- [x] (P0) `ACCESS_MATRIX.md §3.9` atualizada (Painel Oikonos por papel + Saúde do Ministério + nota OD-030); PRD RF-102/103 e OD-030 registrados.
+- [x] (P0) Gate de cobertura (dashboard+ministries **99%**) ✅; **regressão completa verde: 544 passed** (apps sem e2e); matrizes **132 passed**.
 
 ### Testes mínimos da Sprint 6.6
 - [x] (P0) `test_ministry_volunteer_gap` (GAP = atuais × `volunteers_needed`) *(Bloco 2)*
 - [x] (P0) `test_home_upcoming_gatherings_scope` (próximas programações escopadas por papel, sem vazamento) *(Bloco 2)*
 - [x] (P0) `test_calendar_event_days` (dias marcados = dias com `Gathering` do mês/tenant) *(Bloco 2)*
-- [ ] (P0) E2E Playwright (mobile 360×640): **abrir o menu hambúrguer** → drawer desliza, navegar, fechar (overlay/escape); desktop = sidebar fixa visível
-- [ ] (P0) E2E Playwright: expandir calendário, ver dia marcado, lista de programações carrega (mobile 360×640 + desktop)
-- [ ] (P0) a11y (axe) sem violações críticas na home v2; **Lighthouse mobile ≥ 90**
-- [ ] (P0) Suíte de regressão inteira verde (zero regressão HTMX/Alpine no re-skin)
-- [ ] (P0) `test_tenant_isolation_matrix` / `test_permissions_matrix` atualizados e verdes
+- [ ] (P0) E2E Playwright (mobile 360×640): **abrir o menu hambúrguer** → drawer desliza, navegar, fechar (overlay/escape); desktop = sidebar fixa visível *(pendente — browser; "voltamos ajustando")*
+- [~] (P0) ~~E2E calendário na home~~ → **N/A: calendário saiu da home (OD-030)**; revalidar quando wirar em Encontros
+- [ ] (P0) a11y (axe) sem violações críticas na home v3; **Lighthouse mobile ≥ 90** *(pendente — browser)*
+- [x] (P0) Suíte de regressão inteira verde (zero regressão no re-skin) — **544 passed** (apps sem e2e)
+- [x] (P0) `test_tenant_isolation_matrix` / `test_permissions_matrix` atualizados e verdes — **132 passed**
 
 ### Critério de conclusão da Sprint 6.6
-- [ ] Shell **sidebar vertical** + re-skin v2 em **100% das telas** (zero markup do shell antigo)
-- [ ] Tipografia **Inter + Poppins + `tabular-nums`** aplicada; paleta **Oikonos v2** temável por igreja
-- [ ] Home nova com **calendário de agenda + próximas programações + card Saúde do Ministério (GAP)**, escopados e sem vazamento cross-tenant
-- [ ] **Lighthouse mobile ≥ 90** e **WCAG AA**; suíte verde (zero regressão)
-- [ ] **Aprovação visual do dono**
-- [ ] Docs atualizadas (PRD RF-102..105, OD-028/029, ACCESS_MATRIX §3.9, TECH_SPEC §11)
+- [x] Shell flutuante (sidebar arredondada + topbar em card) re-skin v3 em **100% das telas** (verificado: 9 telas renderizam o shell)
+- [x] Tipografia **Inter + Poppins + `tabular-nums`** aplicada; paleta **Oikonos v2** temável por igreja
+- [x] Home nova ("Painel Oikonos"): KPIs reais + próximas programações + Saúde do Ministério (GAP), escopados e sem vazamento cross-tenant *(calendário movido p/ Encontros — OD-030)*
+- [ ] **Lighthouse mobile ≥ 90** e **WCAG AA**; ~~suíte verde~~ ✅ (544) *(Lighthouse/axe pendentes — browser)*
+- [ ] **Aprovação visual do dono** *(pendente)*
+- [x] Docs atualizadas (PRD RF-102/103, OD-028/029/**030**, ACCESS_MATRIX §3.9; TECH_SPEC §11 já na 6.6/Bloco 1)
 
 ---
 

@@ -196,8 +196,11 @@ auditado (`role_change`); RN-004 (último Pastor) intacta.
 | Dashboard simplificado da comunidade | ❌ | ✅ | 🟡 (sua) | ❌ | ❌ | ❌ |
 | Dashboard simplificado do ministério | ❌ | ✅ | ❌ | 🟡 (seu) | ❌ | ❌ |
 | Próprio histórico | — | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Home: calendário de agenda + próximas programações (RF-102/103) | ❌ | ✅ | 🟡 (sua comunidade) | 🟡 (seu ministério) | ✅ | — |
+| Home "Painel Oikonos": KPIs da igreja + próximas programações (RF-103, OD-030) | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Home: card "Saúde do Ministério" / GAP de voluntários (RF-104) | ❌ | ✅ (todos) | ❌ | 🟡 (seu) | ❌ | ❌ |
+| Calendário de agenda (RF-102) — **movido da home para Encontros** (OD-030; pendente de wiring) | ❌ | ✅ | ✅ | ✅ | — | — |
+
+> **OD-030 (2026-06-09):** a home virou o painel "Painel Oikonos" (design `igreja-athos-dashboard`), aberto a **todo papel logado** (`TenantRequiredMixin`): KPIs da igreja (agregados coarse) + próximas programações + card Saúde do Ministério (este escopado por papel — Pastor/Secretário todos, Coordenador o seu). O **calendário de agenda (RF-102)** saiu da home; o código (fragmentos `/inicio/calendario/`, `/inicio/dia/`) está pronto para wiring em **Encontros**.
 
 ### 3.10 Auditoria
 
