@@ -11,6 +11,7 @@ from apps.communities.views import (
     CommunityDeleteView,
     CommunityDetailView,
     CommunityListView,
+    CommunitySessionView,
     CommunityUpdateView,
 )
 
@@ -20,6 +21,11 @@ urlpatterns = [
     path('comunidades/', CommunityListView.as_view(), name='list'),
     path('comunidades/nova/', CommunityCreateView.as_view(), name='create'),
     path('comunidades/<int:pk>/', CommunityDetailView.as_view(), name='detail'),
+    path(
+        'comunidades/<int:pk>/lancamento/<int:gathering_pk>/',
+        CommunitySessionView.as_view(),
+        name='session',
+    ),
     path('comunidades/<int:pk>/editar/', CommunityUpdateView.as_view(), name='update'),
     path(
         'comunidades/<int:pk>/excluir/',

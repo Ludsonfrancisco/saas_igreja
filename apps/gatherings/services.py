@@ -241,3 +241,56 @@ def cell_pending_days(community):
         .annotate(is_launched=Exists(launched))
         .order_by('-date')
     )
+
+
+def cell_attendance_summary(community, *, limit=4):
+    """Resumo de frequência de UMA célula (RF-109) — para o card no detalhe.
+
+    Olha as últimas `limit` sessões CONFIRMADAS da célula e devolve quantidade de
+    sessões, presentes da última e média de presentes. Sem sessões → tudo None."""
+    from django.db.models import Count, Q
+
+    rows = list(
+        Gathering.objects.filter(
+            gathering_type=Gathering.Type.COMMUNITY,
+            community=community,
+            session__confirmed_at__isnull=False,
+        )
+        .annotate(present=Count('attendances', filter=Q(attendances__is_present=True)))
+        .order_by('-date')[:limit]
+    )
+    if not rows:
+        return {'sessions': 0, 'last_present': None, 'avg_present': None}
+    presents = [g.present for g in rows]
+    return {
+        'sessions': len(presents),
+        'last_present': presents[0],
+        'avg_present': round(sum(presents) / len(presents), 1),
+    }
+
+
+def cell_frequencies(communities):
+    """`{community_id: {'sessions': n, 'avg_present': x}}` para a LISTA de Comunidades
+    (RF-109) numa ÚNICA query (sem N+1). Conta só sessões confirmadas."""
+    from django.db.models import Count, Q
+
+    rows = (
+        Gathering.objects.filter(
+            gathering_type=Gathering.Type.COMMUNITY,
+            community__in=communities,
+            session__confirmed_at__isnull=False,
+        )
+        .values('community')
+        .annotate(
+            sessions=Count('id', distinct=True),
+            present=Count('attendances', filter=Q(attendances__is_present=True)),
+        )
+    )
+    summary = {}
+    for row in rows:
+        sessions = row['sessions'] or 0
+        summary[row['community']] = {
+            'sessions': sessions,
+            'avg_present': round(row['present'] / sessions, 1) if sessions else 0,
+        }
+    return summary

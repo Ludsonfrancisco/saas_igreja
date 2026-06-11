@@ -23,4 +23,46 @@
       <div class="sm:col-span-2"><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Membros</dt><dd class="mt-0.5 text-sm text-ink">{% for member in community.members.all %}{{ member.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</dd></div>
     </dl>
   </div>
+
+  {% comment %}Frequência da célula (RF-109) + dias a lançar (RF-107).{% endcomment %}
+  <div class="mt-5 grid gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
+    <div class="card p-5">
+      <h2 class="mb-3 font-display text-base font-semibold text-ink">Frequência da célula</h2>
+      {% if frequency.sessions %}
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div><p class="font-display text-2xl font-bold text-ink tnum">{{ frequency.last_present }}</p><p class="text-[0.68rem] text-muted">última reunião</p></div>
+          <div><p class="font-display text-2xl font-bold text-ink tnum">{{ frequency.avg_present }}</p><p class="text-[0.68rem] text-muted">média</p></div>
+          <div><p class="font-display text-2xl font-bold text-ink tnum">{{ frequency.sessions }}</p><p class="text-[0.68rem] text-muted">reuniões</p></div>
+        </div>
+      {% else %}
+        <p class="text-sm text-muted">Ainda sem reuniões lançadas.</p>
+      {% endif %}
+    </div>
+
+    <div class="card p-5">
+      <h2 class="mb-3 font-display text-base font-semibold text-ink">Dias a lançar</h2>
+      {% if pending_days %}
+        <ul class="divide-y divide-hairline">
+          {% for day in pending_days %}
+            <li class="flex items-center justify-between gap-3 py-2.5">
+              <div class="min-w-0">
+                <span class="block text-sm font-medium text-ink">{{ day.date|date:'d/m/Y' }}</span>
+                <span class="text-xs text-muted">{{ day.title|default:'Reunião de célula' }}</span>
+              </div>
+              <div class="flex items-center gap-3">
+                {% if day.is_launched %}
+                  {% include 'components/badge.html' with text='Lançado' variant='success' %}
+                {% else %}
+                  {% include 'components/badge.html' with text='Pendente' variant='accent' %}
+                {% endif %}
+                <a href="{% url 'communities:session' pk=community.pk gathering_pk=day.pk %}" class="text-sm font-medium text-accent hover:underline">{% if day.is_launched %}Revisar{% else %}Lançar{% endif %}</a>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-sm text-muted">Nenhuma reunião de célula cadastrada. O Pastor ou Secretário cria os encontros em <a href="{% url 'gatherings:list' %}" class="text-accent hover:underline">Encontros</a>.</p>
+      {% endif %}
+    </div>
+  </div>
 {% endblock %}

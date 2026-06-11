@@ -15,13 +15,14 @@
     <div class="card hidden overflow-hidden md:block">
       <table class="w-full text-sm">
         <thead class="bg-bg-soft text-left text-muted">
-          <tr><th class="px-4 py-3 font-medium">Nome</th><th class="px-4 py-3 font-medium">Líderes</th><th class="px-4 py-3 font-medium">Status</th></tr>
+          <tr><th class="px-4 py-3 font-medium">Nome</th><th class="px-4 py-3 font-medium">Líderes</th><th class="px-4 py-3 font-medium">Frequência</th><th class="px-4 py-3 font-medium">Status</th></tr>
         </thead>
         <tbody class="divide-y divide-hairline">
           {% for community in communities %}
             <tr class="hover:bg-bg-soft/50">
               <td class="px-4 py-3"><a href="{% url 'communities:detail' pk=community.pk %}" class="font-medium text-ink hover:text-accent">{{ community.name }}</a></td>
               <td class="px-4 py-3 text-muted">{% for leader in community.leaders.all %}{{ leader.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</td>
+              <td class="px-4 py-3 text-muted tnum">{% if community.freq.sessions %}{{ community.freq.avg_present }} méd · {{ community.freq.sessions }} reun.{% else %}—{% endif %}</td>
               <td class="px-4 py-3">{% if community.is_active %}{% include 'components/badge.html' with text='Ativa' variant='success' %}{% else %}{% include 'components/badge.html' with text='Inativa' variant='muted' %}{% endif %}</td>
             </tr>
           {% endfor %}
@@ -31,7 +32,7 @@
     <div class="grid gap-3 md:hidden">
       {% for community in communities %}
         <a href="{% url 'communities:detail' pk=community.pk %}" class="card flex items-center justify-between p-4">
-          <div><p class="font-medium text-ink">{{ community.name }}</p><p class="mt-0.5 text-xs text-muted">{% for leader in community.leaders.all %}{{ leader.name }}{% if not forloop.last %}, {% endif %}{% empty %}Sem líder{% endfor %}</p></div>
+          <div><p class="font-medium text-ink">{{ community.name }}</p><p class="mt-0.5 text-xs text-muted">{% for leader in community.leaders.all %}{{ leader.name }}{% if not forloop.last %}, {% endif %}{% empty %}Sem líder{% endfor %}{% if community.freq.sessions %} · {{ community.freq.avg_present }} méd.{% endif %}</p></div>
           {% if community.is_active %}{% include 'components/badge.html' with text='Ativa' variant='success' %}{% else %}{% include 'components/badge.html' with text='Inativa' variant='muted' %}{% endif %}
         </a>
       {% endfor %}

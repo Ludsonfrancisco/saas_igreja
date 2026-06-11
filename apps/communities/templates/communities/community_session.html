@@ -1,0 +1,59 @@
+{% extends 'app_base.html' %}
+{% comment %}Lançamento de presença da célula (Comunidades v2 / RF-108). Líder marca
+presente/falta dos membros (checkbox), adiciona visitante (um nome por linha), escreve
+a anotação do dia e confirma. POST → `CommunitySessionView` → `launch_attendance_session`.
+Linhas grandes (toque ≥44px), botão de confirmar no rodapé.{% endcomment %}
+{% block title %}Lançar presença · Oikonos{% endblock %}
+
+{% block content %}
+  <div class="mx-auto max-w-xl pb-24">
+    <a href="{% url 'communities:detail' pk=community.pk %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> {{ community.name }}</a>
+    <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">Lançar presença</h1>
+    <p class="mt-1 text-sm text-muted">{{ gathering.title|default:'Reunião de célula' }} · {{ gathering.date|date:'d/m/Y' }}</p>
+
+    <form method="post" x-data="{ n: {{ present_ids|length }} }" class="mt-4 space-y-4">
+      {% csrf_token %}
+
+      {% comment %}Roster (membros da célula) — checkbox marcado = presente.{% endcomment %}
+      <div>
+        <h2 class="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-2">Membros</h2>
+        {% if roster %}
+          <div class="card divide-y divide-hairline overflow-hidden">
+            {% for person in roster %}
+              <label class="flex cursor-pointer items-center gap-3 px-4 py-3 hover:bg-bg-soft">
+                <input type="checkbox" name="present" value="{{ person.pk }}" @change="n += $event.target.checked ? 1 : -1"
+                       {% if person.pk in present_ids %}checked{% endif %}
+                       class="h-5 w-5 rounded border-line text-accent focus:ring-accent/30">
+                <span class="text-sm text-ink">{{ person.name }}</span>
+              </label>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="card p-4 text-sm text-muted">Nenhum membro cadastrado nesta célula ainda. Peça ao Pastor ou Secretário para adicionar.</p>
+        {% endif %}
+      </div>
+
+      {% comment %}Visitantes (um nome por linha) — viram Pessoa "Visitante" na célula.{% endcomment %}
+      <div>
+        <label for="visitors" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-2">Visitantes (um por linha)</label>
+        <textarea id="visitors" name="visitors" rows="2" placeholder="Ex.: Maria Souza"
+                  class="w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink placeholder:text-muted-2 focus:border-accent focus:ring-2 focus:ring-accent/20"></textarea>
+      </div>
+
+      {% comment %}Anotações do dia (nota da reunião — RN-016).{% endcomment %}
+      <div>
+        <label for="note" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-2">Anotações do dia</label>
+        <textarea id="note" name="note" rows="3" placeholder="O que aconteceu, quem conduziu, pedidos…"
+                  class="w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink placeholder:text-muted-2 focus:border-accent focus:ring-2 focus:ring-accent/20">{{ note }}</textarea>
+      </div>
+
+      {% comment %}Barra de confirmação fixa (mobile-friendly).{% endcomment %}
+      <div class="fixed inset-x-0 bottom-0 z-20 border-t border-hairline bg-paper/95 px-4 py-3 backdrop-blur md:static md:border-0 md:bg-transparent md:p-0">
+        <div class="mx-auto flex max-w-xl items-center justify-between gap-3">
+          <span class="text-sm text-muted"><strong x-text="n" class="text-ink"></strong> presente(s)</span>
+          <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="check" class="h-4 w-4"></i> Confirmar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+{% endblock %}
