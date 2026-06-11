@@ -24,14 +24,17 @@ from django.views.generic import (
     DeleteView,
     DetailView,
     ListView,
+    TemplateView,
     UpdateView,
 )
 
 from apps.core.mixins import (
     LeaderOrPastorMixin,
+    PastorOrSecretaryMixin,
     PastorRequiredMixin,
     TenantRequiredMixin,
 )
+from apps.dashboard.views import calendar_context
 from apps.gatherings import services
 from apps.gatherings.forms import GatheringForm
 from apps.gatherings.models import Gathering
@@ -55,6 +58,18 @@ class GatheringEditScopeMixin:
         ).distinct()
 
 
+def _agenda_context(request):
+    """Contexto da "Agenda do mês" de Encontros (RF-102 / item 4): a grade do
+    calendário (reusa `calendar_context` do dashboard) + a lista dos encontros do mês
+    exibido (`gatherings_in_month`). Compartilhado entre a `GatheringListView` (render
+    inicial) e a `GatheringCalendarView` (fragmento de troca de mês)."""
+    context = calendar_context(request)
+    context['month_gatherings'] = services.gatherings_in_month(
+        year=context['calendar_year'], month=context['calendar_month']
+    )
+    return context
+
+
 class GatheringListView(TenantRequiredMixin, LeaderOrPastorMixin, ListView):
     """Lista todos os encontros da igreja (§3.6 — Líder/Coord também veem todos)."""
 
@@ -73,6 +88,22 @@ class GatheringListView(TenantRequiredMixin, LeaderOrPastorMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['type_choices'] = Gathering.Type.choices
         context['filters'] = self.request.GET
+        # Agenda do mês (RF-102) — calendário (só pontos) + lista lateral dos
+        # encontros do mês. A navegação de mês é servida por `GatheringCalendarView`.
+        context.update(_agenda_context(self.request))
+        return context
+
+
+class GatheringCalendarView(TenantRequiredMixin, LeaderOrPastorMixin, TemplateView):
+    """Fragmento da "Agenda do mês" (RF-102) — troca de mês via HTMX na tela de
+    Encontros. Devolve `_calendar_agenda.html` (calendário + lista) para o swap do
+    bloco `#enc-calendar`. Mesmo gate de papel da lista (§3.6)."""
+
+    template_name = 'gatherings/_calendar_agenda.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(_agenda_context(self.request))
         return context
 
 
@@ -97,12 +128,13 @@ class GatheringDetailView(TenantRequiredMixin, LeaderOrPastorMixin, DetailView):
         return context
 
 
-class GatheringCreateView(TenantRequiredMixin, LeaderOrPastorMixin, CreateView):
-    """Cria encontro via service (barreira tipo×papel×escopo da §3.6).
+class GatheringCreateView(TenantRequiredMixin, PastorOrSecretaryMixin, CreateView):
+    """Cria encontro — APENAS Pastor/Secretário (RN-018 · Comunidades v2).
 
-    A view só aplica a barreira de PAPEL ampla; o service recusa o tipo que o ator
-    não pode criar. Não chamamos `super().form_valid` (faria form.save(), pulando
-    o service e o `created_by`).
+    Mudança da regra anterior (§3.6 deixava o Líder criar): a criação de encontros é
+    administrativa. O service `create_gathering` reforça a trava (defesa em
+    profundidade, P-ARQ-08). Não chamamos `super().form_valid` (faria form.save(),
+    pulando o service e o `created_by`).
     """
 
     model = Gathering

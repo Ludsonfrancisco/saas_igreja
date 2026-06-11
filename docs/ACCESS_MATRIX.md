@@ -155,13 +155,13 @@ auditado (`role_change`); RN-004 (último Pastor) intacta.
 | Ação | Platform Admin | Pastor | Secretário | Líder Com. | Coord. Min. | Tesoureiro | Membro |
 |---|---|---|---|---|---|---|---|
 | Listar encontros da igreja | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Criar encontro (tipo WORSHIP) | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Criar encontro (tipo COMMUNITY) | ❌ | ✅ | ✅ | 🟡 (sua) | ❌ | ❌ | ❌ |
-| Criar encontro (tipo EVENT/MEETING) | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Editar encontro | ❌ | ✅ | ✅ | 🟡 (criador ou sua comunidade) | 🟡 (criador) | ❌ | ❌ |
+| Criar encontro (qualquer tipo) | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Editar encontro | ❌ | ✅ | ✅ | 🟡 (só a DATA, sua comunidade) | 🟡 (só a DATA) | ❌ | ❌ |
 | Excluir encontro | ❌ | ✅ 📝 | ❌ 🔒 | ❌ | ❌ | ❌ | ❌ |
 | Marcar presença em lote | ❌ | ✅ | ✅ | 🟡 (sua comunidade) | 🟡 (seu ministério) | ❌ | ❌ |
 | Editar presença individual | ❌ | ✅ | ✅ | 🟡 (sua comunidade) | 🟡 (seu ministério) | ❌ | ❌ |
+
+> **RN-018 (Comunidades v2, 2026-06-10 — revisa a regra anterior):** **criar encontro virou administrativo** (só Pastor/Secretário); o Líder/Coordenador **deixou de criar** e passou a **editar só a DATA** de encontros no seu escopo (enforçado na view `GatheringCreateView` = `PastorOrSecretaryMixin` + no service `create_gathering` + no `GatheringForm`). O lançamento de presença de célula (sessão + visitante + nota) e os demais requisitos vêm em `docs/SPEC_COMUNIDADES_V2.md` (RF-106..110 / RN-016..019); as novas linhas (sessão/visitante/frequência) entram aqui no Bloco 3 da feature.
 
 ### 3.7 Escalas e Voluntários
 

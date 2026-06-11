@@ -55,6 +55,29 @@ def test_community_list_role_barrier(tenant_client, church_a, roles, expected):
 
 
 @pytest.mark.django_db(transaction=True)
+def test_community_list_scoped_to_leader(tenant_client, church_a):
+    """RF-106 (Comunidades v2): o Líder vê só a célula que lidera; Pastor vê todas."""
+    leader = _make_user(church_a, 'leader@a.com', ['leader'])
+    with schema_context(church_a.schema_name):
+        person = Person.objects.create(name='Lider', user_id=leader.id)
+        mine = Community.objects.create(name='Minha Célula')
+        mine.leaders.add(person)
+        Community.objects.create(name='Outra Célula')
+
+    tenant_client.force_login(leader)
+    resp = tenant_client.get(LIST_URL)
+    assert {c.name for c in resp.context['communities']} == {'Minha Célula'}
+
+    pastor = _make_user(church_a, 'pastor@a.com', ['pastor'])
+    tenant_client.force_login(pastor)
+    resp = tenant_client.get(LIST_URL)
+    assert {c.name for c in resp.context['communities']} == {
+        'Minha Célula',
+        'Outra Célula',
+    }
+
+
+@pytest.mark.django_db(transaction=True)
 @pytest.mark.parametrize(
     'roles,expected', [(['pastor'], 200), (['leader'], 403), (['member'], 403)]
 )

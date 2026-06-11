@@ -25,6 +25,7 @@ aplicado a um Ministerio (mesma convencao de `files`/`schedules`). Por isso o
 `Ministry.coordinators__user_id`.
 """
 
+import re
 from datetime import date
 
 from django.http import Http404
@@ -115,9 +116,19 @@ def _calendar_year_month(request):
     return year, month
 
 
-def _calendar_context(request):
-    """Contexto do calendário do mês pedido (RF-102), compartilhado entre a página
-    inteira (`HomeView`) e o fragmento de troca de mês (`HomeCalendarView`).
+def _safe_dom_id(value, default):
+    """Sanitiza um id/seletor vindo de querystring (`?cal_id=&day_target=`) antes de
+    ecoá-lo em atributos `id`/`hx-target`. Só `[A-Za-z0-9_-]` (1–40); senão, default."""
+    if value and re.fullmatch(r'[A-Za-z0-9_-]{1,40}', value):
+        return value
+    return default
+
+
+def calendar_context(request):
+    """Contexto do calendário do mês pedido (RF-102). Público porque é reaproveitado
+    fora do dashboard: o calendário saiu da home (OD-030) e foi wirado na página de
+    Encontros (`GatheringListView`), que monta o mesmo card a partir daqui. Também
+    alimenta o fragmento de troca de mês (`HomeCalendarView`).
 
     Inclui a matriz de semanas (dias com evento marcados), os rótulos pt-BR, o mês
     anterior/seguinte (para os botões de navegação) e `today`.
@@ -139,6 +150,11 @@ def _calendar_context(request):
         'calendar_next': {'year': next_year, 'month': next_month},
         'event_days': days,
         'today_iso': today.isoformat(),
+        # IDs do card/alvo do dia — parametrizáveis p/ o calendário coexistir em mais
+        # de um lugar (drawer da agenda vs. home) sem colidir. Sanitizados porque vêm
+        # do `?cal_id=&day_target=` (vão para atributos id/hx-target).
+        'cal_id': _safe_dom_id(request.GET.get('cal_id'), 'home-calendar'),
+        'day_target': _safe_dom_id(request.GET.get('day_target'), 'day-panel'),
     }
 
 
@@ -157,8 +173,9 @@ class HomeView(TenantRequiredMixin, TemplateView):
     - Seções sem backend (Financeiro, Tendências, Frequência, Radar, Atividades):
       placeholder "Em breve" no template (sem números fictícios).
 
-    O calendário (RF-102) saiu da home (decisão do dono) — será wirado em Encontros;
-    os fragmentos `HomeCalendarView`/`HomeDayView` seguem disponíveis para isso.
+    O calendário (RF-102) saiu da home (OD-030) e foi wirado na página de Encontros
+    (`GatheringListView`); os fragmentos `HomeCalendarView`/`HomeDayView` (troca de
+    mês e encontros do dia) seguem servindo de lá via HTMX.
     """
 
     template_name = 'dashboard/home.html'
@@ -197,7 +214,7 @@ class HomeCalendarView(TenantRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(_calendar_context(self.request))
+        context.update(calendar_context(self.request))
         return context
 
 

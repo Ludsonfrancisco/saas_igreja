@@ -89,3 +89,33 @@ class Attendance(BaseModel):
     def __str__(self):
         who = self.person.name if self.person else '(anonimizada)'
         return f'{who} @ {self.gathering}'
+
+
+class AttendanceSession(BaseModel):
+    """Sessão de presença de uma reunião (Comunidades v2 · RF-108 / RN-016 / DM-2).
+
+    1:1 com o `Gathering`: guarda a **anotação do dia** (o que aconteceu, quem fez o
+    quê — uma nota POR REUNIÃO, não por pessoa) e a CONFIRMAÇÃO do lançamento (quem
+    confirmou e quando). Fica separada do `Gathering` (programação geral) para não
+    inflar o encontro e abrir espaço ao "confirmado em/por". Só encontros que tiveram
+    lançamento ganham uma sessão.
+
+    NÃO herda `AuditLogMixin` por linha de presença (mantém OD-020 — alta frequência);
+    a confirmação da sessão é 1 evento por dia/célula (o `confirmed_by`/`confirmed_at`
+    já é a trilha). `confirmed_by` é `user_id` do User público (TENANT-04), não FK.
+    """
+
+    gathering = models.OneToOneField(
+        'Gathering',
+        on_delete=models.CASCADE,
+        related_name='session',
+    )
+    note = models.TextField(blank=True, default='')
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+    confirmed_by = models.IntegerField(null=True, blank=True, db_index=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        return f'Sessão de {self.gathering}'

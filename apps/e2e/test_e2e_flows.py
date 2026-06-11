@@ -10,18 +10,21 @@ import datetime
 import pytest
 from django_tenants.utils import schema_context
 
-from apps.e2e.conftest import E2E_PASSWORD, E2E_SCHEMA, login
+from apps.e2e.conftest import E2E_SCHEMA, login
 
 FUTURE = datetime.date.today() + datetime.timedelta(days=14)
 
 
 @pytest.mark.django_db(transaction=True)
 def test_login_flow(page, e2e):
-    """Login por email → cai no painel da igreja (redirect por papel)."""
+    """Login por email → cai na home "Painel Oikonos" (LOGIN_REDIRECT_URL='/').
+
+    Pós-pivô da Sprint 6.6 a landing pós-login é a home nova em `/` (RF-102/103),
+    não mais `/painel` (que virou métricas por papel, §3.9)."""
     ls = e2e['live_server']
     login(page, ls, 'pastor@e2e.com')
-    assert '/painel' in page.url
-    assert 'Painel' in page.inner_text('body')
+    assert page.url.rstrip('/') == ls.url.rstrip('/')  # caiu na home (/)
+    assert 'Painel Oikonos' in page.inner_text('body')
 
 
 @pytest.mark.django_db(transaction=True)
@@ -83,8 +86,12 @@ def test_aprovar_excecao(page, e2e):
         ministry = Ministry.objects.create(name='Louvor E2E')
         person = Person.objects.create(name='João E2E')
         person.ministries.add(ministry)
-        g1 = Gathering.objects.create(gathering_type='worship', date=FUTURE, title='Culto A')
-        g2 = Gathering.objects.create(gathering_type='event', date=FUTURE, title='Evento B')
+        g1 = Gathering.objects.create(
+            gathering_type='worship', date=FUTURE, title='Culto A'
+        )
+        g2 = Gathering.objects.create(
+            gathering_type='event', date=FUTURE, title='Evento B'
+        )
         # 1ª escala (sem conflito); a 2ª na mesma data exige aprovação de exceção.
         Schedule.objects.create(ministry=ministry, person=person, gathering=g1)
         mid, pid, g2id = ministry.pk, person.pk, g2.pk

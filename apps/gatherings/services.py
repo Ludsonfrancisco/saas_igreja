@@ -14,9 +14,11 @@ pelo criador" da §3.6. AuditLog é automático (AuditLogMixin); o service não 
 """
 
 from django.core.exceptions import ValidationError
+from django.db import transaction
+from django.utils import timezone
 
 from apps.communities.models import Community
-from apps.gatherings.models import Attendance, Gathering
+from apps.gatherings.models import Attendance, AttendanceSession, Gathering
 from apps.people.models import Person
 
 ADMIN_ROLES = ('pastor', 'secretary')
@@ -58,6 +60,10 @@ def create_gathering(
     pode criar o tipo pedido, ou quando um tipo COMMUNITY vem sem comunidade
     válida/escopada. Retorna o `Gathering` criado.
     """
+    # RN-018 (Comunidades v2): criar encontro é administrativo — só Pastor/Secretário.
+    # Reforça a barreira da view (defesa em profundidade, P-ARQ-08).
+    if not user.has_any_role(*ADMIN_ROLES):
+        raise ValidationError('Apenas Pastor ou Secretario podem criar encontros.')
     if gathering_type not in allowed_types(user, church):
         raise ValidationError(
             'Voce nao tem permissao para criar este tipo de encontro.'
@@ -151,3 +157,87 @@ def can_mark_attendance(user, gathering):
     ):
         return True
     return False
+
+
+def gatherings_in_month(*, year, month):
+    """Encontros do mês/ano no tenant atual, ordenados por data (RF-102 / item 4).
+
+    Alimenta a "Agenda do mês" da tela de Encontros — a lista lateral que mostra os
+    nomes dos encontros sem precisar clicar dia a dia. `select_related('community')`
+    evita N+1 ao exibir o nome da comunidade (P-ARQ-09)."""
+    return (
+        Gathering.objects.filter(date__year=year, date__month=month)
+        .select_related('community')
+        .order_by('date', 'gathering_type')
+    )
+
+
+# --- Comunidades v2 — presença da célula (RF-107/108 · RN-016/017) ------------- #
+
+
+@transaction.atomic
+def launch_attendance_session(
+    *,
+    gathering,
+    present_person_ids,
+    visitor_names=None,
+    note='',
+    confirmed_by_id=None,
+):
+    """Lança a sessão de presença de uma reunião de célula (RF-108 · DM-1/DM-2).
+
+    Faz, numa transação:
+    1. cria os VISITANTES informados (só o nome) como `Person` status VISITOR na
+       comunidade do encontro (RN-017 · DM-1) e os marca presentes;
+    2. marca a presença em lote (reusa `mark_attendance_bulk`, RN-009 idempotente);
+    3. faz upsert da `AttendanceSession` com a anotação do dia + confirmação
+       (`confirmed_by`/`confirmed_at`, RN-016 · DM-2).
+
+    Retorna `(session, present_count)`.
+    """
+    visitor_ids = []
+    for raw in visitor_names or []:
+        name = (raw or '').strip()
+        if not name:
+            continue
+        visitor = Person.objects.create(
+            name=name,
+            status=Person.Status.VISITOR,
+            community=gathering.community,
+        )
+        visitor_ids.append(visitor.id)
+
+    present_ids = set(present_person_ids or []) | set(visitor_ids)
+    present_count = mark_attendance_bulk(
+        gathering=gathering, present_person_ids=present_ids
+    )
+
+    session, _ = AttendanceSession.objects.update_or_create(
+        gathering=gathering,
+        defaults={
+            'note': note or '',
+            'confirmed_at': timezone.now(),
+            'confirmed_by': confirmed_by_id,
+        },
+    )
+    return session, present_count
+
+
+def cell_pending_days(community):
+    """Encontros de Comunidade da célula, com status lançado/pendente (RF-107).
+
+    "Lançado" = existe `AttendanceSession` confirmada para o encontro. Anota
+    `is_launched` no banco (Exists, sem N+1) para a tela "dias a lançar" da célula.
+    Mais recentes primeiro."""
+    from django.db.models import Exists, OuterRef
+
+    launched = AttendanceSession.objects.filter(
+        gathering=OuterRef('pk'), confirmed_at__isnull=False
+    )
+    return (
+        Gathering.objects.filter(
+            gathering_type=Gathering.Type.COMMUNITY, community=community
+        )
+        .annotate(is_launched=Exists(launched))
+        .order_by('-date')
+    )

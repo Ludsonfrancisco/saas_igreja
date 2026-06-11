@@ -50,14 +50,20 @@ class CommunitiesEnabledMixin:
 class CommunityListView(
     CommunitiesEnabledMixin, TenantRequiredMixin, LeaderOrPastorMixin, ListView
 ):
-    """Lista TODAS as comunidades (Pastor e Líder veem todas; §3.4)."""
+    """Lista de comunidades ESCOPADA por papel (RF-106 · Comunidades v2): Pastor/
+    Secretário veem todas; o Líder vê só a(s) célula(s) que lidera."""
 
     model = Community
     template_name = 'communities/community_list.html'
     context_object_name = 'communities'
 
     def get_queryset(self):
-        return Community.objects.prefetch_related('leaders').order_by('name')
+        qs = Community.objects.prefetch_related('leaders').order_by('name')
+        user = self.request.user
+        if user.has_any_role('pastor', 'secretary'):
+            return qs
+        # Líder: só as células que lidera (vínculo por user_id, TENANT-04).
+        return qs.filter(leaders__user_id=user.id).distinct()
 
 
 class CommunityDetailView(

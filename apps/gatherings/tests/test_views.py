@@ -75,7 +75,8 @@ def test_gathering_list_role_barrier(tenant_client, church_a, roles, expected):
 @pytest.mark.django_db(transaction=True)
 @pytest.mark.parametrize(
     'roles,expected',
-    [(['pastor'], 200), (['secretary'], 200), (['leader'], 200), (['member'], 403)],
+    # RN-018: criar encontro = só Pastor/Secretário; Líder e Membro => 403.
+    [(['pastor'], 200), (['secretary'], 200), (['leader'], 403), (['member'], 403)],
 )
 def test_gathering_create_role_barrier(tenant_client, church_a, roles, expected):
     user = _make_user(church_a, f'{roles[0]}@a.com', roles)
@@ -92,6 +93,45 @@ def test_gathering_list_shows_all(tenant_client, church_a):
     resp = tenant_client.get(LIST_URL)
     assert resp.status_code == 200
     assert len(resp.context['gatherings']) == 1
+
+
+@pytest.mark.django_db(transaction=True)
+def test_gathering_list_wires_calendar(tenant_client, church_a):
+    """A "Agenda do mês" (RF-102 / item 4) na página de Encontros: calendário (pontos)
+    + lista lateral com os NOMES dos encontros do mês, visíveis sem clicar.
+
+    O encontro (2026-06-10, mês atual) aparece marcado no calendário e seu título
+    aparece na lista lateral; o bloco `#enc-calendar` troca via `gatherings:calendar`.
+    """
+    _make_gathering(church_a, gtype='worship', title='Culto Teste')  # 2026-06-10
+    pastor = _make_user(church_a, 'pastor@a.com', ['pastor'])
+    tenant_client.force_login(pastor)
+    resp = tenant_client.get(LIST_URL)
+    assert resp.status_code == 200
+    # Contexto da agenda presente e o dia do encontro marcado.
+    assert 'calendar_weeks' in resp.context
+    assert 'month_gatherings' in resp.context
+    assert 10 in resp.context['event_days']
+    html = resp.content.decode()
+    assert 'id="enc-calendar"' in html  # bloco da agenda
+    assert '/encontros/calendario/' in html  # troca de mês via HTMX
+    assert 'Agenda do mês' in html
+    assert 'Culto Teste' in html  # nome visível sem clicar (item 4)
+
+
+@pytest.mark.django_db(transaction=True)
+def test_gathering_calendar_fragment_changes_month(tenant_client, church_a):
+    """O fragmento `gatherings:calendar` devolve a agenda do mês pedido (RF-102)."""
+    _make_gathering(church_a, gtype='worship', title='Culto Maio')  # junho/2026
+    pastor = _make_user(church_a, 'pastor@a.com', ['pastor'])
+    tenant_client.force_login(pastor)
+    resp = tenant_client.get('/encontros/calendario/?year=2026&month=5')
+    assert resp.status_code == 200
+    assert resp.context['calendar_month'] == 5
+    html = resp.content.decode()
+    assert 'id="enc-calendar"' in html
+    # Maio não tem o encontro de junho → lista vazia.
+    assert 'Nenhum encontro neste mês.' in html
 
 
 # --- Criação por tipo --------------------------------------------------------
@@ -111,25 +151,17 @@ def test_pastor_creates_worship(tenant_client, church_a):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_leader_worship_choice_not_offered(tenant_client, church_a):
-    """O dropdown do Líder não oferece WORSHIP (form filtra por papel)."""
+def test_leader_cannot_create_gathering_rn018(tenant_client, church_a):
+    """RN-018: o Líder não cria encontro — GET e POST na criação => 403, nada criado."""
     leader = _make_user(church_a, 'leader@a.com', ['leader'])
     tenant_client.force_login(leader)
-    resp = tenant_client.get(CREATE_URL)
-    choices = dict(resp.context['form'].fields['gathering_type'].choices)
-    assert 'worship' not in choices
-    assert 'event' in choices
-
-
-@pytest.mark.django_db(transaction=True)
-def test_leader_cannot_post_worship(tenant_client, church_a):
-    """Mesmo forjando o POST, o Líder não cria WORSHIP (form inválido, nada criado)."""
-    leader = _make_user(church_a, 'leader@a.com', ['leader'])
-    tenant_client.force_login(leader)
-    resp = tenant_client.post(CREATE_URL, {'gathering_type': 'worship', 'date': TODAY})
-    assert resp.status_code == 200
+    assert tenant_client.get(CREATE_URL).status_code == 403
+    resp = tenant_client.post(
+        CREATE_URL, {'gathering_type': 'event', 'date': TODAY, 'title': 'X'}
+    )
+    assert resp.status_code == 403
     with schema_context(church_a.schema_name):
-        assert not Gathering.objects.filter(gathering_type='worship').exists()
+        assert not Gathering.objects.exists()
 
 
 @pytest.mark.django_db(transaction=True)
@@ -145,38 +177,29 @@ def test_community_type_hidden_when_no_communities(tenant_client, church_a):
     assert 'community' not in resp.context['form'].fields  # campo de comunidade some
 
 
-@pytest.mark.django_db(transaction=True)
-def test_leader_creates_community_gathering_of_own_community(tenant_client, church_a):
-    leader = _make_user(church_a, 'leader@a.com', ['leader'])
-    community = _leader_with_community(church_a, leader)
-    tenant_client.force_login(leader)
-    resp = tenant_client.post(
-        CREATE_URL,
-        {'gathering_type': 'community', 'date': TODAY, 'community': community.pk},
-    )
-    assert resp.status_code == 302
-    with schema_context(church_a.schema_name):
-        assert Gathering.objects.filter(
-            gathering_type='community', community=community
-        ).exists()
-
-
 # --- Escopo de edição --------------------------------------------------------
 
 
 @pytest.mark.django_db(transaction=True)
-def test_leader_edits_own_creation(tenant_client, church_a):
+def test_leader_edits_only_date_rn018(tenant_client, church_a):
+    """RN-018: o Líder edita um encontro no seu escopo, mas SÓ a data — o form não
+    oferece outros campos e um título forjado no POST é ignorado."""
     leader = _make_user(church_a, 'leader@a.com', ['leader'])
     g = _make_gathering(church_a, gtype='event', created_by=leader.id, title='X')
     tenant_client.force_login(leader)
+    # O form do líder só tem o campo `date`.
+    form = tenant_client.get(f'/encontros/{g.pk}/editar/').context['form']
+    assert set(form.fields) == {'date'}
+    # Mesmo forjando `title` no POST, só a data muda; o título permanece.
     resp = tenant_client.post(
         f'/encontros/{g.pk}/editar/',
-        {'gathering_type': 'event', 'date': TODAY, 'title': 'Renomeado'},
+        {'date': '2026-07-01', 'title': 'Renomeado'},
     )
     assert resp.status_code == 302
     with schema_context(church_a.schema_name):
         g.refresh_from_db()
-        assert g.title == 'Renomeado'
+        assert g.date == datetime.date(2026, 7, 1)
+        assert g.title == 'X'  # inalterado (campo não estava no form)
 
 
 @pytest.mark.django_db(transaction=True)

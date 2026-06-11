@@ -282,7 +282,10 @@
   .soon-badge {
     display: inline-flex; align-items: center; gap: 5px;
     font-size: 0.66rem; font-weight: 600; padding: 3px 9px; border-radius: 99px;
-    background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent);
+    /* Texto = acento ESCURECIDO (temável) p/ contraste WCAG AA ≥4.5:1 sobre o tint
+       claro — o `--accent` puro reprovava (3.62–4.07) em fonte pequena. */
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: color-mix(in srgb, var(--accent) 72%, #000);
   }
   .soon-pane {
     display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;

@@ -11,12 +11,14 @@ from apps.files.views import (
     FileAssetListView,
     FileDeleteView,
     FileDownloadView,
+    FileUploadView,
 )
 
 app_name = 'files'
 
 urlpatterns = [
     path('arquivos/', FileAssetListView.as_view(), name='list'),
+    path('arquivos/enviar/', FileUploadView.as_view(), name='upload'),
     path(
         'arquivos/<int:pk>/download/',
         FileDownloadView.as_view(),

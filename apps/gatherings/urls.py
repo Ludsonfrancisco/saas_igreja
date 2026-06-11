@@ -7,6 +7,7 @@ from django.urls import path
 
 from apps.gatherings.views import (
     AttendanceMarkView,
+    GatheringCalendarView,
     GatheringCreateView,
     GatheringDeleteView,
     GatheringDetailView,
@@ -18,6 +19,7 @@ app_name = 'gatherings'
 
 urlpatterns = [
     path('encontros/', GatheringListView.as_view(), name='list'),
+    path('encontros/calendario/', GatheringCalendarView.as_view(), name='calendar'),
     path('encontros/novo/', GatheringCreateView.as_view(), name='create'),
     path('encontros/<int:pk>/', GatheringDetailView.as_view(), name='detail'),
     path('encontros/<int:pk>/editar/', GatheringUpdateView.as_view(), name='update'),

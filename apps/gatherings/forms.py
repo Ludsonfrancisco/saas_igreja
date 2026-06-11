@@ -62,3 +62,9 @@ class GatheringForm(forms.ModelForm):
                 qs = qs.filter(leaders__user_id=user.id).distinct()
             self.fields['community'].queryset = qs
             self.fields['community'].required = False
+
+        # RN-018: na EDIÇÃO, Líder/Coordenador alteram SÓ a data (Pastor/Secretário,
+        # tudo). Os demais campos saem do form e mantêm o valor atual da instância.
+        if editing and not user.has_any_role(*ADMIN_ROLES):
+            for name in [n for n in self.fields if n != 'date']:
+                self.fields.pop(name)

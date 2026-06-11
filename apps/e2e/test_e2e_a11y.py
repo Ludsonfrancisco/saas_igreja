@@ -27,8 +27,7 @@ def _violations(page):
 
 def _summary(viols):
     return [
-        {'id': v['id'], 'impact': v['impact'], 'nodes': len(v['nodes'])}
-        for v in viols
+        {'id': v['id'], 'impact': v['impact'], 'nodes': len(v['nodes'])} for v in viols
     ]
 
 
@@ -40,12 +39,32 @@ def test_a11y_login(page, e2e):
 
 
 @pytest.mark.django_db(transaction=True)
+def test_a11y_home(page, e2e):
+    """Home v3 "Painel Oikonos" (`/`, Sprint 6.6) — gate de a11y do shell novo."""
+    ls = e2e['live_server']
+    login(page, ls, 'pastor@e2e.com')
+    page.goto(f'{ls.url}/')
+    v = _violations(page)
+    assert not v, f'WCAG AA (home v3): {_summary(v)}'
+
+
+@pytest.mark.django_db(transaction=True)
 def test_a11y_dashboard(page, e2e):
     ls = e2e['live_server']
     login(page, ls, 'pastor@e2e.com')
     page.goto(f'{ls.url}/painel/')
     v = _violations(page)
     assert not v, f'WCAG AA (painel): {_summary(v)}'
+
+
+@pytest.mark.django_db(transaction=True)
+def test_a11y_gatherings(page, e2e):
+    """Encontros (`/encontros/`) com o calendário wirado (RF-102/OD-030)."""
+    ls = e2e['live_server']
+    login(page, ls, 'pastor@e2e.com')
+    page.goto(f'{ls.url}/encontros/')
+    v = _violations(page)
+    assert not v, f'WCAG AA (encontros): {_summary(v)}'
 
 
 @pytest.mark.django_db(transaction=True)

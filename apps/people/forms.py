@@ -56,7 +56,7 @@ class PersonForm(forms.ModelForm):
         }
         widgets = {'birth_date': forms.DateInput(attrs={'type': 'date'})}
 
-    def __init__(self, *args, church=None, **kwargs):
+    def __init__(self, *args, church=None, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         # Pré-marca o checkbox quando a pessoa já tem consentimento registrado.
         if self.instance and self.instance.pk and self.instance.consent_given_at:
@@ -66,6 +66,11 @@ class PersonForm(forms.ModelForm):
             self.fields['linked_user'].queryset = User.objects.filter(church=church)
         if self.instance and self.instance.pk and self.instance.user_id:
             self.fields['linked_user'].initial = self.instance.user_id
+        # RN-019 (Comunidades v2): só Pastor/Secretário gerenciam o vínculo de célula
+        # (= adicionar/remover membro). O Líder edita a pessoa, mas não muda a
+        # comunidade — o campo sai do form para ele.
+        if user is not None and not user.has_any_role('pastor', 'secretary'):
+            self.fields.pop('community', None)
 
     def clean(self):
         cleaned = super().clean()

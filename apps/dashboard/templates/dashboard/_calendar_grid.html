@@ -1,0 +1,40 @@
+{% comment %}Grade do calendário (semanas × dias) — parcial reutilizável (RF-102).
+Params:
+  day_target (default 'day-panel') = alvo HTMX do clique no dia;
+  readonly   (default ausente=off) = se True, as células NÃO são clicáveis (só
+             exibem o ponto) — usado na agenda de Encontros, onde a lista lateral já
+             mostra tudo; o drawer da home deixa clicável (omite readonly).
+Marca os dias com `Gathering` (ponto) e destaca hoje.{% endcomment %}
+<div class="grid grid-cols-7 gap-1" aria-hidden="true">
+  {% for label in calendar_weekdays %}
+    <div class="py-1 text-center text-[0.62rem] font-bold uppercase tracking-wide text-muted-2">{{ label }}</div>
+  {% endfor %}
+</div>
+<div class="mt-1 space-y-1">
+  {% for week in calendar_weeks %}
+    <div class="grid grid-cols-7 gap-1">
+      {% for cell in week %}
+        {% if cell.in_month and not readonly %}
+          <button type="button"
+                  hx-get="{% url 'dashboard:home_day' day=cell.date %}"
+                  hx-target="#{{ day_target|default:'day-panel' }}" hx-swap="innerHTML"
+                  class="relative grid aspect-square place-items-center rounded-lg text-sm transition-colors
+                         {% if cell.is_today %}bg-accent font-semibold text-paper hover:bg-accent-2{% else %}text-ink hover:bg-bg-soft{% endif %}"
+                  aria-label="Ver encontros do dia {{ cell.day }}">
+            <span class="tnum">{{ cell.day }}</span>
+            {% if cell.has_event %}<span class="absolute bottom-1 h-1 w-1 rounded-full {% if cell.is_today %}bg-amber-soft{% else %}bg-accent{% endif %}" aria-hidden="true"></span>{% endif %}
+          </button>
+        {% elif cell.in_month %}
+          <div class="relative grid aspect-square place-items-center rounded-lg text-sm {% if cell.is_today %}bg-accent font-semibold text-paper{% else %}text-ink{% endif %}">
+            <span class="tnum">{{ cell.day }}</span>
+            {% if cell.has_event %}<span class="absolute bottom-1 h-1 w-1 rounded-full {% if cell.is_today %}bg-amber-soft{% else %}bg-accent{% endif %}" aria-hidden="true"></span>{% endif %}
+          </div>
+        {% else %}
+          <div class="grid aspect-square place-items-center rounded-lg text-sm text-muted-2/50" aria-hidden="true">
+            <span class="tnum">{{ cell.day }}</span>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endfor %}
+</div>

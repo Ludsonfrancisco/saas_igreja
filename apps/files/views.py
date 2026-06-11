@@ -27,20 +27,26 @@ Auditoria:
 """
 
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import DeleteView, ListView
+from django.views.generic import DeleteView, FormView, ListView
 from django.views.generic.detail import SingleObjectMixin
 
+from apps.communities.models import Community
 from apps.core.mixins import (
+    PastorOrSecretaryMixin,
     PastorRequiredMixin,
     RoleRequiredMixin,
     TenantRequiredMixin,
 )
+from apps.files import services
+from apps.files.forms import FileUploadForm
 from apps.files.models import FileAsset
 from apps.files.responses import stream_file_asset
 from apps.files.signals import file_downloaded
+from apps.ministries.models import Ministry
 
 # Valores de `FileAsset.related_model` usados como contexto de escopo. Strings,
 # nao FKs (TECH_SPEC §5.8) — alinhados aos contextos de upload da ACCESS_MATRIX
@@ -241,4 +247,43 @@ class FileDeleteView(TenantRequiredMixin, PastorRequiredMixin, DeleteView):
 
     def form_valid(self, form):
         messages.success(self.request, 'Arquivo excluido.')
+        return super().form_valid(form)
+
+
+class FileUploadView(TenantRequiredMixin, PastorOrSecretaryMixin, FormView):
+    """Envia um arquivo (RF-065/067 · ACCESS_MATRIX §3.8) — Pastor/Secretario.
+
+    Upload geral e Pastor-only na matriz; Secretario age como Pastor (OD-019), por
+    isso `PastorOrSecretaryMixin`. O upload ESCOPADO de Lider/Coordenador (so a sua
+    comunidade/ministerio) fica para o Comunidades v2 (escopo fino).
+
+    A validacao pesada (MIME real via magic, tamanho <=10MB, sem SVG) e a auditoria
+    (`sensitive_file_upload`) vivem em `services.upload_file` desde a Sprint 6 — aqui
+    so traduzimos o form e tratamos o `ValidationError` (pt-BR) de volta na tela.
+    """
+
+    form_class = FileUploadForm
+    template_name = 'files/file_upload_form.html'
+    success_url = reverse_lazy('files:list')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        # Pastor/Secretario escolhem qualquer contexto do tenant atual (TENANT-04).
+        kwargs['communities'] = Community.objects.order_by('name')
+        kwargs['ministries'] = Ministry.objects.order_by('name')
+        return kwargs
+
+    def form_valid(self, form):
+        related_model, related_object_id = form.related()
+        try:
+            services.upload_file(
+                uploaded_file=form.cleaned_data['file'],
+                uploaded_by_id=self.request.user.id,
+                related_model=related_model,
+                related_object_id=related_object_id,
+            )
+        except ValidationError as exc:
+            form.add_error('file', exc.messages[0])
+            return self.form_invalid(form)
+        messages.success(self.request, 'Arquivo enviado com sucesso.')
         return super().form_valid(form)

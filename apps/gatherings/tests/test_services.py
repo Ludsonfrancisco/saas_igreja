@@ -102,21 +102,22 @@ def test_leader_cannot_create_worship(church_a):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_leader_creates_community_gathering_of_own_community(church_a):
+def test_leader_cannot_create_gathering_rn018(church_a):
+    """RN-018 (Comunidades v2): criar encontro é só Pastor/Secretário. Mesmo na
+    própria comunidade, o Líder é recusado pelo service (defesa em profundidade)."""
     leader = _make_user(church_a, 'leader@a.com', ['leader'])
     with schema_context(church_a.schema_name):
         person = Person_factory(leader.id)
         mine = Community.objects.create(name='Minha')
         mine.leaders.add(person)
-        gathering = services.create_gathering(
-            church=church_a,
-            user=leader,
-            gathering_type=Gathering.Type.COMMUNITY,
-            date=TODAY,
-            community=mine,
-        )
-        assert gathering.community_id == mine.id
-        assert gathering.created_by == leader.id
+        with pytest.raises(ValidationError):
+            services.create_gathering(
+                church=church_a,
+                user=leader,
+                gathering_type=Gathering.Type.COMMUNITY,
+                date=TODAY,
+                community=mine,
+            )
 
 
 @pytest.mark.django_db(transaction=True)

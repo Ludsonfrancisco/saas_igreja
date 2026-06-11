@@ -1,0 +1,20 @@
+{% extends 'app_base.html' %}
+{% comment %}Envio de arquivo (RF-065/067 · ACCESS_MATRIX §3.8). Pastor/Secretário:
+geral + contexto opcional. `enctype` multipart é obrigatório p/ o FileField.{% endcomment %}
+{% block title %}Enviar arquivo · Oikonos{% endblock %}
+
+{% block content %}
+  <div class="mb-6">
+    <a href="{% url 'files:list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Arquivos</a>
+    <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">Enviar arquivo</h1>
+    <p class="mt-1 text-sm text-muted">Documentos e PDFs da igreja. Até 10MB, sem SVG.</p>
+  </div>
+  <form method="post" enctype="multipart/form-data" class="card max-w-2xl space-y-4 p-6">
+    {% csrf_token %}
+    {% include 'components/form.html' with form=form %}
+    <div class="flex items-center gap-2 pt-2">
+      <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="upload" class="h-4 w-4"></i> Enviar</button>
+      <a href="{% url 'files:list' %}" class="rounded-lg border border-line bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-bg-soft">Cancelar</a>
+    </div>
+  </form>
+{% endblock %}

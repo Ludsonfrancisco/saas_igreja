@@ -1,35 +1,34 @@
-{% comment %}Calendário da home (Sprint 6.6 / Bloco 3 · RF-102). Parcial reutilizado:
-renderizado dentro de `home.html` E devolvido isolado por `HomeCalendarView` no swap
-HTMX de troca de mês (`hx-target="#home-calendar" hx-swap="outerHTML"`).
-
-Marca os dias com `Gathering` (ponto); destaca hoje; clicar num dia do mês faz
-`hx-get` dos encontros do dia para `#day-panel`. "Expansível": Alpine recolhe/expande
-a grade. Alpine reinicializa o `x-data` após o swap (MutationObserver); os ícones
-Lucide são re-renderizados pelo listener `htmx:afterSwap` do base.html.{% endcomment %}
-<section id="home-calendar" x-data="{ open: true }" class="card card-md p-5" aria-labelledby="cal-title">
+{% comment %}Calendário (RF-102) — card com grade clicável + navegação de mês. Hoje
+serve o DRAWER de agenda do header (item 3 pré-7): `HomeCalendarView` devolve este
+parcial no swap de mês. IDs PARAMETRIZÁVEIS (cal_id/day_target) para poder coexistir
+com outras instâncias na mesma página sem colidir. A grade vem de
+`_calendar_grid.html`. Alpine reinicia o `x-data` após o swap; os ícones Lucide são
+re-renderizados pelo listener `htmx:afterSwap` do base.html.{% endcomment %}
+{% with cid=cal_id|default:'home-calendar' dtgt=day_target|default:'day-panel' %}
+<section id="{{ cid }}" x-data="{ open: true }" class="card card-md p-5" aria-labelledby="{{ cid }}-title">
   <div class="mb-4 flex items-center justify-between gap-3">
     <div class="flex items-center gap-2">
-      {% comment %}Toggle expandir/recolher (Alpine). Ícone estático: bindar classe
-      num <i data-lucide> é frágil (o Lucide troca o elemento por svg).{% endcomment %}
+      {% comment %}Toggle expandir/recolher (Alpine). Ícone estático: bindar classe num
+      <i data-lucide> é frágil (o Lucide troca o elemento por svg).{% endcomment %}
       <button type="button" @click="open = !open"
               class="grid h-8 w-8 place-items-center rounded-lg text-muted hover:bg-bg-soft hover:text-ink"
-              :aria-expanded="open" aria-controls="cal-grid"
+              :aria-expanded="open" aria-controls="{{ cid }}-grid"
               aria-label="Recolher ou expandir o calendário">
         <i data-lucide="chevrons-down-up" class="h-4 w-4" aria-hidden="true"></i>
       </button>
-      <h2 id="cal-title" class="font-display text-lg font-semibold text-ink">{{ calendar_label }}</h2>
+      <h2 id="{{ cid }}-title" class="font-display text-lg font-semibold text-ink">{{ calendar_label }}</h2>
     </div>
     <div class="flex items-center gap-1">
       <button type="button"
-              hx-get="{% url 'dashboard:home_calendar' %}?year={{ calendar_prev.year }}&month={{ calendar_prev.month }}"
-              hx-target="#home-calendar" hx-swap="outerHTML"
+              hx-get="{% url 'dashboard:home_calendar' %}?year={{ calendar_prev.year }}&month={{ calendar_prev.month }}&cal_id={{ cid }}&day_target={{ dtgt }}"
+              hx-target="#{{ cid }}" hx-swap="outerHTML"
               class="grid h-9 w-9 place-items-center rounded-lg text-muted hover:bg-bg-soft hover:text-ink"
               aria-label="Mês anterior">
         <i data-lucide="chevron-left" class="h-4 w-4" aria-hidden="true"></i>
       </button>
       <button type="button"
-              hx-get="{% url 'dashboard:home_calendar' %}?year={{ calendar_next.year }}&month={{ calendar_next.month }}"
-              hx-target="#home-calendar" hx-swap="outerHTML"
+              hx-get="{% url 'dashboard:home_calendar' %}?year={{ calendar_next.year }}&month={{ calendar_next.month }}&cal_id={{ cid }}&day_target={{ dtgt }}"
+              hx-target="#{{ cid }}" hx-swap="outerHTML"
               class="grid h-9 w-9 place-items-center rounded-lg text-muted hover:bg-bg-soft hover:text-ink"
               aria-label="Próximo mês">
         <i data-lucide="chevron-right" class="h-4 w-4" aria-hidden="true"></i>
@@ -37,36 +36,8 @@ Lucide são re-renderizados pelo listener `htmx:afterSwap` do base.html.{% endco
     </div>
   </div>
 
-  <div id="cal-grid" x-show="open" x-cloak>
-    <div class="grid grid-cols-7 gap-1" aria-hidden="true">
-      {% for label in calendar_weekdays %}
-        <div class="py-1 text-center text-[0.62rem] font-bold uppercase tracking-wide text-muted-2">{{ label }}</div>
-      {% endfor %}
-    </div>
-    <div class="mt-1 space-y-1">
-      {% for week in calendar_weeks %}
-        <div class="grid grid-cols-7 gap-1">
-          {% for cell in week %}
-            {% if cell.in_month %}
-              <button type="button"
-                      hx-get="{% url 'dashboard:home_day' day=cell.date %}"
-                      hx-target="#day-panel" hx-swap="innerHTML"
-                      class="relative grid aspect-square place-items-center rounded-lg text-sm transition-colors
-                             {% if cell.is_today %}bg-accent font-semibold text-paper hover:bg-accent-2{% else %}text-ink hover:bg-bg-soft{% endif %}"
-                      aria-label="Ver encontros do dia {{ cell.day }}">
-                <span class="tnum">{{ cell.day }}</span>
-                {% if cell.has_event %}
-                  <span class="absolute bottom-1 h-1 w-1 rounded-full {% if cell.is_today %}bg-amber-soft{% else %}bg-accent{% endif %}" aria-hidden="true"></span>
-                {% endif %}
-              </button>
-            {% else %}
-              <div class="grid aspect-square place-items-center rounded-lg text-sm text-muted-2/50" aria-hidden="true">
-                <span class="tnum">{{ cell.day }}</span>
-              </div>
-            {% endif %}
-          {% endfor %}
-        </div>
-      {% endfor %}
-    </div>
+  <div id="{{ cid }}-grid" x-show="open" x-cloak>
+    {% include 'dashboard/_calendar_grid.html' with day_target=dtgt %}
   </div>
 </section>
+{% endwith %}

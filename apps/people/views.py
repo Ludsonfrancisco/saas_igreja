@@ -119,6 +119,7 @@ class PersonCreateView(TenantRequiredMixin, PastorOrSecretaryMixin, FormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['church'] = self.request.tenant
+        kwargs['user'] = self.request.user
         return kwargs
 
     def form_valid(self, form):
@@ -162,6 +163,7 @@ class PersonUpdateView(
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['church'] = self.request.tenant
+        kwargs['user'] = self.request.user
         return kwargs
 
     def form_valid(self, form):
@@ -181,7 +183,9 @@ class PersonUpdateView(
                 email=data['email'] or None,
                 phone=data['phone'] or None,
                 birth_date=data['birth_date'],
-                community=data['community'],
+                # RN-019: o Líder não edita a comunidade (campo ausente do form) →
+                # preserva a atual. Pastor/Secretário têm o campo e podem alterar.
+                community=data.get('community', self.object.community),
                 consent_given_at=consent_at,
                 notes=data['notes'],
                 ministries=data['ministries'],

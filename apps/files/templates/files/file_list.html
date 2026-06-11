@@ -4,9 +4,14 @@ no queryset; filtro só restringe dentro do escopo. Excluir só p/ Pastor.{% end
 {% block title %}Arquivos · Oikonos{% endblock %}
 
 {% block content %}
-  <div class="mb-6">
-    <h1 class="font-display text-2xl font-bold tracking-tight text-ink">Arquivos</h1>
-    <p class="mt-1 text-sm text-muted">Documentos e PDFs da sua igreja.</p>
+  <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h1 class="font-display text-2xl font-bold tracking-tight text-ink">Arquivos</h1>
+      <p class="mt-1 text-sm text-muted">Documentos e PDFs da sua igreja.</p>
+    </div>
+    {% if 'pastor' in user.roles or 'secretary' in user.roles %}
+      <a href="{% url 'files:upload' %}" class="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="upload" class="h-4 w-4"></i> Enviar arquivo</a>
+    {% endif %}
   </div>
 
   {# Filtro por contexto #}
@@ -62,6 +67,10 @@ no queryset; filtro só restringe dentro do escopo. Excluir só p/ Pastor.{% end
     </div>
     {% include 'components/pagination.html' %}
   {% else %}
-    {% include 'components/empty_state.html' with title='Nenhum arquivo' message='Os arquivos enviados aparecem aqui, conforme seu acesso.' %}
+    {% if 'pastor' in user.roles or 'secretary' in user.roles %}
+      {% include 'components/empty_state.html' with title='Nenhum arquivo' message='Envie o primeiro documento ou PDF da igreja.' cta_url='/arquivos/enviar/' cta_label='Enviar arquivo' %}
+    {% else %}
+      {% include 'components/empty_state.html' with title='Nenhum arquivo' message='Os arquivos enviados aparecem aqui, conforme seu acesso.' %}
+    {% endif %}
   {% endif %}
 {% endblock %}

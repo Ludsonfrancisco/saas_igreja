@@ -38,6 +38,11 @@ coverage.xml
 .ruff_cache/
 .mypy_cache/
 
+# --- Build front-end (Tailwind CLI) ---
+# node_modules é só ferramenta de build do CSS (tailwindcss/@tailwindcss/cli); o
+# artefato versionado é o `static/css/app.css` compilado, não as deps de build.
+node_modules/
+
 # --- IDE / SO ---
 .idea/
 .vscode/

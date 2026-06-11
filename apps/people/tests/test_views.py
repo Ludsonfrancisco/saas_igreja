@@ -93,6 +93,33 @@ def test_leader_sees_only_own_community_persons(tenant_client, church_a):
 
 
 @pytest.mark.django_db(transaction=True)
+def test_leader_cannot_change_person_community_rn019(tenant_client, church_a):
+    """RN-019 (Comunidades v2): o Líder edita a pessoa da célula dele, mas o campo de
+    comunidade não aparece e um `community` forjado no POST é ignorado."""
+    leader_user = _make_user(church_a, 'leader@a.com', ['leader'])
+    with schema_context(church_a.schema_name):
+        leader_person = Person.objects.create(name='Lider', user_id=leader_user.id)
+        mine = Community.objects.create(name='Minha')
+        mine.leaders.add(leader_person)
+        other = Community.objects.create(name='Outra')
+        member = Person.objects.create(name='Meu Membro', community=mine)
+        member_pk, other_pk, mine_pk = member.pk, other.pk, mine.pk
+
+    tenant_client.force_login(leader_user)
+    form = tenant_client.get(f'/pessoas/{member_pk}/editar/').context['form']
+    assert 'community' not in form.fields  # campo de comunidade some para o Líder
+
+    resp = tenant_client.post(
+        f'/pessoas/{member_pk}/editar/',
+        {'name': 'Meu Membro', 'status': 'member', 'community': other_pk},
+    )
+    assert resp.status_code == 302
+    with schema_context(church_a.schema_name):
+        member.refresh_from_db()
+        assert member.community_id == mine_pk  # inalterado (RN-019)
+
+
+@pytest.mark.django_db(transaction=True)
 def test_person_list_requires_login(tenant_client, church_a):
     resp = tenant_client.get(LIST_URL)
     assert resp.status_code == 302

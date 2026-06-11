@@ -653,9 +653,9 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 - [x] (P0) `test_ministry_volunteer_gap` (GAP = atuais × `volunteers_needed`) *(Bloco 2)*
 - [x] (P0) `test_home_upcoming_gatherings_scope` (próximas programações escopadas por papel, sem vazamento) *(Bloco 2)*
 - [x] (P0) `test_calendar_event_days` (dias marcados = dias com `Gathering` do mês/tenant) *(Bloco 2)*
-- [ ] (P0) E2E Playwright (mobile 360×640): **abrir o menu hambúrguer** → drawer desliza, navegar, fechar (overlay/escape); desktop = sidebar fixa visível *(pendente — browser; "voltamos ajustando")*
-- [~] (P0) ~~E2E calendário na home~~ → **N/A: calendário saiu da home (OD-030)**; revalidar quando wirar em Encontros
-- [ ] (P0) a11y (axe) sem violações críticas na home v3; **Lighthouse mobile ≥ 90** *(pendente — browser)*
+- [x] (P0) E2E Playwright (mobile 360×640): **abrir o menu hambúrguer** → drawer desliza, navegar, fechar (overlay/escape); desktop = sidebar fixa visível — `apps/e2e/test_e2e_nav.py` (3 testes verdes)
+- [x] (P0) ~~E2E calendário na home~~ → calendário **wirado em Encontros** (OD-030): `test_gathering_list_wires_calendar` + a11y `test_a11y_gatherings` verdes
+- [x] (P0) a11y (axe) sem violações críticas na home v3 (`test_a11y_home` verde); **Lighthouse mobile ≥ 90** ✅ — Perf **98** / A11y **100** / Best-Practices **100** / SEO **90** (home v3 autenticada, app.css minificado, sem debug-toolbar)
 - [x] (P0) Suíte de regressão inteira verde (zero regressão no re-skin) — **544 passed** (apps sem e2e)
 - [x] (P0) `test_tenant_isolation_matrix` / `test_permissions_matrix` atualizados e verdes — **132 passed**
 
@@ -663,8 +663,8 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 - [x] Shell flutuante (sidebar arredondada + topbar em card) re-skin v3 em **100% das telas** (verificado: 9 telas renderizam o shell)
 - [x] Tipografia **Inter + Poppins + `tabular-nums`** aplicada; paleta **Oikonos v2** temável por igreja
 - [x] Home nova ("Painel Oikonos"): KPIs reais + próximas programações + Saúde do Ministério (GAP), escopados e sem vazamento cross-tenant *(calendário movido p/ Encontros — OD-030)*
-- [ ] **Lighthouse mobile ≥ 90** e **WCAG AA**; ~~suíte verde~~ ✅ (544) *(Lighthouse/axe pendentes — browser)*
-- [ ] **Aprovação visual do dono** *(pendente)*
+- [x] **Lighthouse mobile ≥ 90** (Perf 98 / A11y 100 / BP 100 / SEO 90) e **WCAG AA** (axe sem violações sérias/críticas na home v3 e em Encontros) ✅; suíte verde ✅ (544 + 13 e2e)
+- [ ] **Aprovação visual do dono** *(pendente — único item aberto da 6.6)*
 - [x] Docs atualizadas (PRD RF-102/103, OD-028/029/**030**, ACCESS_MATRIX §3.9; TECH_SPEC §11 já na 6.6/Bloco 1)
 
 ---

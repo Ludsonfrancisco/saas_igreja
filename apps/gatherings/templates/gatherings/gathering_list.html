@@ -11,6 +11,11 @@
     <a href="{% url 'gatherings:create' %}" class="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="plus" class="h-4 w-4"></i> Novo encontro</a>
   </div>
 
+  {% comment %}Agenda do mês (RF-102 / item 4): calendário (só pontos) + lista lateral
+  com os encontros do mês, nomes visíveis sem clicar. Bloco trocado inteiro na
+  navegação de mês via `gatherings:calendar`.{% endcomment %}
+  {% include 'gatherings/_calendar_agenda.html' %}
+
   <form method="get" class="card mb-5 flex flex-wrap items-center gap-3 p-4">
     <select name="type" onchange="this.form.submit()" aria-label="Filtrar por tipo" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
       <option value="">Todos os tipos</option>
