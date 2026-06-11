@@ -53,6 +53,9 @@ AUTHENTICATED_TENANT_URLS = [
     '/pessoas/',
     '/pessoas/nova/',
     '/comunidades/',
+    # Comunidades v2 (RF-108): lançamento de presença da célula (rota dinâmica; ids
+    # arbitrários servem para as baterias anônimo→login e public→404).
+    '/comunidades/1/lancamento/1/',
     '/ministerios/',
     '/encontros/',
     '/encontros/novo/',

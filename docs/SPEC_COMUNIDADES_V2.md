@@ -1,9 +1,9 @@
 # SPEC — Comunidades v2 (presença da célula)
 
-> **Status:** rascunho para aprovação do dono (SDD). Define requisitos NOVOS
-> (RF-106..110, RN-016..019) e mudanças de modelo/acesso. **Nada implementado** —
-> aguarda G-01/G-02. Origem: refinamento do dono em 2026-06-10 (ver
-> [backlog pré-7]). Irmã da futura **SPEC — Escalas v2** (pendente de 3 decisões).
+> **Status:** ✅ IMPLEMENTADA (Blocos 1–3, 2026-06-11). RF-106..110 / RN-016..019 no
+> PRD; ACCESS_MATRIX §3.4/§3.6 atualizadas; matrizes (permissões + isolamento) e a11y
+> verdes. DM-1 (visitante = `Person` VISITOR) e DM-2 (`AttendanceSession`) aprovados
+> pelo dono. Irmã da futura **SPEC — Escalas v2** (pendente de 3 decisões).
 
 ---
 

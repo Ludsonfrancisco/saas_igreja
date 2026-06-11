@@ -415,6 +415,11 @@ ID `RF-XXX` · Título · Descrição · Ator · Prioridade (P0/P1/P2) · Módul
 | RF-103 | Próximas programações na home | Todos (logado) | P1 | Home | Card lista os próximos `Gathering` (futuros) ordenados por data; sem vazamento cross-tenant | `test_home_upcoming_gatherings_scope` | 6.6 |
 | RF-104 | Saúde do Ministério (GAP de voluntários) | Pastor, Coordenador | P1 | Ministérios/Home | `Ministry.volunteers_needed` define a meta; card "Saúde do Ministério" mostra voluntários atuais × necessários (GAP) por ministério (OD-029) | `test_ministry_volunteer_gap` | 6.6 |
 | RF-105 | Shell Athos v2 (sidebar vertical + re-skin) | Sistema | P1 | UI/Design | `app_base.html` com sidebar **vertical**; re-skin de 100% das telas na paleta Oikonos v2; tipografia Inter (corpo) + Poppins (display) + `tabular-nums`; Lighthouse mobile ≥ 90, WCAG AA, zero regressão (OD-028) | `test_base_template_renders_church_theme` + Lighthouse/axe | 6.6 |
+| RF-106 | Lista de comunidades escopada por papel | Pastor, Secretário, Líder | P1 | Comunidades | A lista de Comunidades mostra todas para Pastor/Secretário e **só a(s) célula(s) que lidera** para o Líder (`SPEC_COMUNIDADES_V2`) | `test_community_list_scoped_to_leader` | pré-7 |
+| RF-107 | Dias a lançar da célula | Pastor, Secretário, Líder | P1 | Comunidades | A página da célula lista os Encontros do tipo Comunidade dela com status **Pendente/Lançado** (`is_launched`) | `test_cell_pending_days_flags_launched` | pré-7 |
+| RF-108 | Lançamento de presença da célula | Pastor, Secretário, Líder | P1 | Comunidades | Tela de lançamento: marca presente/falta dos membros, adiciona **visitante** (só nome), escreve a **anotação do dia** e confirma → `Attendance` + `AttendanceSession` | `test_leader_launches_cell_session` | pré-7 |
+| RF-109 | Frequência da célula | Pastor, Secretário, Líder | P1 | Comunidades | Card de frequência (última reunião / média / nº de reuniões) no detalhe e resumo na lista; Pastor vê todas, Líder a sua | `cell_attendance_summary` / `cell_frequencies` | pré-7 |
+| RF-110 | Criação de encontro administrativa | Pastor, Secretário | P1 | Encontros | Criar encontro = só Pastor/Secretário; o Líder **edita só a data** do encontro da sua célula (revisa a regra antiga §3.6) | `test_gathering_create_role_barrier` / `test_leader_edits_only_date_rn018` | pré-7 |
 
 ### 11.11 Backup e restore
 
@@ -476,6 +481,10 @@ ID `RF-XXX` · Título · Descrição · Ator · Prioridade (P0/P1/P2) · Módul
 | RN-013 | Files | Download exige autenticação + permissão por papel/tenant; sem URL pública permanente | Confidencialidade | Crítico | `test_file_download_authz` |
 | RN-014 | AuditLog | `AuditLog` vive no schema do tenant; usa `tenant_id CharField` e `user_id IntegerField` (sem FK cross-schema) | Regra TENANT-04 | Crítico | `test_auditlog_no_cross_schema_fk` |
 | RN-015 | Platform Admin | Acesso de Platform Admin a dados de uma igreja exige fluxo registrado de suporte (`SupportAccess` ou equivalente) | Privacidade pastoral (RISK-009) | Alto | `test_platform_admin_access_requires_support_log` |
+| RN-016 | Anotação por sessão | A anotação do dia é **por reunião** (`AttendanceSession` 1:1 com o `Gathering`), não por pessoa; guarda nota + `confirmed_by`/`confirmed_at` (user_id, TENANT-04) | Comunidades v2 (DM-2) | Médio | `test_launch_session_upserts_one_per_gathering` |
+| RN-017 | Visitante pelo líder | Visitante adicionado no lançamento vira `Person` status `VISITOR` na célula; criá-lo é permitido ao Líder (≠ adicionar membro) | Comunidades v2 (DM-1) | Médio | `test_launch_session_creates_visitor` |
+| RN-018 | Criar encontro = admin | Criar `Gathering` é só Pastor/Secretário; o Líder edita só a `date` de encontros da sua célula (view + service + form) | Comunidades v2 | Médio | `test_leader_cannot_create_gathering_rn018` |
+| RN-019 | Membro da célula = admin | Vincular/desvincular membro (`Person.community`) é só Pastor/Secretário; o campo some do form da pessoa para o Líder | Comunidades v2 | Médio | `test_leader_cannot_change_person_community_rn019` |
 
 ---
 

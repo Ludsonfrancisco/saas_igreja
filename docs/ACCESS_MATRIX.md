@@ -130,12 +130,17 @@ auditado (`role_change`); RN-004 (último Pastor) intacta.
 
 | Ação | Platform Admin | Pastor | Secretário | Líder Com. | Coord. Min. | Tesoureiro | Membro |
 |---|---|---|---|---|---|---|---|
-| Listar comunidades | ❌ | ✅ | ✅ | ✅ (todas; ver só sua em detalhe) | ❌ | ❌ | ❌ |
+| Listar comunidades | ❌ | ✅ | ✅ | 🟡 (só a que lidera) | ❌ | ❌ | ❌ |
 | Criar comunidade | ❌ | ✅ (se `has_communities=True`) | ✅ (se `has_communities=True`) | ❌ | ❌ | ❌ | ❌ |
 | Editar comunidade | ❌ | ✅ | ✅ | 🟡 (sua) | ❌ | ❌ | ❌ |
 | Excluir comunidade | ❌ | ✅ 📝 | ❌ 🔒 | ❌ | ❌ | ❌ | ❌ |
 | Definir líderes (1+, M2M) | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Vincular pessoa | ❌ | ✅ | ✅ | 🟡 (sua) | ❌ | ❌ | ❌ |
+| Vincular pessoa (membro da célula) | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Lançar presença da célula (sessão + nota) | ❌ | ✅ | ✅ | 🟡 (sua célula) | ❌ | ❌ | ❌ |
+| Adicionar visitante no lançamento | ❌ | ✅ | ✅ | 🟡 (sua célula) | ❌ | ❌ | ❌ |
+| Ver frequência da célula | ❌ | ✅ (todas) | ✅ (todas) | 🟡 (sua célula) | ❌ | ❌ | ❌ |
+
+> **Comunidades v2 (RF-106..110 / RN-016..019, `docs/SPEC_COMUNIDADES_V2.md`):** a **lista** passou a ser escopada (RF-106: Líder vê só a célula que lidera). **Vincular membro** virou administrativo (RN-019: só Pastor/Secretário); o Líder só adiciona **visitante** (`Person` status VISITOR) no **lançamento da sessão** da célula (RF-108/RN-017), que grava `Attendance` + a `AttendanceSession` (nota do dia + confirmação, RN-016). A rota dinâmica `/comunidades/<pk>/lancamento/<gathering_pk>/` é escopada (célula do Líder + encontro COMMUNITY dela) — fora disso 404.
 
 ### 3.5 Ministérios
 

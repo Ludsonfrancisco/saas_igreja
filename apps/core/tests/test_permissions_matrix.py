@@ -154,7 +154,8 @@ PERMISSION_CASES = (
     # Membro → 403. O escopo por encontro (detalhe/editar/presença, com pk) é
     # coberto em apps/gatherings/tests.
     + _staff_scoped(GATHERING_LIST)
-    + _staff_scoped(GATHERING_CREATE)
+    # RN-018 (Comunidades v2): criar encontro virou administrativo (admin-only).
+    + _admin(GATHERING_CREATE)
     # Escalas (§3.7): Listar/Criar liberados a Pastor/Secretário/Líder-Coordenador
     # (escopo por ministério refinado no qs/form). A aprovação de EXCEÇÃO de
     # conflito exclui o Secretário — só Pastor ou Coordenador.

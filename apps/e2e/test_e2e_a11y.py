@@ -68,6 +68,40 @@ def test_a11y_gatherings(page, e2e):
 
 
 @pytest.mark.django_db(transaction=True)
+def test_a11y_community_session(page, e2e):
+    """Comunidades v2 (RF-108): detalhe da célula + tela de lançamento de presença."""
+    import datetime
+
+    from django_tenants.utils import schema_context
+
+    from apps.communities.models import Community
+    from apps.e2e.conftest import E2E_SCHEMA
+    from apps.gatherings.models import Gathering
+    from apps.people.models import Person
+
+    ls = e2e['live_server']
+    with schema_context(E2E_SCHEMA):
+        cell = Community.objects.create(name='Célula E2E')
+        Person.objects.create(name='Membro E2E', community=cell)
+        gathering = Gathering.objects.create(
+            gathering_type=Gathering.Type.COMMUNITY,
+            date=datetime.date.today(),
+            community=cell,
+            title='Reunião E2E',
+        )
+        cid, gid = cell.pk, gathering.pk
+
+    login(page, ls, 'pastor@e2e.com')
+    page.goto(f'{ls.url}/comunidades/{cid}/')
+    v = _violations(page)
+    assert not v, f'WCAG AA (detalhe da célula): {_summary(v)}'
+
+    page.goto(f'{ls.url}/comunidades/{cid}/lancamento/{gid}/')
+    v = _violations(page)
+    assert not v, f'WCAG AA (lançamento da célula): {_summary(v)}'
+
+
+@pytest.mark.django_db(transaction=True)
 def test_a11y_person_list(page, e2e):
     ls = e2e['live_server']
     login(page, ls, 'pastor@e2e.com')
