@@ -1,0 +1,99 @@
+{% comment %}Fragmento do modal de escalação (Escalas v2 / RF-112, 113, 114). Carregado
+por HTMX em `#schedule-modal-body`. Para cada ministério do escopo do coordenador:
+roster com checkbox; quem já está em conflito de data aparece CINZA com link para a
+aprovação de exceção (RF-113); botão "não atuaremos nesse evento" (opt-out, RF-114).
+`open` (Alpine) vive no diálogo pai — `@click="open=false"` fecha.{% endcomment %}
+<div class="mb-4 flex items-start justify-between gap-3">
+  <div class="min-w-0">
+    <h2 class="font-display text-lg font-semibold text-ink">Escalar voluntários</h2>
+    <p class="truncate text-sm text-muted">{{ gathering.title|default:gathering.get_gathering_type_display }} · {{ gathering.date|date:'d/m/Y' }}</p>
+  </div>
+  <button type="button" @click="open = false"
+          class="grid h-10 w-10 shrink-0 place-items-center rounded-lg text-muted hover:bg-paper hover:text-ink"
+          aria-label="Fechar">
+    <i data-lucide="x" class="h-5 w-5" aria-hidden="true"></i>
+  </button>
+</div>
+
+{% if feedback %}
+  <div class="mb-4 rounded-lg border border-success/30 bg-success/5 px-4 py-3 text-sm text-ink" role="status">
+    {% if feedback.created %}<p>{{ feedback.created }} voluntário(s) escalado(s) em {{ feedback.ministry }}.</p>{% endif %}
+    {% if feedback.conflicted %}<p class="mt-1 text-muted">Em conflito de data (use “escalar mesmo assim”): {{ feedback.conflicted|join:', ' }}.</p>{% endif %}
+  </div>
+{% endif %}
+
+{% for b in blocks %}
+  <section class="mb-4 card p-4" aria-label="Ministério {{ b.ministry.name }}">
+    <div class="mb-3 flex items-center justify-between gap-2">
+      <h3 class="font-display text-base font-semibold text-ink">{{ b.ministry.name }}</h3>
+      {% if b.opted_out %}
+        {% include 'components/badge.html' with text='Não atuará' variant='muted' %}
+      {% endif %}
+    </div>
+
+    {% if b.opted_out %}
+      <p class="mb-3 text-sm text-muted">Este ministério marcou que <strong>não atuará</strong> neste evento.</p>
+      {% if b.can_clear %}
+        <form hx-post="{% url 'schedules:event_optout' pk=gathering.pk ministry_pk=b.ministry.pk %}"
+              hx-target="#schedule-modal-body" hx-swap="innerHTML">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="clear">
+          <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-line bg-paper px-3 py-1.5 text-sm font-medium text-ink hover:bg-bg-soft">
+            <i data-lucide="rotate-ccw" class="h-4 w-4"></i> Voltar a atuar
+          </button>
+        </form>
+      {% endif %}
+    {% else %}
+      <form hx-post="{% url 'schedules:event_modal' pk=gathering.pk %}"
+            hx-target="#schedule-modal-body" hx-swap="innerHTML" class="space-y-2">
+        {% csrf_token %}
+        <input type="hidden" name="ministry" value="{{ b.ministry.pk }}">
+        {% if b.roster %}
+          <ul class="divide-y divide-hairline">
+            {% for entry in b.roster %}
+              <li class="flex items-center justify-between gap-3 py-2">
+                {% if entry.scheduled_here %}
+                  <span class="text-sm font-medium text-ink">{{ entry.person.name }}</span>
+                  {% include 'components/badge.html' with text='Escalado' variant='success' %}
+                {% elif entry.conflict_elsewhere %}
+                  <span class="text-sm text-muted-2">{{ entry.person.name }}</span>
+                  <span class="flex items-center gap-2">
+                    <span class="text-xs text-muted-2">já escalado nessa data</span>
+                    <a href="{% url 'schedules:exception' %}?ministry={{ b.ministry.pk }}&person={{ entry.person.pk }}&gathering={{ gathering.pk }}"
+                       class="text-xs font-medium text-accent hover:underline">escalar mesmo assim</a>
+                  </span>
+                {% else %}
+                  <label class="flex w-full cursor-pointer items-center gap-3 text-sm text-ink">
+                    <input type="checkbox" name="person_ids" value="{{ entry.person.pk }}"
+                           class="h-4 w-4 rounded border-line text-accent focus:ring-accent">
+                    {{ entry.person.name }}
+                  </label>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+          <div class="pt-2">
+            <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-paper hover:bg-accent-2">
+              <i data-lucide="check" class="h-4 w-4"></i> Confirmar
+            </button>
+          </div>
+        {% else %}
+          <p class="text-sm text-muted">Nenhum voluntário cadastrado neste ministério.</p>
+        {% endif %}
+      </form>
+      {% comment %}Opt-out em form próprio (RF-114) — só o coordenador marca (RN-022).{% endcomment %}
+      {% if b.can_optout %}
+        <form hx-post="{% url 'schedules:event_optout' pk=gathering.pk ministry_pk=b.ministry.pk %}"
+              hx-target="#schedule-modal-body" hx-swap="innerHTML" class="mt-2 border-t border-hairline pt-3">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="set">
+          <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-line bg-paper px-3 py-1.5 text-sm font-medium text-muted hover:bg-bg-soft hover:text-ink">
+            <i data-lucide="ban" class="h-4 w-4"></i> Não atuaremos nesse evento
+          </button>
+        </form>
+      {% endif %}
+    {% endif %}
+  </section>
+{% empty %}
+  <p class="card p-6 text-center text-sm text-muted">Você não coordena nenhum ministério, então não há o que escalar aqui.</p>
+{% endfor %}

@@ -131,16 +131,13 @@ lançamento + `Attendance(is_present=True)`. (Decisão de modelagem #1 — **pro
 
 ---
 
-## 11. Escalas v2 — PENDENTE (não especificada ainda)
+## 11. Escalas v2 — ESPECIFICADA
 
-A **SPEC — Escalas v2** (item #5 do backlog) é irmã desta, mas precisa de **3 decisões
-do dono** antes de eu escrever:
-1. Colaborador **já escalado em outra data/ministério** aparece em **cinza** = trava
-   absoluta **ou** dá pra escalar mesmo assim via aprovação de exceção (o fluxo
-   `ScheduleConflictApproval`/RN-010 que já existe)?
-2. **"Não atuaremos nesse evento"** é decisão **por ministério** (cada coordenador
-   marca o seu), certo?
-3. A regra **"eventos do mês seguinte sinalizam pendência no dia 25"** é **fixa** ou
-   **configurável por igreja**?
-
-Respondidas essas, escrevo a SPEC — Escalas v2 no mesmo formato.
+As **3 decisões do dono** foram fechadas (2026-06-11) e a **SPEC — Escalas v2** está
+escrita em **`docs/SPEC_ESCALAS_V2.md`** (DRAFT, aguardando aprovação):
+1. Membro já escalado na mesma data = **cinza + escalável via aprovação de exceção**
+   (reusa `ScheduleConflictApproval`/RN-010).
+2. **"Não atuaremos nesse evento"** = opt-out **por ministério, marcado pelo coordenador**
+   (novo model `MinistryEventOptOut`).
+3. Gatilho de pendência = **configurável por igreja, default dia 25**
+   (`Church.schedule_pending_open_day`, OD-031).

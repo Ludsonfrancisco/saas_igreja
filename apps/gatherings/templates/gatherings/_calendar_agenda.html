@@ -1,30 +1,40 @@
-{% comment %}Agenda do mês na tela de Encontros (RF-102 / item 4 pré-7). Bloco único
-`#enc-calendar` trocado inteiro na navegação de mês (`hx-get gatherings:calendar`):
-à esquerda o calendário (só pontos, NÃO clicável — `readonly`), à direita a LISTA
-cronológica dos encontros do mês (nomes visíveis sem clicar dia a dia). A grade vem de
-`dashboard/_calendar_grid.html`; a lista usa `regroup` por data.{% endcomment %}
-<div id="enc-calendar" class="mb-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
+{% comment %}Agenda do mês na tela de Encontros (RF-102 / itens 4 + 1 pré-7). Bloco único
+`#enc-calendar` trocado inteiro na navegação de mês (`hx-get gatherings:calendar`).
+Layout (opção do dono): 70/30 no desktop — calendário ocupa ~70% à esquerda, com células
+de ALTURA BAIXA (`cell_size='min-h-14'`, estilo agenda — sem células gigantes) e clicável;
+o clique no dia injeta os encontros daquela data em `#enc-day-panel`, logo abaixo da grade
+(visível na hora). À direita (~30%), a "Agenda do mês" = lista cronológica (nomes visíveis
+sem clicar dia a dia). A grade vem de `dashboard/_calendar_grid.html`; a lista usa
+`regroup` por data.{% endcomment %}
+<div id="enc-calendar" class="mb-6 grid gap-4 lg:grid-cols-[minmax(0,7fr)_minmax(0,3fr)]">
   <section class="card card-md p-5" aria-labelledby="enc-cal-title">
-    <div class="mb-4 flex items-center justify-between gap-3">
+    <div class="mb-3 flex items-center justify-between gap-2">
       <h2 id="enc-cal-title" class="font-display text-lg font-semibold text-ink">{{ calendar_label }}</h2>
       <div class="flex items-center gap-1">
         <button type="button"
                 hx-get="{% url 'gatherings:calendar' %}?year={{ calendar_prev.year }}&month={{ calendar_prev.month }}"
                 hx-target="#enc-calendar" hx-swap="outerHTML"
-                class="grid h-9 w-9 place-items-center rounded-lg text-muted hover:bg-bg-soft hover:text-ink"
+                class="grid h-8 w-8 place-items-center rounded-lg text-muted hover:bg-bg-soft hover:text-ink"
                 aria-label="Mês anterior">
           <i data-lucide="chevron-left" class="h-4 w-4" aria-hidden="true"></i>
         </button>
         <button type="button"
                 hx-get="{% url 'gatherings:calendar' %}?year={{ calendar_next.year }}&month={{ calendar_next.month }}"
                 hx-target="#enc-calendar" hx-swap="outerHTML"
-                class="grid h-9 w-9 place-items-center rounded-lg text-muted hover:bg-bg-soft hover:text-ink"
+                class="grid h-8 w-8 place-items-center rounded-lg text-muted hover:bg-bg-soft hover:text-ink"
                 aria-label="Próximo mês">
           <i data-lucide="chevron-right" class="h-4 w-4" aria-hidden="true"></i>
         </button>
       </div>
     </div>
-    {% include 'dashboard/_calendar_grid.html' with readonly=True %}
+    {% include 'dashboard/_calendar_grid.html' with day_target='enc-day-panel' cell_size='min-h-14' %}
+    {% comment %}Painel do dia clicado (item 1 pré-7): o `HomeDayView` (dashboard:home_day)
+    injeta `_day.html` aqui via HTMX. Estado inicial = dica até o 1º clique.{% endcomment %}
+    <div id="enc-day-panel" class="mt-4">
+      <p class="rounded-lg bg-bg-soft px-4 py-3 text-sm text-muted">
+        Selecione um dia no calendário para ver os encontros daquela data.
+      </p>
+    </div>
   </section>
 
   <div class="card card-md p-5">

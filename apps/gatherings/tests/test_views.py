@@ -117,6 +117,9 @@ def test_gathering_list_wires_calendar(tenant_client, church_a):
     assert '/encontros/calendario/' in html  # troca de mês via HTMX
     assert 'Agenda do mês' in html
     assert 'Culto Teste' in html  # nome visível sem clicar (item 4)
+    # Item 1 pré-7: clique no dia restaurado (células clicáveis + painel do dia).
+    assert 'id="enc-day-panel"' in html
+    assert 'enc-day-panel' in html and 'hx-target="#enc-day-panel"' in html
 
 
 @pytest.mark.django_db(transaction=True)

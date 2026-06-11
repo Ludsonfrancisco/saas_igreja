@@ -34,6 +34,7 @@ MIN_LIST = '/ministerios/'
 MIN_CREATE = '/ministerios/novo/'
 GATHERING_LIST = '/encontros/'
 GATHERING_CREATE = '/encontros/novo/'
+SCHEDULE_EVENTS = '/escalas/eventos/'
 SCHEDULE_LIST = '/escalas/'
 SCHEDULE_CREATE = '/escalas/nova/'
 SCHEDULE_EXCEPTION = '/escalas/excecao/nova/'
@@ -159,6 +160,9 @@ PERMISSION_CASES = (
     # Escalas (§3.7): Listar/Criar liberados a Pastor/Secretário/Líder-Coordenador
     # (escopo por ministério refinado no qs/form). A aprovação de EXCEÇÃO de
     # conflito exclui o Secretário — só Pastor ou Coordenador.
+    # Escalas v2 (RF-111): a tela por evento herda o mesmo gate de papel; o escopo
+    # (quais ministérios) é refinado no service. Modal/opt-out (com pk) → app tests.
+    + _staff_scoped(SCHEDULE_EVENTS)
     + _staff_scoped(SCHEDULE_LIST)
     + _staff_scoped(SCHEDULE_CREATE)
     + _pastor_or_coordinator(SCHEDULE_EXCEPTION)

@@ -392,6 +392,18 @@ ID `RF-XXX` · Título · Descrição · Ator · Prioridade (P0/P1/P2) · Módul
 | RF-071 | Detectar conflito | Sistema | P0 | Schedules | Mesma pessoa em dois `Gathering` na mesma data/hora bloqueia salvamento | `test_schedule_conflict_blocked` | 5 |
 | RF-072 | Aprovar exceção de conflito | Coordenador competente | P1 | Schedules | Cria `ScheduleConflictApproval` com justificativa; libera salvamento; gera `AuditLog` | `test_schedule_exception_approval` | 5 |
 
+### 11.8b Escalas v2 — coordenador-cêntrica (pré-7, `SPEC_ESCALAS_V2`)
+
+| ID | Título | Ator | Prio | Módulo | Critério de aceite | Teste | Sprint |
+|---|---|---|---|---|---|---|---|
+| RF-111 | Escalas por evento | Coordenador, Pastor, Secretário | P1 | Schedules | Tela lista todos os `Gathering` da janela ativa (RF-116) com **pendência de escala por ministério** do coordenador; entrada principal (substitui a lista de registros) | `test_schedule_events_list_shows_pending_by_ministry` | pré-7 |
+| RF-112 | Modal de escalação | Coordenador | P1 | Schedules | Clicar no evento abre modal (HTMX) com os **voluntários dos ministérios que coordena**; marcar quem serve cria `Schedule` por (pessoa, ministério, evento) reusando `create_schedule` | `test_coordinator_schedules_only_own_ministry_volunteers` | pré-7 |
+| RF-113 | Sinalização "já escalado" | Coordenador | P1 | Schedules | Voluntário já escalado em outro ministério **na mesma data** aparece em **cinza** ("já escalado nessa data"); escalar mesmo assim dispara exceção (`approve_exception`/RN-021) | `test_already_scheduled_same_date_is_greyed_not_blocked` | pré-7 |
+| RF-114 | Opt-out por ministério/evento | Coordenador | P1 | Schedules | "Não atuaremos nesse evento" por ministério → cria `MinistryEventOptOut` e **some a pendência** daquele par; reversível | `test_ministry_event_optout_removes_pending` | pré-7 |
+| RF-115 | Pendências do coordenador | Coordenador, Pastor, Secretário | P1 | Schedules | Painel lista os eventos da janela ativa **sem escala nem opt-out** para os ministérios do coordenador (visão consolidada p/ Pastor/Sec) | `test_schedule_pending_panel` | pré-7 |
+| RF-116 | Janela de pendência configurável | Sistema | P1 | Schedules | Eventos do mês corrente sempre pendentes; do mês seguinte só a partir de `Church.schedule_pending_open_day` (default 25, RN-023/OD-031) | `test_next_month_pending_only_after_open_day` | pré-7 |
+| RF-117 | Cards/gráficos da tela de Escalas | Coordenador, Pastor | P2 | Schedules | Indicadores no topo (eventos pendentes, % com escala fechada, voluntários mais/menos escalados) no design Athos. **Liga no item transversal de cards/gráficos por página** | `test_schedule_dashboard_cards` | pré-7 |
+
 ### 11.9 Arquivos e PDFs
 
 | ID | Título | Ator | Prio | Módulo | Critério de aceite | Teste | Sprint |
@@ -485,6 +497,10 @@ ID `RF-XXX` · Título · Descrição · Ator · Prioridade (P0/P1/P2) · Módul
 | RN-017 | Visitante pelo líder | Visitante adicionado no lançamento vira `Person` status `VISITOR` na célula; criá-lo é permitido ao Líder (≠ adicionar membro) | Comunidades v2 (DM-1) | Médio | `test_launch_session_creates_visitor` |
 | RN-018 | Criar encontro = admin | Criar `Gathering` é só Pastor/Secretário; o Líder edita só a `date` de encontros da sua célula (view + service + form) | Comunidades v2 | Médio | `test_leader_cannot_create_gathering_rn018` |
 | RN-019 | Membro da célula = admin | Vincular/desvincular membro (`Person.community`) é só Pastor/Secretário; o campo some do form da pessoa para o Líder | Comunidades v2 | Médio | `test_leader_cannot_change_person_community_rn019` |
+| RN-020 | Escala coordenador-cêntrica | O coordenador só escala **voluntários dos ministérios que coordena** (`ministries__coordinators__user_id`) e só nesses ministérios; reusa `ScopedToMinistryMixin` (P-ARQ-08) | Escalas v2 | Alto | `test_coordinator_schedules_only_own_ministry_volunteers` |
+| RN-021 | Conflito de data = cinza, não trava | Voluntário já escalado em outro ministério na mesma data é sinalizado (cinza) mas escalável via **exceção aprovada** (`detect_conflict` + `approve_exception` → `ScheduleConflictApproval` + SecurityLog); mantém RN-011 | Escalas v2 | Alto | `test_schedule_despite_conflict_requires_exception_approval` |
+| RN-022 | Opt-out por ministério/evento | `MinistryEventOptOut` único por `(ministry, gathering)`, marcado pelo **coordenador** daquele ministério (`marked_by_id`); Pastor/Sec podem remover. Enquanto existir, o par não é pendência e some do modal | Escalas v2 | Médio | `test_optout_unique_per_pair` / `test_optout_removable_by_pastor` |
+| RN-023 | Gatilho de pendência configurável | `Church.schedule_pending_open_day` (PositiveSmallInt, default 25, faixa 1–28): evento do mês `m+1` só entra na janela ativa quando `hoje.day >=` esse valor; mês corrente sempre na janela (OD-031) | Escalas v2 | Médio | `test_open_day_is_configurable_per_church` |
 
 ---
 

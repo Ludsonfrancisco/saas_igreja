@@ -102,6 +102,44 @@ def test_a11y_community_session(page, e2e):
 
 
 @pytest.mark.django_db(transaction=True)
+def test_a11y_schedule_events(page, e2e):
+    """Escalas v2 (RF-111/112): tela por evento + modal de escalação aberto."""
+    import datetime
+
+    from django_tenants.utils import schema_context
+
+    from apps.e2e.conftest import E2E_SCHEMA
+    from apps.gatherings.models import Gathering
+    from apps.ministries.models import Ministry
+    from apps.people.models import Person
+
+    ls = e2e['live_server']
+    with schema_context(E2E_SCHEMA):
+        ministry = Ministry.objects.create(name='Louvor E2E')
+        member = Person.objects.create(name='Ana E2E')
+        member.ministries.add(ministry)
+        Gathering.objects.create(
+            gathering_type=Gathering.Type.WORSHIP,
+            date=datetime.date.today(),
+            title='Culto E2E',
+        )
+
+    login(page, ls, 'pastor@e2e.com')
+    page.goto(f'{ls.url}/escalas/eventos/')
+    v = _violations(page)
+    assert not v, f'WCAG AA (escalas por evento): {_summary(v)}'
+
+    # Abre o modal de escalação e revalida com o diálogo aberto. Espera a transição
+    # de fade do Alpine terminar (opacity 0→1, 200ms) — senão o axe mede cores
+    # MESCLADAS (mid-fade) e acusa falso contraste.
+    page.locator('button:has-text("Escalar")').first.click()
+    page.wait_for_selector('input[name="person_ids"]')
+    page.wait_for_timeout(500)
+    v = _violations(page)
+    assert not v, f'WCAG AA (modal de escalação): {_summary(v)}'
+
+
+@pytest.mark.django_db(transaction=True)
 def test_a11y_person_list(page, e2e):
     ls = e2e['live_server']
     login(page, ls, 'pastor@e2e.com')

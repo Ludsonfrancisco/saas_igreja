@@ -598,6 +598,19 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 
 **Implicações:** (a) **calendário de agenda (RF-102) SAI da home** → vai para **Encontros/agenda** (código pronto: services `build_calendar_weeks`/`event_days`/`gatherings_on_day` + `HomeCalendarView`/`HomeDayView` em `/inicio/calendario/`,`/inicio/dia/`; **wiring pendente**). (b) sparklines dos KPIs = série real (`home_growth_series`, cumulativo por `created_at`). (c) gráfico de tendência histórico da Saúde exigiria snapshots mensais (feature futura). (d) "Contribuições" do KPI ativa na Sprint 6.7 (Financeiro). Commit `b019a6d`.
 
+### OD-031 — Escalas v2: 3 decisões de design (conflito, opt-out, gatilho de pendência)
+
+| Campo | Valor |
+|---|---|
+| Status | ✅ Decidida (2026-06-11) |
+| Impacto | Médio (define os 2 models novos e o comportamento da Escalas v2; `SPEC_ESCALAS_V2`) |
+| Owner | Dono |
+| Decisão | (a) **Conflito de data:** voluntário já escalado em outro ministério na mesma data aparece **em cinza** mas é **escalável via aprovação de exceção** (reusa `ScheduleConflictApproval`/RN-010/011) — não é trava absoluta. (b) **Opt-out:** "não atuaremos nesse evento" é **por ministério, marcado pelo coordenador** (novo model `MinistryEventOptOut`, único por `(ministry, gathering)`). (c) **Gatilho de pendência:** **configurável por igreja** via `Church.schedule_pending_open_day` (PositiveSmallInt, **default 25**, faixa 1–28) — eventos do mês seguinte só viram pendência a partir desse dia. |
+
+**Contexto:** a Escalas v2 (item #5 do backlog pré-7) redesenha o CRUD seco da Sprint 5 num fluxo **coordenador-cêntrico** (lista de eventos → modal de escalação → pendências). O dono escolheu (2026-06-11) as 3 opções **recomendadas**, todas reaproveitando infra existente (`detect_conflict`/`approve_exception`, `ScopedToMinistryMixin`).
+
+**Implicações:** adiciona **RF-111..117** e **RN-020..023** ao PRD; 2 models novos (`MinistryEventOptOut` no tenant; `Church.schedule_pending_open_day` no público → migração **shared**, afeta tenants existentes com o default). Fatiamento em 3 blocos (backend → frontend/modal → matrizes/docs). Cards/gráficos (RF-117) ligam no item transversal de cards por página. Magic-link do voluntário (OD-022) **inalterado**.
+
 ---
 
 ## Histórico — decisões fechadas
@@ -621,6 +634,7 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 | OD-028 | Posicionamento do Design v2 | 2026-06-08 | **Sprint 6.6 "Athos v2"** (sidebar vertical + re-skin + home nova) **antes** da 6.7; opção A do A/B do F7; RF-102..105 |
 | OD-029 | Métrica "Saúde do Ministério" | 2026-06-08 | **GAP de voluntários** (atuais × `Ministry.volunteers_needed`), não score composto; RF-104; campo novo na Sprint 6.6 |
 | OD-030 | Home = painel "Painel Oikonos" (design igreja-athos-dashboard) | 2026-06-09 | A home (`/`) adota o design analítico premium, **adaptado a dados reais**; Saúde do Ministério segue GAP (OD-029); seções sem backend = "Em breve"; **calendário (RF-102) sai da home → Encontros**; aberta a todo papel logado |
+| OD-031 | Escalas v2: conflito / opt-out / gatilho de pendência | 2026-06-11 | (a) já-escalado = cinza + escalável via exceção; (b) opt-out **por ministério** (coordenador), model `MinistryEventOptOut`; (c) gatilho **configurável** `Church.schedule_pending_open_day` (default 25); RF-111..117 / RN-020..023; `SPEC_ESCALAS_V2` |
 | OD-003a | Storage de mídia | 2026-05-27 | Cloudflare R2 (S3-compatible) desde Sprint 6 |
 | OD-006 | VPS definitivo | 2026-05-27 | Hostinger KVM 2 (8GB, 2 vCPU, 100GB NVMe) |
 | OD-007 | Storage offsite | 2026-05-27 | Cloudflare R2 (mesma conta de OD-003a) |

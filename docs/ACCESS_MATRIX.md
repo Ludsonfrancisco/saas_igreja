@@ -172,9 +172,15 @@ auditado (`role_change`); RN-004 (último Pastor) intacta.
 
 > **OD-019 (Secretário) + decisão Sprint 5 (2026-06-05):** o Secretário é **admin no CRUD** de escalas (lista/cria/edita/exclui em qualquer ministério, como o Pastor). **Exceção:** **não aprova exceção de conflito** (❌ 🔒) — o override de conflito fica restrito ao **Pastor + Coordenador competente** (coordenador do `Schedule.ministry`), preservando o controle de quem autoriza furar a regra.
 
+> **Escalas v2 (OD-031, 2026-06-11):** a **entrada principal** vira a tela **por evento** (`/escalas/eventos/`, RF-111) coordenador-cêntrica; o CRUD clássico (`/escalas/`) continua como lista detalhada. No **modal de escalação** (RF-112) o coordenador marca os voluntários dos seus ministérios; quem já está escalado **na mesma data** aparece em **cinza** (RF-113) e só entra via aprovação de exceção (RN-021, mesma regra acima). O **opt-out "não atuaremos nesse evento"** (RF-114/RN-022) é **marcado só pelo Coordenador** do ministério; Pastor/Secretário **removem** (dominância). A **janela de pendência** (RF-116/RN-023) é configurável por igreja (`Church.schedule_pending_open_day`, default 25).
+
 | Ação | Platform Admin | Pastor | Secretário | Líder Com. | Coord. Min. | Tesoureiro | Membro |
 |---|---|---|---|---|---|---|---|
-| Listar escalas | ❌ | ✅ | ✅ | ❌ | 🟡 (seu ministério) | ❌ | ❌ |
+| Escalas por evento (lista) | ❌ | ✅ | ✅ | ❌ | 🟡 (seus ministérios) | ❌ | ❌ |
+| Escalar voluntários no modal | ❌ | ✅ | ✅ | ❌ | 🟡 (seus ministérios) | ❌ | ❌ |
+| Marcar "não atuaremos nesse evento" (opt-out) | ❌ | ❌ 🔒 | ❌ 🔒 | ❌ | 🟡 (seu ministério) | ❌ | ❌ |
+| Remover opt-out | ❌ | ✅ | ✅ | ❌ | 🟡 (seu ministério) | ❌ | ❌ |
+| Listar escalas (CRUD) | ❌ | ✅ | ✅ | ❌ | 🟡 (seu ministério) | ❌ | ❌ |
 | Criar escala | ❌ | ✅ | ✅ | ❌ | 🟡 (seu ministério) | ❌ | ❌ |
 | Editar escala | ❌ | ✅ | ✅ | ❌ | 🟡 (seu ministério) | ❌ | ❌ |
 | Excluir escala | ❌ | ✅ | ✅ | ❌ | 🟡 (seu ministério) | ❌ | ❌ |

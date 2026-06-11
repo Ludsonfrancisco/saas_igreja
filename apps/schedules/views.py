@@ -19,7 +19,8 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import connection
-from django.shortcuts import redirect, render
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import (
@@ -38,12 +39,51 @@ from apps.core.mixins import (
     ScopedToMinistryMixin,
     TenantRequiredMixin,
 )
+from apps.gatherings.models import Gathering
 from apps.schedules import services
 from apps.schedules.forms import ScheduleExceptionForm, ScheduleForm
 from apps.schedules.models import Schedule
 from apps.schedules.tokens import read_volunteer_token
 
 SCHEDULE_SCOPE_LOOKUP = 'ministry__coordinators__user_id'
+
+
+def _open_day():
+    """Dia configurável de abertura de pendências da igreja atual (RN-023)."""
+    return getattr(connection.tenant, 'schedule_pending_open_day', 25)
+
+
+def _event_modal_context(*, user, gathering):
+    """Estado do modal de escalação (RF-112/113/114): para cada ministério do escopo
+    do `user`, o roster, se deu opt-out neste evento e os direitos de opt-out.
+
+    `can_optout` (marcar "não atuaremos") = só o coordenador do ministério (RN-022).
+    `can_clear` (voltar a atuar) = coordenador OU Pastor/Secretário.
+    """
+    ministries = (
+        services.coordinated_ministries(user)
+        .order_by('name')
+        .prefetch_related('members')  # evita N+1 no roster por ministério (P-ARQ-09)
+    )
+    opted_ids = set(
+        gathering.ministry_optouts.filter(ministry__in=ministries).values_list(
+            'ministry_id', flat=True
+        )
+    )
+    is_admin = user.has_any_role('pastor', 'secretary')
+    blocks = []
+    for m in ministries:
+        is_coordinator = m.coordinators.filter(user_id=user.id).exists()
+        blocks.append(
+            {
+                'ministry': m,
+                'opted_out': m.pk in opted_ids,
+                'roster': services.ministry_roster(ministry=m, gathering=gathering),
+                'can_optout': is_coordinator,
+                'can_clear': is_coordinator or is_admin,
+            }
+        )
+    return {'gathering': gathering, 'blocks': blocks}
 
 
 class PastorOrCoordinatorMixin(RoleRequiredMixin):
@@ -180,6 +220,16 @@ class ScheduleExceptionCreateView(
         kwargs['user'] = self.request.user
         return kwargs
 
+    def get_initial(self):
+        """Pré-preenche a partir do modal de escalação (RF-113 "escalar mesmo assim"):
+        `?ministry=&person=&gathering=` viram o estado inicial do form."""
+        initial = super().get_initial()
+        for field in ('ministry', 'person', 'gathering'):
+            value = self.request.GET.get(field)
+            if value and value.isdigit():
+                initial[field] = value
+        return initial
+
     def form_valid(self, form):
         data = form.cleaned_data
         try:
@@ -197,6 +247,112 @@ class ScheduleExceptionCreateView(
             return self.form_invalid(form)
         messages.success(self.request, 'Excecao de conflito aprovada e escala criada.')
         return super().form_valid(form)
+
+
+class ScheduleEventListView(TenantRequiredMixin, LeaderOrPastorMixin, View):
+    """Escalas por evento (RF-111/115/117) — entrada principal coordenador-cêntrica.
+
+    Lista os eventos da janela ativa (mês corrente + mês seguinte após o dia
+    configurável) com badge de ministérios pendentes; painel das pendências do
+    coordenador; KPIs no topo (RF-117 leve). O escopo (quais ministérios) vem do
+    service `coordinated_ministries` (Pastor/Sec = todos).
+    """
+
+    template_name = 'schedules/schedule_events.html'
+
+    def get(self, request):
+        open_day = _open_day()
+        events = services.events_with_pending(user=request.user, open_day=open_day)
+        pending = [e for e in events if e['pending'] > 0]
+        return render(
+            request,
+            self.template_name,
+            {
+                'events': events,
+                'pending_events': pending,
+                'kpi_total': len(events),
+                'kpi_pending': len(pending),
+                'kpi_done': len(events) - len(pending),
+            },
+        )
+
+
+class ScheduleEventModalView(TenantRequiredMixin, LeaderOrPastorMixin, View):
+    """Modal de escalação de um evento (RF-112/113). Fragmento HTMX.
+
+    GET devolve o modal (roster por ministério do escopo). POST escala os voluntários
+    marcados de um ministério (campo `ministry`, lista `person_ids`) via service e
+    re-renderiza o modal atualizado.
+    """
+
+    template_name = 'schedules/_schedule_modal.html'
+
+    def _gathering(self, pk):
+        return get_object_or_404(Gathering, pk=pk)
+
+    def get(self, request, pk):
+        gathering = self._gathering(pk)
+        return render(
+            request,
+            self.template_name,
+            _event_modal_context(user=request.user, gathering=gathering),
+        )
+
+    def post(self, request, pk):
+        gathering = self._gathering(pk)
+        ministry = get_object_or_404(
+            services.coordinated_ministries(request.user),
+            pk=request.POST.get('ministry'),
+        )
+        person_ids = request.POST.getlist('person_ids')
+        try:
+            created, conflicted = services.schedule_members_bulk(
+                ministry=ministry,
+                gathering=gathering,
+                person_ids=person_ids,
+                actor=request.user,
+            )
+        except ValidationError as exc:
+            raise Http404 from exc  # fora do escopo → não revela o evento
+        ctx = _event_modal_context(user=request.user, gathering=gathering)
+        ctx['feedback'] = {
+            'created': created,
+            'conflicted': [p.name for p in conflicted],
+            'ministry': ministry.name,
+        }
+        return render(request, self.template_name, ctx)
+
+
+class MinistryEventOptOutView(TenantRequiredMixin, LeaderOrPastorMixin, View):
+    """Opt-out por ministério/evento (RF-114/RN-022). POST alterna; devolve o modal.
+
+    `action=set` marca "não atuaremos"; `action=clear` remove. Escopo/competência
+    revalidados no service (`set_optout`/`remove_optout`).
+    """
+
+    template_name = 'schedules/_schedule_modal.html'
+
+    def post(self, request, pk, ministry_pk):
+        gathering = get_object_or_404(Gathering, pk=pk)
+        ministry = get_object_or_404(
+            services.coordinated_ministries(request.user), pk=ministry_pk
+        )
+        try:
+            if request.POST.get('action') == 'clear':
+                services.remove_optout(
+                    ministry=ministry, gathering=gathering, actor=request.user
+                )
+            else:
+                services.set_optout(
+                    ministry=ministry, gathering=gathering, actor=request.user
+                )
+        except ValidationError as exc:
+            raise Http404 from exc
+        return render(
+            request,
+            self.template_name,
+            _event_modal_context(user=request.user, gathering=gathering),
+        )
 
 
 class VolunteerScheduleView(View):
@@ -223,9 +379,7 @@ class VolunteerScheduleView(View):
                 pk=person_id, anonymized_at__isnull=True
             ).first()
         if person is None:
-            return render(
-                request, 'schedules/volunteer_invalid.html', status=404
-            )
+            return render(request, 'schedules/volunteer_invalid.html', status=404)
 
         log_security_event(
             event_type='volunteer_schedule_access',

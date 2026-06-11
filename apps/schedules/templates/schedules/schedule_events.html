@@ -1,0 +1,109 @@
+{% extends 'app_base.html' %}
+{% comment %}Escalas por evento (Escalas v2 / RF-111, 115, 117). Entrada coordenador-
+cêntrica: KPIs no topo, painel de pendências e a lista de eventos da janela ativa.
+Clicar em "Escalar" carrega o modal (`schedules:event_modal`) via HTMX em
+`#schedule-modal-body` e abre o diálogo (Alpine `open`).{% endcomment %}
+{% block title %}Escalas · Oikonos{% endblock %}
+
+{% block content %}
+<div x-data="{ open: false }">
+  <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h1 class="font-display text-2xl font-bold tracking-tight text-ink">Escalas</h1>
+      <p class="mt-1 text-sm text-muted">Escale por evento: abra um culto e marque os voluntários do seu ministério.</p>
+    </div>
+    <a href="{% url 'schedules:list' %}" class="inline-flex items-center gap-2 rounded-lg border border-line bg-paper px-3 py-2 text-sm font-medium text-ink hover:bg-bg-soft">
+      <i data-lucide="list" class="h-4 w-4"></i> Lista detalhada
+    </a>
+  </div>
+
+  {# KPIs (RF-117) #}
+  <div class="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+    <div class="card p-4">
+      <p class="text-xs font-medium uppercase tracking-wide text-muted-2">Eventos na janela</p>
+      <p class="mt-1 font-display text-2xl font-bold tnum text-ink">{{ kpi_total }}</p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs font-medium uppercase tracking-wide text-muted-2">Pendentes</p>
+      <p class="mt-1 font-display text-2xl font-bold tnum text-accent">{{ kpi_pending }}</p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs font-medium uppercase tracking-wide text-muted-2">Escala fechada</p>
+      <p class="mt-1 font-display text-2xl font-bold tnum text-success">{{ kpi_done }}</p>
+    </div>
+  </div>
+
+  {# Painel de pendências (RF-115) #}
+  {% if pending_events %}
+    <section class="card card-md mb-6 p-5" aria-labelledby="pending-title">
+      <h2 id="pending-title" class="mb-3 flex items-center gap-2 font-display text-base font-semibold text-ink">
+        <i data-lucide="alarm-clock" class="h-4 w-4 text-accent"></i> A escalar
+      </h2>
+      <ul class="space-y-1.5">
+        {% for item in pending_events %}
+          <li>
+            <button type="button"
+                    hx-get="{% url 'schedules:event_modal' pk=item.gathering.pk %}"
+                    hx-target="#schedule-modal-body" hx-swap="innerHTML"
+                    @click="open = true"
+                    class="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left hover:bg-bg-soft">
+              <span class="min-w-0">
+                <span class="block truncate text-sm font-medium text-ink">{{ item.gathering.title|default:item.gathering.get_gathering_type_display }}</span>
+                <span class="text-xs text-muted">{{ item.gathering.date|date:'D, d/m' }}</span>
+              </span>
+              {% include 'components/badge.html' with text=item.pending|stringformat:'s'|add:' pendente(s)' variant='accent' %}
+            </button>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+  {# Lista de eventos da janela (RF-111) #}
+  <section class="card overflow-hidden">
+    <h2 class="border-b border-hairline px-5 py-3 font-display text-base font-semibold text-ink">Eventos</h2>
+    {% if events %}
+      <ul class="divide-y divide-hairline">
+        {% for item in events %}
+          <li class="flex items-center justify-between gap-3 px-5 py-3">
+            <div class="min-w-0">
+              <p class="truncate text-sm font-medium text-ink">{{ item.gathering.title|default:item.gathering.get_gathering_type_display }}</p>
+              <p class="text-xs text-muted">{{ item.gathering.date|date:'D, d/m/Y' }}{% if item.gathering.community %} · {{ item.gathering.community.name }}{% endif %}</p>
+            </div>
+            <div class="flex shrink-0 items-center gap-3">
+              {% if item.pending > 0 %}
+                {% include 'components/badge.html' with text=item.pending|stringformat:'s'|add:' pendente(s)' variant='accent' %}
+              {% else %}
+                {% include 'components/badge.html' with text='Fechada' variant='success' %}
+              {% endif %}
+              <button type="button"
+                      hx-get="{% url 'schedules:event_modal' pk=item.gathering.pk %}"
+                      hx-target="#schedule-modal-body" hx-swap="innerHTML"
+                      @click="open = true"
+                      class="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-paper hover:bg-accent-2">
+                <i data-lucide="user-check" class="h-4 w-4"></i> Escalar
+              </button>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="px-5 py-8 text-center text-sm text-muted">Nenhum evento na janela de escala. Eventos do mês seguinte aparecem a partir do dia configurado pela igreja.</p>
+    {% endif %}
+  </section>
+
+  {# Modal de escalação (RF-112) — diálogo central; corpo trocado por HTMX. #}
+  <div x-show="open" x-cloak x-transition.opacity @click="open = false"
+       class="fixed inset-0 z-40 bg-ink/50" aria-hidden="true"></div>
+  <div x-show="open" x-cloak
+       x-transition:enter="transition ease-out duration-200"
+       x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
+       @keydown.escape.window="open = false" x-trap.noscroll="open"
+       role="dialog" aria-modal="true" aria-label="Escalar voluntários"
+       class="fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[88vh] w-full max-w-2xl flex-col overflow-y-auto rounded-t-2xl bg-bg-soft p-5 shadow-md2 sm:inset-y-0 sm:my-auto sm:rounded-2xl">
+    <div id="schedule-modal-body">
+      <div class="card p-6 text-center text-sm text-muted">Carregando…</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

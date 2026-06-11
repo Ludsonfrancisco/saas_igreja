@@ -17,7 +17,7 @@ tem dashboard de papel (§3.9).{% endcomment %}
   {% side_link '/comunidades/' 'Comunidades' 'home' %}
   {% side_link '/ministerios/' 'Ministérios' 'heart-handshake' %}
   {% side_link '/encontros/' 'Encontros' 'calendar' %}
-  {% side_link '/escalas/' 'Escalas' 'clipboard-list' %}
+  {% side_link '/escalas/eventos/' 'Escalas' 'clipboard-list' match='/escalas' %}
 {% endif %}
 {% if 'pastor' in user.roles or 'treasurer' in user.roles %}
   {% side_link '/financeiro/' 'Financeiro' 'wallet' match='/financeiro' %}

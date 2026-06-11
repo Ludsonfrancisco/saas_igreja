@@ -3,7 +3,11 @@
 from django.contrib import admin
 
 from apps.core.admin import TenantAdminMixin
-from apps.schedules.models import Schedule, ScheduleConflictApproval
+from apps.schedules.models import (
+    MinistryEventOptOut,
+    Schedule,
+    ScheduleConflictApproval,
+)
 
 
 @admin.register(Schedule)
@@ -16,3 +20,9 @@ class ScheduleAdmin(TenantAdminMixin, admin.ModelAdmin):
 @admin.register(ScheduleConflictApproval)
 class ScheduleConflictApprovalAdmin(TenantAdminMixin, admin.ModelAdmin):
     list_display = ('schedule', 'approved_by_id', 'approved_at')
+
+
+@admin.register(MinistryEventOptOut)
+class MinistryEventOptOutAdmin(TenantAdminMixin, admin.ModelAdmin):
+    list_display = ('ministry', 'gathering', 'marked_by_id')
+    list_filter = ('ministry',)

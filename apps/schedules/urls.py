@@ -9,9 +9,12 @@ tenant (apps/schedules/tokens.py).
 from django.urls import path
 
 from apps.schedules.views import (
+    MinistryEventOptOutView,
     ScheduleCreateView,
     ScheduleDeleteView,
     ScheduleDetailView,
+    ScheduleEventListView,
+    ScheduleEventModalView,
     ScheduleExceptionCreateView,
     ScheduleListView,
     ScheduleUpdateView,
@@ -21,6 +24,19 @@ from apps.schedules.views import (
 app_name = 'schedules'
 
 urlpatterns = [
+    # Escalas v2 (coordenador-cêntrica): entrada por evento + modal de escalação.
+    path('escalas/eventos/', ScheduleEventListView.as_view(), name='events'),
+    path(
+        'escalas/eventos/<int:pk>/escalar/',
+        ScheduleEventModalView.as_view(),
+        name='event_modal',
+    ),
+    path(
+        'escalas/eventos/<int:pk>/ministerio/<int:ministry_pk>/atuacao/',
+        MinistryEventOptOutView.as_view(),
+        name='event_optout',
+    ),
+    # CRUD clássico (Sprint 5) — lista detalhada de registros.
     path('escalas/', ScheduleListView.as_view(), name='list'),
     path('escalas/nova/', ScheduleCreateView.as_view(), name='create'),
     path(

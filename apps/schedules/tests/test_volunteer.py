@@ -35,8 +35,12 @@ def _scheduled_person(name='Ana', date=FUTURE, role='Vocal'):
     ministry = Ministry.objects.create(name='Louvor')
     person = Person.objects.create(name=name)
     person.ministries.add(ministry)
-    gathering = Gathering.objects.create(gathering_type='worship', date=date, title='Culto')
-    Schedule.objects.create(ministry=ministry, person=person, gathering=gathering, role=role)
+    gathering = Gathering.objects.create(
+        gathering_type='worship', date=date, title='Culto'
+    )
+    Schedule.objects.create(
+        ministry=ministry, person=person, gathering=gathering, role=role
+    )
     return person
 
 

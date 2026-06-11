@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django_tenants.models import DomainMixin, TenantMixin
 
@@ -17,6 +18,14 @@ class Church(TenantMixin):
     has_communities = models.BooleanField(
         default=True,
         help_text='True = igreja em celulas. False = tradicional.',
+    )
+    # Escalas v2 (RN-023 / OD-031): dia em que abrem as pendências de escala do mês
+    # SEGUINTE. Antes desse dia, eventos do próximo mês não geram pendência. Faixa
+    # 1–28 evita meses curtos (fevereiro). O mês corrente está sempre na janela.
+    schedule_pending_open_day = models.PositiveSmallIntegerField(
+        default=25,
+        validators=[MinValueValidator(1), MaxValueValidator(28)],
+        help_text='Dia em que abrem as pendencias de escala do mes seguinte (1-28).',
     )
     # Defaults = cores da marca Oikonos (primary/âmbar). Cada igreja customiza.
     accent_color = models.CharField(max_length=7, default='#864507')

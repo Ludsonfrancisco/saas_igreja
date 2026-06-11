@@ -69,3 +69,35 @@ class ScheduleConflictApproval(BaseModel, AuditLogMixin):
 
     def __str__(self):
         return f'Excecao aprovada: schedule #{self.schedule_id}'
+
+
+class MinistryEventOptOut(BaseModel, AuditLogMixin):
+    """Opt-out de um ministério num evento (Escalas v2 / RF-114, RN-022).
+
+    "Não atuaremos nesse evento": o coordenador marca que o `ministry` **não vai
+    atuar** no `gathering` — some a pendência daquele par e o ministério deixa de
+    aparecer como escalável no modal. Único por `(ministry, gathering)`.
+
+    `marked_by_id` é o `user_id` do coordenador (TENANT-04, sem FK para User).
+    Herda `AuditLogMixin` (1 AuditLog por marcação, leve). Reversível (delete).
+    """
+
+    ministry = models.ForeignKey(
+        'ministries.Ministry',
+        on_delete=models.CASCADE,
+        related_name='event_optouts',
+    )
+    gathering = models.ForeignKey(
+        'gatherings.Gathering',
+        on_delete=models.CASCADE,
+        related_name='ministry_optouts',
+    )
+    marked_by_id = models.IntegerField(help_text='User.id do coordenador que marcou')
+    reason = models.CharField(max_length=120, blank=True, default='')
+
+    class Meta:
+        unique_together = (('ministry', 'gathering'),)
+        ordering = ('-gathering__date',)
+
+    def __str__(self):
+        return f'{self.ministry.name} nao atua em {self.gathering}'

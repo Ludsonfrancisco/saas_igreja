@@ -59,6 +59,10 @@ AUTHENTICATED_TENANT_URLS = [
     '/ministerios/',
     '/encontros/',
     '/encontros/novo/',
+    # Escalas v2 (RF-111/112): tela por evento + modal (rota dinâmica; id arbitrário
+    # serve às baterias anônimo→login e public→404).
+    '/escalas/eventos/',
+    '/escalas/eventos/1/escalar/',
     '/escalas/',
     '/escalas/nova/',
     '/escalas/excecao/nova/',
@@ -231,6 +235,13 @@ def test_tenant_isolation_matrix(tenant_a_client, church_a, church_b):
     schedule_ministries = {s.ministry.name for s in resp.context['schedules']}
     assert 'Louvor A' in schedule_ministries
     assert 'Louvor B' not in schedule_ministries
+
+    # Escalas v2: a tela por evento (RF-111) só lista os encontros da própria igreja.
+    resp = tenant_a_client.get('/escalas/eventos/')
+    assert resp.status_code == 200
+    event_titles = {item['gathering'].title for item in resp.context['events']}
+    assert 'Culto A' in event_titles
+    assert 'Culto B' not in event_titles
 
     # Arquivos: o Pastor de A só enxerga o arquivo da própria igreja (Sprint 6).
     resp = tenant_a_client.get('/arquivos/')
