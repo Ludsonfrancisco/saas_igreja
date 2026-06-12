@@ -50,6 +50,8 @@ class Person(BaseModel, AuditLogMixin):
     email = models.EmailField(null=True, blank=True)  # noqa: DJ001
     phone = models.CharField(max_length=20, null=True, blank=True)  # noqa: DJ001
     birth_date = models.DateField(null=True, blank=True)
+    # RF-125 (design Athos): data de entrada na igreja → "membro desde / há X anos".
+    joined_at = models.DateField(null=True, blank=True)
     status = models.CharField(
         max_length=12,
         choices=Status.choices,

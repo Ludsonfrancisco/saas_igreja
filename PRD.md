@@ -433,6 +433,28 @@ ID `RF-XXX` · Título · Descrição · Ator · Prioridade (P0/P1/P2) · Módul
 | RF-109 | Frequência da célula | Pastor, Secretário, Líder | P1 | Comunidades | Card de frequência (última reunião / média / nº de reuniões) no detalhe e resumo na lista; Pastor vê todas, Líder a sua | `cell_attendance_summary` / `cell_frequencies` | pré-7 |
 | RF-110 | Criação de encontro administrativa | Pastor, Secretário | P1 | Encontros | Criar encontro = só Pastor/Secretário; o Líder **edita só a data** do encontro da sua célula (revisa a regra antiga §3.6) | `test_gathering_create_role_barrier` / `test_leader_edits_only_date_rn018` | pré-7 |
 
+### 11.10c Analytics por tela — cards/gráficos (pré-7, `SPEC_CARDS_GRAFICOS`)
+
+> Faixa de KPIs + 1 gráfico Chart.js no topo de cada list-view. **Escopada por papel** (mesmo recorte da lista) e **sem número fictício** (cada métrica = query real; espelha OD-029/OD-030).
+
+| ID | Título | Ator | Prio | Módulo | Critério de aceite | Teste | Sprint |
+|---|---|---|---|---|---|---|---|
+| RF-118 | Cards/gráfico em Pessoas | Pastor, Secretário, Líder | P2 | People | Topo da lista: cards Total/Membros/Visitantes/Aniversariantes do mês + rosca "Pessoas por situação" (`Person.status`), escopado | `test_people_page_stats_scoped` / `test_people_birthdays_this_month` | pré-7 |
+| RF-119 | Cards/gráfico em Comunidades | Pastor, Secretário, Líder | P2 | Communities | Cards Células/Frequência média/Pendentes/Membros + barra "Frequência por célula" (`cell_frequencies`), escopado (Líder = sua célula) | `test_communities_page_stats` | pré-7 |
+| RF-120 | Cards/gráfico em Encontros | Pastor, Secretário, Líder | P2 | Gatherings | Cards Encontros/Presenças/Frequência/Próximo + linha "Presença nos últimos 6 meses" (`monthly_attendance_series`) | `test_gatherings_monthly_attendance_series` | pré-7 |
+| RF-121 | Cards/gráfico em Ministérios | Pastor, Secretário, Coordenador | P2 | Ministries | Cards Ministérios/Voluntários/GAP total/Sem meta + barra "Saúde do Ministério" (GAP, `ministry_volunteer_gaps`, OD-029), escopado | `test_ministries_page_stats_gap` | pré-7 |
+
+### 11.10d Campos do design Athos v3 (pré-7 — habilitam tags/números das telas)
+
+> Campos novos enxutos que destravam elementos do design exportado (bundle Oikonos/Athos v3). Editáveis no form (Pastor/Secretário); opcionais; sem dado fictício.
+
+| ID | Título | Ator | Prio | Módulo | Critério de aceite | Teste | Sprint |
+|---|---|---|---|---|---|---|---|
+| RF-122 | Tipo de comunidade | Pastor, Secretário | P2 | Communities | `Community.category` (TextChoices: Mista/Jovens/Casais/Mulheres/Homens/Crianças/Outra) → tag colorida no card; default Mista | `test_community_category_field` | pré-7 |
+| RF-123 | Lotação e ocupação da célula | Pastor, Secretário, Líder | P2 | Communities | `Community.max_members` (0 = sem limite); card mostra "X de Y membros" + % ocupação; **% frequência** = média de presentes ÷ membros (sem campo novo) | `test_community_occupancy_and_freq_pct` | pré-7 |
+| RF-124 | Tipo de ministério | Pastor, Secretário | P2 | Ministries | `Ministry.category` (TextChoices: Adoração/Crianças/Mídia/Serviço/Acolhimento/Ensino/Outro) → tag no card; default Outro | `test_ministry_category_field` | pré-7 |
+| RF-125 | Membro desde | Pastor, Secretário, Líder | P2 | People | `Person.joined_at` (data opcional) → "membro desde / há X anos" no card de Membros | `test_person_joined_at_field` | pré-7 |
+
 ### 11.11 Backup e restore
 
 | ID | Título | Ator | Prio | Módulo | Critério de aceite | Teste | Sprint |

@@ -11,6 +11,12 @@
     <a href="{% url 'ministries:create' %}" class="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="plus" class="h-4 w-4"></i> Novo ministério</a>
   </div>
 
+  {# Analytics da tela (RF-121): cards + GAP de voluntários por ministério (OD-029). #}
+  {% include 'components/_stat_cards.html' with cards=stats.cards %}
+  <div class="mb-6">
+    {% include 'components/_chart.html' with chart_id='ministry-gap-chart' chart_type='bar' chart_title='Saúde do Ministério' chart_subtitle='Voluntários faltando por ministério' chart_payload=stats.chart chart_label='Faltam' %}
+  </div>
+
   {% if ministries %}
     <div class="card hidden overflow-hidden md:block">
       <table class="w-full text-sm">

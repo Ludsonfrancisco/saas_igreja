@@ -27,6 +27,7 @@ from apps.core.mixins import (
     ScopedToMinistryMixin,
     TenantRequiredMixin,
 )
+from apps.ministries import services
 from apps.ministries.forms import MinistryForm
 from apps.ministries.models import Ministry
 
@@ -40,6 +41,12 @@ class MinistryListView(TenantRequiredMixin, LeaderOrPastorMixin, ListView):
 
     def get_queryset(self):
         return Ministry.objects.prefetch_related('coordinators').order_by('name')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Analytics da tela (RF-121): cards + barra de GAP (church-wide, §3.5).
+        context['stats'] = services.ministries_page_stats()
+        return context
 
 
 class MinistryDetailView(TenantRequiredMixin, LeaderOrPastorMixin, DetailView):

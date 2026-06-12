@@ -12,6 +12,7 @@ Todo o módulo é escondido quando a igreja não usa comunidades
 
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
@@ -61,7 +62,19 @@ class CommunityListView(
     context_object_name = 'communities'
 
     def get_queryset(self):
-        qs = Community.objects.prefetch_related('leaders').order_by('name')
+        # `members_count` (RF-123): contagem de membros ativos anotada no banco (sem
+        # N+1), p/ "X de Y membros" + % de ocupação/frequência no card.
+        qs = (
+            Community.objects.prefetch_related('leaders')
+            .annotate(
+                members_count=Count(
+                    'members',
+                    filter=Q(members__anonymized_at__isnull=True),
+                    distinct=True,
+                )
+            )
+            .order_by('name')
+        )
         user = self.request.user
         if user.has_any_role('pastor', 'secretary'):
             return qs
@@ -75,7 +88,22 @@ class CommunityListView(
         freqs = gathering_services.cell_frequencies(communities)
         for community in communities:
             community.freq = freqs.get(community.pk)
+            count = community.members_count
+            # % ocupação (RF-123) e % frequência (média de presentes ÷ membros).
+            community.occupancy_pct = (
+                round(count / community.max_members * 100)
+                if community.max_members
+                else None
+            )
+            avg = (community.freq or {}).get('avg_present')
+            community.freq_pct = (
+                min(round(avg / count * 100), 100) if count and avg else None
+            )
         context['communities'] = communities
+        # Analytics da tela (RF-119): cards + gráfico, reusando os `freqs`.
+        context['stats'] = services.communities_page_stats(
+            communities=communities, freqs=freqs
+        )
         return context
 
 

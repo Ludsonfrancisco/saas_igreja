@@ -20,10 +20,18 @@ class MinistryForm(forms.ModelForm):
 
     class Meta:
         model = Ministry
-        fields = ['name', 'coordinators', 'volunteers_needed', 'is_active']
+        fields = [
+            'name',
+            'category',
+            'coordinators',
+            'volunteers_needed',
+            'is_active',
+        ]
         labels = {
             'name': 'Nome',
+            'category': 'Tipo',
             'coordinators': 'Coordenadores',
+            'volunteers_needed': 'Voluntários necessários',
             'is_active': 'Ativo',
         }
 

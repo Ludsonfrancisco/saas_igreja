@@ -1,0 +1,115 @@
+{% comment %}Gráfico Chart.js reutilizável (analytics por tela, RF-118..121). Uso:
+  {% include 'components/_chart.html' with chart_id='people-status' chart_type='doughnut'
+       chart_title='Pessoas por situação' chart_payload=stats.chart chart_label='Pessoas' %}
+Params:
+  chart_id     = id único (sem espaços) p/ o canvas e o json_script;
+  chart_type   = 'bar' | 'line' | 'doughnut' (default 'bar');
+  chart_title  = título exibido + aria-label do canvas;
+  chart_subtitle = subtítulo opcional (linha de contexto sob o título);
+  chart_payload= {labels: [...], values: [...]} (já traduzido no service);
+  chart_label  = rótulo do dataset (opcional).
+Cor = acento da igreja; paleta p/ rosca. Estado vazio quando não há valores.
+Canvas vive num wrapper de ALTURA FIXA + maintainAspectRatio:false → gráfico compacto
+e proporcional em cards largos (não estica). Chart.js é carregado uma vez (guard
+`typeof Chart`); re-render idempotente após `htmx:afterSwap` (guard `data-rendered`).{% endcomment %}
+<div class="card p-5">
+  <div class="mb-4">
+    <h2 class="font-display text-base font-semibold text-ink">{{ chart_title }}</h2>
+    {% if chart_subtitle %}<p class="mt-0.5 text-xs text-muted">{{ chart_subtitle }}</p>{% endif %}
+  </div>
+  {% if chart_payload.values %}
+    {% with data_id=chart_id|add:'-data' %}{{ chart_payload|json_script:data_id }}{% endwith %}
+    <div class="relative {% if chart_type == 'doughnut' or chart_type == 'pie' %}mx-auto h-44 max-w-[16rem] sm:h-52{% else %}h-44 w-full sm:h-52{% endif %}">
+      <canvas id="{{ chart_id }}" data-type="{{ chart_type|default:'bar' }}" data-label="{{ chart_label|default:'' }}"
+              role="img" aria-label="{{ chart_title }}"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script>
+      (function () {
+        var el = document.getElementById('{{ chart_id }}');
+        var raw = document.getElementById('{{ chart_id }}-data');
+        if (!el || !raw || typeof Chart === 'undefined' || el.dataset.rendered) { return; }
+        el.dataset.rendered = '1';
+        var p = JSON.parse(raw.textContent);
+        var css = getComputedStyle(document.documentElement);
+        var accent = css.getPropertyValue('--accent').trim() || '#864507';
+        var hot = css.getPropertyValue('--hot').trim() || '#F59A17';
+        var ink = css.getPropertyValue('--color-ink').trim() || '#161412';
+        var muted = css.getPropertyValue('--color-muted').trim() || '#6C6259';
+        var line = css.getPropertyValue('--athos-line').trim() || 'rgba(0,0,0,0.06)';
+        var palette = [accent, hot, '#557A35', '#3b82f6', '#9333ea', '#B43A21'];
+        var type = el.dataset.type || 'bar';
+        var isRound = type === 'doughnut' || type === 'pie';
+        var fontFamily = "Inter, system-ui, sans-serif";
+        Chart.defaults.font.family = fontFamily;
+        Chart.defaults.color = muted;
+        new Chart(el, {
+          type: type,
+          data: {
+            labels: p.labels,
+            datasets: [{
+              label: el.dataset.label || '',
+              data: p.values,
+              backgroundColor: type === 'line'
+                ? (function () {
+                    var g = el.getContext('2d').createLinearGradient(0, 0, 0, el.clientHeight || 200);
+                    g.addColorStop(0, accent.length === 7 ? accent + '33' : accent);
+                    g.addColorStop(1, accent.length === 7 ? accent + '00' : 'transparent');
+                    return g;
+                  })()
+                : (isRound
+                    ? p.values.map(function (_, i) { return palette[i % palette.length]; })
+                    : accent),
+              borderColor: isRound ? '#fffdf9' : accent,
+              borderWidth: isRound ? 2 : (type === 'line' ? 2.5 : 0),
+              borderRadius: isRound ? 0 : 6,
+              borderSkipped: false,
+              maxBarThickness: 38,
+              tension: 0.4,
+              fill: type === 'line',
+              pointBackgroundColor: accent,
+              pointBorderColor: '#fffdf9',
+              pointBorderWidth: 2,
+              pointRadius: type === 'line' ? 3 : 0,
+              pointHoverRadius: type === 'line' ? 5 : 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: isRound ? '62%' : undefined,
+            layout: { padding: isRound ? 4 : 0 },
+            plugins: {
+              legend: {
+                display: isRound,
+                position: 'bottom',
+                labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: 'circle', padding: 12, font: { size: 11 } }
+              },
+              tooltip: {
+                backgroundColor: ink,
+                padding: 10,
+                cornerRadius: 8,
+                titleFont: { size: 11, weight: '600' },
+                bodyFont: { size: 12 },
+                displayColors: false
+              }
+            },
+            scales: isRound ? {} : {
+              x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 } } },
+              y: {
+                beginAtZero: true,
+                grid: { color: line, drawTicks: false },
+                border: { display: false },
+                ticks: { precision: 0, padding: 8, font: { size: 11 }, maxTicksLimit: 5 }
+              }
+            }
+          }
+        });
+      })();
+    </script>
+  {% else %}
+    <div class="grid h-44 place-items-center sm:h-52">
+      <p class="text-sm text-muted">Sem dados ainda.</p>
+    </div>
+  {% endif %}
+</div>

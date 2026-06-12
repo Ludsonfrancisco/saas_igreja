@@ -17,7 +17,20 @@ class Ministry(BaseModel, AuditLogMixin):
     Herda `AuditLogMixin`: create/update/delete auditados automaticamente (core).
     """
 
+    class Category(models.TextChoices):
+        WORSHIP = 'worship', 'Adoracao'
+        KIDS = 'kids', 'Criancas'
+        MEDIA = 'media', 'Midia'
+        SERVICE = 'service', 'Servico'
+        WELCOME = 'welcome', 'Acolhimento'
+        TEACHING = 'teaching', 'Ensino'
+        OTHER = 'other', 'Outro'
+
     name = models.CharField(max_length=80)
+    # RF-124 (design Athos): tipo/área do ministério (tag colorida no card).
+    category = models.CharField(
+        max_length=10, choices=Category.choices, default=Category.OTHER
+    )
     # OD-019: M2M (não FK) — vários coordenadores por ministério.
     coordinators = models.ManyToManyField(
         'people.Person',

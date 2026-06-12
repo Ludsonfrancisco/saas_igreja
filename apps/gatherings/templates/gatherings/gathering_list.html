@@ -11,6 +11,12 @@
     <a href="{% url 'gatherings:create' %}" class="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="plus" class="h-4 w-4"></i> Novo encontro</a>
   </div>
 
+  {# Analytics da tela (RF-120): cards + linha de presença (church-wide). #}
+  {% include 'components/_stat_cards.html' with cards=stats.cards %}
+  <div class="mb-6">
+    {% include 'components/_chart.html' with chart_id='attendance-trend-chart' chart_type='line' chart_title='Presença nos últimos 6 meses' chart_payload=stats.chart chart_label='Presenças' %}
+  </div>
+
   {% comment %}Agenda do mês (RF-102 / item 4): calendário (só pontos) + lista lateral
   com os encontros do mês, nomes visíveis sem clicar. Bloco trocado inteiro na
   navegação de mês via `gatherings:calendar`.{% endcomment %}

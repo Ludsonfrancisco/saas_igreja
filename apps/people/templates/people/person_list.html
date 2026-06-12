@@ -1,76 +1,220 @@
 {% extends 'app_base.html' %}
-{% comment %}Lista de Pessoas (Sprint 6.5 / Bloco 3 — padrão de tela de LISTA).
-Header + ações · filtros em card · tabela (desktop) / cards (mobile) · paginação · empty.{% endcomment %}
+{% comment %}Lista de Pessoas — layout "Oikonos/Athos v3" (design membros.html).
+RF-032 (listar/filtrar/buscar, escopo por papel) · RF-118 (analytics da tela:
+cards + gráfico de situação) · RF-125 (joined_at = "membro desde") · RNF-021 (paginação).
+
+Conteúdo reconstruído fielmente sobre o design system VIVO do projeto
+(`.card`/`.card-md`/`.stat-pill`/`.btn-terra`/`.btn-soft`, tokens Oikonos v2, fontes
+Inter/Poppins, `tnum`), igual à tela de Comunidades. Dados 100% reais de `persons`
+(name, status, email, phone, community, ministries, birth_date, joined_at).
+
+CONTRATO PRESERVADO (há testes que verificam):
+ • Busca + filtros SERVER-SIDE: o `<form method="get">` com q/status/community/ministry;
+   o backend filtra no queryset. Contexto: filters, status_choices, communities, ministries.
+ • Includes de analytics: `_stat_cards.html with cards=stats.cards` (contém o card
+   "Aniversariantes do mês") e `_chart.html` com chart_id='people-status-chart' e
+   chart_title='Pessoas por situação'.
+ • Paginação (`pagination.html`, 25/pág) e empty state.
+
+OMITIDO por falta de dado real (como em Comunidades): "Envolvimento"/engajamento, idade,
+estado civil, selos de integração e contadores fictícios. Status reais: Visitante/
+Congregado/Membro/Líder/Inativo. Avatar = iniciais (componente avatar.html).{% endcomment %}
 {% block title %}Pessoas · Oikonos{% endblock %}
 
 {% block content %}
-  {# Header da página + ações #}
-  <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+  {# ── Cabeçalho + ações ── #}
+  <section class="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
     <div>
-      <h1 class="font-display text-2xl font-bold tracking-tight text-ink">Pessoas</h1>
-      <p class="mt-1 text-sm text-muted">Cadastro da sua comunidade.</p>
+      <p class="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-accent">Cadastro da igreja</p>
+      <h1 class="font-display text-2xl font-bold tracking-tight text-ink md:text-[1.7rem]">Pessoas</h1>
+      <p class="mt-1 text-sm text-muted">Gestão de pessoas, cadastro e acompanhamento da comunidade.</p>
     </div>
-    <div class="flex items-center gap-2">
-      <a href="{% url 'people:import' %}" class="inline-flex items-center gap-2 rounded-lg border border-line bg-paper px-3 py-2 text-sm font-medium text-ink hover:bg-bg-soft">
-        <i data-lucide="upload" class="h-4 w-4"></i> Importar CSV
+
+    <div class="flex flex-wrap items-center gap-3">
+      <a href="{% url 'people:import' %}" class="btn-soft shrink-0">
+        <i data-lucide="upload" aria-hidden="true"></i> Importar CSV
       </a>
-      <a href="{% url 'people:create' %}" class="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-paper hover:bg-accent-2">
-        <i data-lucide="plus" class="h-4 w-4"></i> Cadastrar
+      <a href="{% url 'people:create' %}" class="btn-terra shrink-0">
+        <i data-lucide="plus" aria-hidden="true"></i> Cadastrar pessoa
       </a>
     </div>
+  </section>
+
+  {# ── Analytics da tela (RF-118): KPIs + situação ── #}
+  {% include 'components/_stat_cards.html' with cards=stats.cards %}
+  <div class="mb-7">
+    {% include 'components/_chart.html' with chart_id='people-status-chart' chart_type='doughnut' chart_title='Pessoas por situação' chart_payload=stats.chart chart_label='Pessoas' %}
   </div>
 
-  {# Filtros #}
-  <form method="get" class="card mb-5 flex flex-wrap items-center gap-3 p-4">
-    <div class="relative min-w-48 flex-1">
-      <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"></i>
-      <input type="text" name="q" value="{{ filters.q }}" placeholder="Buscar por nome"
-             class="w-full rounded-lg border border-line bg-paper py-2 pl-9 pr-3 text-sm text-ink placeholder:text-muted-2 focus:border-accent focus:ring-2 focus:ring-accent/20">
+  {# ── Filtros (server-side: o backend filtra o queryset) ── #}
+  <form method="get" class="card mb-6 flex flex-col gap-3 p-4 lg:flex-row lg:flex-wrap lg:items-center">
+    <div class="relative min-w-0 flex-1 lg:max-w-sm">
+      <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden="true"></i>
+      <label for="people-search" class="sr-only">Buscar por nome</label>
+      <input id="people-search" type="search" name="q" value="{{ filters.q }}"
+             placeholder="Buscar por nome..."
+             class="w-full rounded-xl border border-hairline bg-paper/90 py-2 pl-9 pr-3 text-sm text-ink shadow-soft outline-none placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/15">
     </div>
-    <select name="status" aria-label="Filtrar por situação" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
+
+    <label for="filter-status" class="sr-only">Filtrar por situação</label>
+    <select id="filter-status" name="status"
+            class="rounded-xl border border-hairline bg-paper/90 px-3 py-2 text-sm text-ink shadow-soft outline-none focus:border-accent focus:ring-2 focus:ring-accent/15">
       <option value="">Todos os status</option>
       {% for value, label in status_choices %}<option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
     </select>
-    <select name="community" aria-label="Filtrar por comunidade" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
+
+    <label for="filter-community" class="sr-only">Filtrar por comunidade</label>
+    <select id="filter-community" name="community"
+            class="rounded-xl border border-hairline bg-paper/90 px-3 py-2 text-sm text-ink shadow-soft outline-none focus:border-accent focus:ring-2 focus:ring-accent/15">
       <option value="">Todas as comunidades</option>
       {% for c in communities %}<option value="{{ c.id }}" {% if filters.community == c.id|stringformat:'s' %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
     </select>
-    <select name="ministry" aria-label="Filtrar por ministério" class="rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent/20">
+
+    <label for="filter-ministry" class="sr-only">Filtrar por ministério</label>
+    <select id="filter-ministry" name="ministry"
+            class="rounded-xl border border-hairline bg-paper/90 px-3 py-2 text-sm text-ink shadow-soft outline-none focus:border-accent focus:ring-2 focus:ring-accent/15">
       <option value="">Todos os ministérios</option>
       {% for m in ministries %}<option value="{{ m.id }}" {% if filters.ministry == m.id|stringformat:'s' %}selected{% endif %}>{{ m.name }}</option>{% endfor %}
     </select>
-    <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-line bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-bg-soft">Filtrar</button>
+
+    <button type="submit" class="btn-soft justify-center">
+      <i data-lucide="filter" aria-hidden="true"></i> Filtrar
+    </button>
   </form>
 
   {% if persons %}
-    {# Tabela (desktop) #}
-    <div class="card hidden overflow-hidden md:block">
-      <table class="w-full text-sm">
-        <thead class="bg-bg-soft text-left text-muted">
-          <tr><th class="px-4 py-3 font-medium">Nome</th><th class="px-4 py-3 font-medium">Situação</th><th class="px-4 py-3 font-medium">Comunidade</th><th class="px-4 py-3 text-right font-medium">Ações</th></tr>
-        </thead>
-        <tbody class="divide-y divide-hairline">
-          {% for person in persons %}
-            <tr class="hover:bg-bg-soft/50">
-              <td class="px-4 py-3"><a href="{% url 'people:detail' pk=person.pk %}" class="font-medium text-ink hover:text-accent">{{ person.name }}</a></td>
-              <td class="px-4 py-3">{% include 'components/badge.html' with text=person.get_status_display variant='muted' %}</td>
-              <td class="px-4 py-3 text-muted">{{ person.community.name|default:'—' }}</td>
-              <td class="px-4 py-3 text-right"><a href="{% url 'people:update' pk=person.pk %}" class="text-accent hover:underline">Editar</a></td>
+    {# ── Tabela (desktop ≥md) ── #}
+    <div class="card card-md hidden overflow-hidden md:block">
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse text-left">
+          <thead>
+            <tr class="border-b border-hairline bg-paper/60 text-[0.7rem] font-semibold uppercase tracking-wider text-muted">
+              <th scope="col" class="px-5 py-3.5">Pessoa</th>
+              <th scope="col" class="px-5 py-3.5">Contato</th>
+              <th scope="col" class="px-5 py-3.5">Situação</th>
+              <th scope="col" class="px-5 py-3.5">Comunidade e ministérios</th>
+              <th scope="col" class="px-5 py-3.5">Membro desde</th>
+              <th scope="col" class="px-5 py-3.5 text-right">Ações</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody class="divide-y divide-hairline/70">
+            {% for person in persons %}
+              <tr class="text-sm text-ink transition hover:bg-bg-soft/40">
+                {# Pessoa: avatar + nome #}
+                <td class="px-5 py-3.5">
+                  <div class="flex items-center gap-3">
+                    {% include 'components/avatar.html' with name=person.name %}
+                    <a href="{% url 'people:detail' pk=person.pk %}" class="font-semibold text-ink hover:text-accent">{{ person.name }}</a>
+                  </div>
+                </td>
+
+                {# Contato (real: email/telefone, podem ser nulos por LGPD) #}
+                <td class="px-5 py-3.5">
+                  {% if person.email or person.phone %}
+                    {% if person.email %}<div class="text-sm text-ink">{{ person.email }}</div>{% endif %}
+                    {% if person.phone %}<div class="mt-0.5 text-xs text-muted tnum">{{ person.phone }}</div>{% endif %}
+                  {% else %}
+                    <span class="text-xs italic text-muted">Sem contato</span>
+                  {% endif %}
+                </td>
+
+                {# Situação #}
+                <td class="px-5 py-3.5">
+                  {% if person.status == 'member' or person.status == 'leader' %}
+                    {% include 'components/badge.html' with text=person.get_status_display variant='success' %}
+                  {% elif person.status == 'inactive' %}
+                    {% include 'components/badge.html' with text=person.get_status_display variant='muted' %}
+                  {% else %}
+                    {% include 'components/badge.html' with text=person.get_status_display variant='accent' %}
+                  {% endif %}
+                </td>
+
+                {# Comunidade + ministérios (dados reais; ministries via prefetch) #}
+                <td class="px-5 py-3.5">
+                  {% if person.community or person.ministries.all %}
+                    <div class="flex flex-wrap gap-1.5">
+                      {% if person.community %}
+                        <span class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[0.65rem] font-semibold text-accent" style="background: color-mix(in srgb, var(--accent) 10%, transparent);">
+                          <i data-lucide="users" class="h-3 w-3" aria-hidden="true"></i>{{ person.community.name }}
+                        </span>
+                      {% endif %}
+                      {% for ministry in person.ministries.all %}
+                        <span class="inline-flex items-center rounded-md bg-bg-soft px-2 py-0.5 text-[0.65rem] font-semibold text-muted">{{ ministry.name }}</span>
+                      {% endfor %}
+                    </div>
+                  {% else %}
+                    <span class="text-xs italic text-muted">Sem vínculos</span>
+                  {% endif %}
+                </td>
+
+                {# Membro desde (RF-125: joined_at, pode ser nulo) #}
+                <td class="px-5 py-3.5">
+                  {% if person.joined_at %}
+                    <div class="text-sm text-ink tnum">desde {{ person.joined_at|date:'Y' }}</div>
+                    <div class="text-xs text-muted">há {{ person.joined_at|timesince }}</div>
+                  {% else %}
+                    <span class="text-xs italic text-muted">—</span>
+                  {% endif %}
+                </td>
+
+                {# Ações #}
+                <td class="px-5 py-3.5">
+                  <div class="flex items-center justify-end gap-1">
+                    <a href="{% url 'people:detail' pk=person.pk %}" class="grid h-8 w-8 place-items-center rounded-lg text-muted transition hover:bg-bg-soft hover:text-accent" title="Ver perfil de {{ person.name }}" aria-label="Ver perfil de {{ person.name }}">
+                      <i data-lucide="eye" class="h-4 w-4" aria-hidden="true"></i>
+                    </a>
+                    <a href="{% url 'people:update' pk=person.pk %}" class="grid h-8 w-8 place-items-center rounded-lg text-muted transition hover:bg-bg-soft hover:text-accent" title="Editar {{ person.name }}" aria-label="Editar {{ person.name }}">
+                      <i data-lucide="pencil" class="h-4 w-4" aria-hidden="true"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    {# Cards (mobile) #}
+    {# ── Cards (mobile <md) ── #}
     <div class="grid gap-3 md:hidden">
       {% for person in persons %}
-        <a href="{% url 'people:detail' pk=person.pk %}" class="card flex items-center justify-between p-4">
-          <div>
-            <p class="font-medium text-ink">{{ person.name }}</p>
-            <p class="mt-0.5 text-xs text-muted">{{ person.community.name|default:'Sem comunidade' }}</p>
+        <a href="{% url 'people:detail' pk=person.pk %}" class="card p-4">
+          <div class="flex items-start gap-3">
+            {% include 'components/avatar.html' with name=person.name %}
+            <div class="min-w-0 flex-1">
+              <div class="flex items-start justify-between gap-2">
+                <p class="truncate font-semibold text-ink">{{ person.name }}</p>
+                {% if person.status == 'member' or person.status == 'leader' %}
+                  {% include 'components/badge.html' with text=person.get_status_display variant='success' %}
+                {% elif person.status == 'inactive' %}
+                  {% include 'components/badge.html' with text=person.get_status_display variant='muted' %}
+                {% else %}
+                  {% include 'components/badge.html' with text=person.get_status_display variant='accent' %}
+                {% endif %}
+              </div>
+
+              <p class="mt-0.5 truncate text-xs text-muted">
+                {% if person.email %}{{ person.email }}{% elif person.phone %}<span class="tnum">{{ person.phone }}</span>{% else %}Sem contato{% endif %}
+              </p>
+
+              {% if person.community or person.ministries.all %}
+                <div class="mt-2 flex flex-wrap gap-1.5">
+                  {% if person.community %}
+                    <span class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[0.65rem] font-semibold text-accent" style="background: color-mix(in srgb, var(--accent) 10%, transparent);">
+                      <i data-lucide="users" class="h-3 w-3" aria-hidden="true"></i>{{ person.community.name }}
+                    </span>
+                  {% endif %}
+                  {% for ministry in person.ministries.all %}
+                    <span class="inline-flex items-center rounded-md bg-bg-soft px-2 py-0.5 text-[0.65rem] font-semibold text-muted">{{ ministry.name }}</span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              {% if person.joined_at %}
+                <p class="mt-2 text-[0.7rem] text-muted">Membro desde <span class="tnum font-semibold text-ink">{{ person.joined_at|date:'Y' }}</span> · há {{ person.joined_at|timesince }}</p>
+              {% endif %}
+            </div>
           </div>
-          {% include 'components/badge.html' with text=person.get_status_display variant='muted' %}
         </a>
       {% endfor %}
     </div>

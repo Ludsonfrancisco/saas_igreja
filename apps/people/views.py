@@ -63,6 +63,7 @@ class PersonListView(
             .get_queryset()
             .filter(anonymized_at__isnull=True)
             .select_related('community')
+            .prefetch_related('ministries')
         )
         params = self.request.GET
         if status := params.get('status'):
@@ -75,12 +76,21 @@ class PersonListView(
             qs = qs.filter(name__icontains=search)
         return qs.order_by('name').distinct()
 
+    def _stats_base(self):
+        """Queryset escopado por papel (mesmo recorte da lista) e SEM os filtros de
+        UI — base dos cards/gráfico (RF-118). Espelha `community_scope_lookup`."""
+        qs = Person.objects.filter(anonymized_at__isnull=True)
+        if not self.request.user.has_any_role('pastor', 'secretary'):
+            qs = qs.filter(community__leaders__user_id=self.request.user.id)
+        return qs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['status_choices'] = Person.Status.choices
         context['communities'] = Community.objects.all()
         context['ministries'] = Ministry.objects.all()
         context['filters'] = self.request.GET
+        context['stats'] = services.people_page_stats(person_qs=self._stats_base())
         return context
 
 
@@ -133,6 +143,7 @@ class PersonCreateView(TenantRequiredMixin, PastorOrSecretaryMixin, FormView):
                 email=data['email'] or None,
                 phone=data['phone'] or None,
                 birth_date=data['birth_date'],
+                joined_at=data['joined_at'],
                 community=data['community'],
                 ministries=data['ministries'],
                 consent_given_at=timezone.now() if data['consent_given'] else None,
@@ -183,6 +194,7 @@ class PersonUpdateView(
                 email=data['email'] or None,
                 phone=data['phone'] or None,
                 birth_date=data['birth_date'],
+                joined_at=data['joined_at'],
                 # RN-019: o Líder não edita a comunidade (campo ausente do form) →
                 # preserva a atual. Pastor/Secretário têm o campo e podem alterar.
                 community=data.get('community', self.object.community),

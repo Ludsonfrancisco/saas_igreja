@@ -13,6 +13,8 @@ pelo criador" da §3.6. AuditLog é automático (AuditLogMixin); o service não 
 `record_audit`.
 """
 
+import datetime
+
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
@@ -241,6 +243,94 @@ def cell_pending_days(community):
         .annotate(is_launched=Exists(launched))
         .order_by('-date')
     )
+
+
+def _last_month_starts(months, today):
+    """Primeiros-dias dos últimos `months` meses (mais antigo → atual)."""
+    starts, y, m = [], today.year, today.month
+    for _ in range(months):
+        starts.append(datetime.date(y, m, 1))
+        m -= 1
+        if m == 0:
+            y, m = y - 1, 12
+    return list(reversed(starts))
+
+
+def monthly_attendance_series(*, months=6, today=None):
+    """Total de PRESENÇAS por mês nos últimos `months` (RF-120, gráfico de linha).
+
+    Conta `Attendance(is_present=True)` agrupado pelo mês do encontro
+    (`gathering__date`), em 1 query (sem N+1). Retorna `{labels, values}`.
+    """
+    import calendar as _calendar
+
+    from django.db.models import Count
+    from django.db.models.functions import TruncMonth
+
+    today = today or timezone.localdate()
+    starts = _last_month_starts(months, today)
+    rows = (
+        Attendance.objects.filter(is_present=True, gathering__date__gte=starts[0])
+        .annotate(month=TruncMonth('gathering__date'))
+        .values('month')
+        .annotate(n=Count('id'))
+    )
+    by_month = {(r['month'].year, r['month'].month): r['n'] for r in rows}
+    return {
+        'labels': [_calendar.month_abbr[s.month] for s in starts],
+        'values': [by_month.get((s.year, s.month), 0) for s in starts],
+    }
+
+
+def gatherings_page_stats(*, today=None):
+    """KPIs da tela de Encontros (RF-120). Church-wide (§3.6: todos veem todos os
+    encontros). Cards: encontros no mês, presenças no mês, média por encontro,
+    próximo encontro. Poucas queries agregadas (sem N+1)."""
+    today = today or timezone.localdate()
+    n_events = Gathering.objects.filter(
+        date__year=today.year, date__month=today.month
+    ).count()
+    present_month = Attendance.objects.filter(
+        is_present=True,
+        gathering__date__year=today.year,
+        gathering__date__month=today.month,
+    ).count()
+    avg_per_event = round(present_month / n_events, 1) if n_events else 0
+    next_event = (
+        Gathering.objects.filter(date__gte=today).order_by('date').only('date').first()
+    )
+
+    cards = [
+        {'label': 'Encontros no mês', 'value': n_events, 'icon': 'calendar'},
+        {'label': 'Presenças no mês', 'value': present_month, 'icon': 'calendar-check'},
+        {'label': 'Média por encontro', 'value': avg_per_event, 'icon': 'trending-up'},
+        {
+            'label': 'Próximo encontro',
+            'value': next_event.date.strftime('%d/%m') if next_event else '—',
+            'icon': 'calendar-clock',
+        },
+    ]
+    return {'cards': cards, 'chart': monthly_attendance_series(today=today)}
+
+
+def cells_with_pending(communities):
+    """Conjunto de `community_id` com ≥1 encontro de Comunidade **não lançado**
+    (RF-119, card "células com lançamento pendente"). 1 query, sem N+1."""
+    from django.db.models import Exists, OuterRef
+
+    launched = AttendanceSession.objects.filter(
+        gathering=OuterRef('pk'), confirmed_at__isnull=False
+    )
+    rows = (
+        Gathering.objects.filter(
+            gathering_type=Gathering.Type.COMMUNITY, community__in=communities
+        )
+        .annotate(is_launched=Exists(launched))
+        .filter(is_launched=False)
+        .values_list('community', flat=True)
+        .distinct()
+    )
+    return set(rows)
 
 
 def cell_attendance_summary(community, *, limit=4):

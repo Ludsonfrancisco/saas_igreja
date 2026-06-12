@@ -18,6 +18,15 @@ class Community(BaseModel, AuditLogMixin):
     Herda `AuditLogMixin`: create/update/delete auditados automaticamente (core).
     """
 
+    class Category(models.TextChoices):
+        MIXED = 'mixed', 'Mista'
+        YOUTH = 'youth', 'Jovens'
+        COUPLES = 'couples', 'Casais'
+        WOMEN = 'women', 'Mulheres'
+        MEN = 'men', 'Homens'
+        KIDS = 'kids', 'Criancas'
+        OTHER = 'other', 'Outra'
+
     name = models.CharField(max_length=80)
     # OD-019: M2M (não FK) — vários líderes por comunidade. Apagar/anonimizar uma
     # Person-líder só remove o vínculo M2M (a comunidade permanece, RN-007).
@@ -26,6 +35,12 @@ class Community(BaseModel, AuditLogMixin):
         blank=True,
         related_name='communities_led',
     )
+    # RF-122 (design Athos): tipo/segmento da célula (tag colorida no card).
+    category = models.CharField(
+        max_length=10, choices=Category.choices, default=Category.MIXED
+    )
+    # RF-123: lotação máxima (0 = sem limite). Alimenta "X de Y membros" + % ocupação.
+    max_members = models.PositiveSmallIntegerField(default=0)
     # null=True conforme TECH_SPEC §5.5 (dia/horário de reunião opcionais). DJ001
     # suprimido: fiel à spec; campo não-PII, sem impacto de convenção vazia.
     meeting_day = models.CharField(max_length=15, null=True, blank=True)  # noqa: DJ001

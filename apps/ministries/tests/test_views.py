@@ -63,7 +63,9 @@ def test_ministry_create_via_view(tenant_client, church_a):
     pastor = _make_user(church_a, 'pastor@a.com', ['pastor'])
     tenant_client.force_login(pastor)
 
-    resp = tenant_client.post(CREATE_URL, {'name': 'Louvor', 'is_active': 'on'})
+    resp = tenant_client.post(
+        CREATE_URL, {'name': 'Louvor', 'category': 'other', 'is_active': 'on'}
+    )
     assert resp.status_code == 302
     with schema_context(church_a.schema_name):
         assert Ministry.objects.filter(name='Louvor').exists()
@@ -76,7 +78,8 @@ def test_ministry_update_audited(tenant_client, church_a):
     tenant_client.force_login(pastor)
 
     resp = tenant_client.post(
-        f'/ministerios/{ministry.pk}/editar/', {'name': 'Renomeado', 'is_active': 'on'}
+        f'/ministerios/{ministry.pk}/editar/',
+        {'name': 'Renomeado', 'category': 'other', 'is_active': 'on'},
     )
     assert resp.status_code == 302
     with schema_context(church_a.schema_name):

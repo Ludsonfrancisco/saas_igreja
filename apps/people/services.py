@@ -25,11 +25,57 @@ import io
 import json
 
 from django.core.exceptions import ValidationError
+from django.db.models import Count
 from django.utils import timezone
 
 from apps.core.audit import log_security_event, record_audit
 from apps.people.models import Person
 from apps.tenants.models import Plan
+
+# Ordem de exibição dos status no gráfico "Pessoas por situação" (RF-118).
+_STATUS_ORDER = (
+    Person.Status.MEMBER,
+    Person.Status.CONGREGANT,
+    Person.Status.VISITOR,
+    Person.Status.LEADER,
+    Person.Status.INACTIVE,
+)
+
+
+def people_page_stats(*, person_qs):
+    """KPIs + gráfico da tela de Pessoas (RF-118). Recebe o queryset **já escopado**
+    (papel + anônimas excluídas), sem os filtros de UI — os cards refletem o escopo
+    inteiro, não a busca atual. 2 queries (status agregado + aniversariantes), sem N+1.
+
+    Retorna `cards` (lista pronta p/ `_stat_cards.html`) e `chart` (`{labels, values}`
+    pronto p/ `_chart.html`, rosca por situação).
+    """
+    counts = dict(
+        person_qs.values_list('status').annotate(n=Count('id'))
+    )  # {status: n}
+    total = sum(counts.values())
+    today = timezone.localdate()
+    birthdays = person_qs.filter(birth_date__month=today.month).count()
+
+    labels = [Person.Status(s).label for s in _STATUS_ORDER if counts.get(s)]
+    values = [counts[s] for s in _STATUS_ORDER if counts.get(s)]
+
+    cards = [
+        {'label': 'Pessoas', 'value': total, 'icon': 'users'},
+        {
+            'label': 'Membros',
+            'value': counts.get(Person.Status.MEMBER, 0),
+            'icon': 'user-check',
+        },
+        {
+            'label': 'Visitantes',
+            'value': counts.get(Person.Status.VISITOR, 0),
+            'icon': 'user-plus',
+        },
+        {'label': 'Aniversariantes do mês', 'value': birthdays, 'icon': 'cake'},
+    ]
+    return {'cards': cards, 'chart': {'labels': labels, 'values': values}}
+
 
 # Campos que create/update aceitam (whitelist explícita — nunca **fields cego).
 _EDITABLE_FIELDS = (
@@ -37,6 +83,7 @@ _EDITABLE_FIELDS = (
     'email',
     'phone',
     'birth_date',
+    'joined_at',
     'status',
     'community',
     'consent_given_at',
@@ -75,6 +122,7 @@ def create_person(
     email=None,
     phone=None,
     birth_date=None,
+    joined_at=None,
     community=None,
     ministries=None,
     consent_given_at=None,
@@ -97,6 +145,7 @@ def create_person(
         email=email,
         phone=phone,
         birth_date=birth_date,
+        joined_at=joined_at,
         community=community,
         consent_given_at=consent_given_at,
         notes=notes,

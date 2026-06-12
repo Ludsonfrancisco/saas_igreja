@@ -39,6 +39,7 @@ class PersonForm(forms.ModelForm):
             'email',
             'phone',
             'birth_date',
+            'joined_at',
             'community',
             'ministries',
             'notes',
@@ -50,11 +51,15 @@ class PersonForm(forms.ModelForm):
             'email': 'E-mail',
             'phone': 'Telefone',
             'birth_date': 'Data de nascimento',
+            'joined_at': 'Membro desde',
             'community': 'Comunidade',
             'ministries': 'Ministérios',
             'notes': 'Observações',
         }
-        widgets = {'birth_date': forms.DateInput(attrs={'type': 'date'})}
+        widgets = {
+            'birth_date': forms.DateInput(attrs={'type': 'date'}),
+            'joined_at': forms.DateInput(attrs={'type': 'date'}),
+        }
 
     def __init__(self, *args, church=None, user=None, **kwargs):
         super().__init__(*args, **kwargs)

@@ -92,7 +92,15 @@ def test_community_create_via_view(tenant_client, church_a):
     pastor = _make_user(church_a, 'pastor@a.com', ['pastor'])
     tenant_client.force_login(pastor)
 
-    resp = tenant_client.post(CREATE_URL, {'name': 'Celula Nova', 'is_active': 'on'})
+    resp = tenant_client.post(
+        CREATE_URL,
+        {
+            'name': 'Celula Nova',
+            'category': 'mixed',
+            'max_members': '0',
+            'is_active': 'on',
+        },
+    )
     assert resp.status_code == 302
     with schema_context(church_a.schema_name):
         assert Community.objects.filter(name='Celula Nova').exists()
@@ -122,7 +130,13 @@ def test_community_update_audited(tenant_client, church_a):
     tenant_client.force_login(pastor)
 
     resp = tenant_client.post(
-        f'/comunidades/{community.pk}/editar/', {'name': 'Renomeada', 'is_active': 'on'}
+        f'/comunidades/{community.pk}/editar/',
+        {
+            'name': 'Renomeada',
+            'category': 'mixed',
+            'max_members': '0',
+            'is_active': 'on',
+        },
     )
     assert resp.status_code == 302
 
@@ -196,7 +210,10 @@ def test_community_create_via_view_blocked_by_plan_limit(
     pastor = _make_user(church_a, 'pastor@a.com', ['pastor'])
     tenant_client.force_login(pastor)
 
-    resp = tenant_client.post(CREATE_URL, {'name': 'Nova', 'is_active': 'on'})
+    resp = tenant_client.post(
+        CREATE_URL,
+        {'name': 'Nova', 'category': 'mixed', 'max_members': '0', 'is_active': 'on'},
+    )
     assert resp.status_code == 200
     with schema_context(church_a.schema_name):
         assert not Community.objects.filter(name='Nova').exists()

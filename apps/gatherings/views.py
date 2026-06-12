@@ -88,6 +88,8 @@ class GatheringListView(TenantRequiredMixin, LeaderOrPastorMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['type_choices'] = Gathering.Type.choices
         context['filters'] = self.request.GET
+        # Analytics da tela (RF-120): cards + linha de presença (church-wide, §3.6).
+        context['stats'] = services.gatherings_page_stats()
         # Agenda do mês (RF-102) — calendário (só pontos) + lista lateral dos
         # encontros do mês. A navegação de mês é servida por `GatheringCalendarView`.
         context.update(_agenda_context(self.request))

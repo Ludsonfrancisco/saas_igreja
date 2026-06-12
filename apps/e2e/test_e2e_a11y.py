@@ -68,6 +68,42 @@ def test_a11y_gatherings(page, e2e):
 
 
 @pytest.mark.django_db(transaction=True)
+def test_a11y_ministry_list(page, e2e):
+    """Ministérios (lista) com cards + barra "Saúde do Ministério" (GAP, RF-121)."""
+    from django_tenants.utils import schema_context
+
+    from apps.e2e.conftest import E2E_SCHEMA
+    from apps.ministries.models import Ministry
+
+    ls = e2e['live_server']
+    with schema_context(E2E_SCHEMA):
+        Ministry.objects.create(name='Louvor E2E', volunteers_needed=3)
+
+    login(page, ls, 'pastor@e2e.com')
+    page.goto(f'{ls.url}/ministerios/')
+    v = _violations(page)
+    assert not v, f'WCAG AA (ministérios): {_summary(v)}'
+
+
+@pytest.mark.django_db(transaction=True)
+def test_a11y_community_list(page, e2e):
+    """Comunidades (lista) com os cards + gráfico de barra "Frequência por célula" (RF-119)."""
+    from django_tenants.utils import schema_context
+
+    from apps.communities.models import Community
+    from apps.e2e.conftest import E2E_SCHEMA
+
+    ls = e2e['live_server']
+    with schema_context(E2E_SCHEMA):
+        Community.objects.create(name='Célula E2E')
+
+    login(page, ls, 'pastor@e2e.com')
+    page.goto(f'{ls.url}/comunidades/')
+    v = _violations(page)
+    assert not v, f'WCAG AA (comunidades): {_summary(v)}'
+
+
+@pytest.mark.django_db(transaction=True)
 def test_a11y_community_session(page, e2e):
     """Comunidades v2 (RF-108): detalhe da célula + tela de lançamento de presença."""
     import datetime

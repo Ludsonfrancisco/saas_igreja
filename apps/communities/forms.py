@@ -13,12 +13,22 @@ from apps.communities.models import Community
 class CommunityForm(forms.ModelForm):
     class Meta:
         model = Community
-        fields = ['name', 'leaders', 'meeting_day', 'meeting_time', 'is_active']
+        fields = [
+            'name',
+            'category',
+            'leaders',
+            'meeting_day',
+            'meeting_time',
+            'max_members',
+            'is_active',
+        ]
         labels = {
             'name': 'Nome',
+            'category': 'Tipo',
             'leaders': 'Líderes',
             'meeting_day': 'Dia da reunião',
             'meeting_time': 'Horário da reunião',
+            'max_members': 'Lotação máxima (0 = sem limite)',
             'is_active': 'Ativa',
         }
         widgets = {'meeting_time': forms.TimeInput(attrs={'type': 'time'})}

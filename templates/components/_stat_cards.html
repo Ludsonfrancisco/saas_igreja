@@ -1,0 +1,20 @@
+{% comment %}Faixa de KPIs reutilizável (analytics por tela, RF-118..121). Uso:
+  {% include 'components/_stat_cards.html' with cards=stats.cards %}
+`cards` = lista de {label, value, icon (nome Lucide)}. Usa as stat-pills premium
+(.stat-pill/.stat-icon/.stat-num/.stat-label, mesma estética do painel/referência Athos).
+Grid 2/4 colunas mobile-first; número em tabular-nums; cor do ícone = acento da igreja.{% endcomment %}
+{% if cards %}
+  <div class="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+    {% for c in cards %}
+      <div class="stat-pill">
+        <div class="stat-icon">
+          <i data-lucide="{{ c.icon|default:'bar-chart-3' }}" aria-hidden="true"></i>
+        </div>
+        <div class="min-w-0">
+          <div class="stat-num truncate">{{ c.value }}</div>
+          <p class="stat-label mt-1 truncate">{{ c.label }}</p>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

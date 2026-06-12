@@ -16,6 +16,37 @@ from apps.communities.models import Community
 from apps.tenants.models import Plan
 
 
+def communities_page_stats(*, communities, freqs):
+    """KPIs + gráfico da tela de Comunidades (RF-119). Recebe a lista de células **já
+    escopada** (Líder = a sua; admin = todas) e o `freqs` de `cell_frequencies`
+    (evita recomputar). Cards: células, frequência média geral, células com
+    lançamento pendente, total de membros. Gráfico: frequência média por célula.
+
+    `cells_with_pending` e `Person` rodam 1 query cada (sem N+1).
+    """
+    from apps.gatherings.services import cells_with_pending
+    from apps.people.models import Person
+
+    avgs = [f['avg_present'] for f in freqs.values() if f['sessions']]
+    avg_freq = round(sum(avgs) / len(avgs), 1) if avgs else 0
+    pending = len(cells_with_pending(communities))
+    members = Person.objects.filter(
+        community__in=communities, anonymized_at__isnull=True
+    ).count()
+
+    cards = [
+        {'label': 'Células', 'value': len(communities), 'icon': 'home'},
+        {'label': 'Frequência média', 'value': avg_freq, 'icon': 'calendar-check'},
+        {'label': 'Lançamento pendente', 'value': pending, 'icon': 'alarm-clock'},
+        {'label': 'Membros nas células', 'value': members, 'icon': 'users'},
+    ]
+    chart = {
+        'labels': [c.name for c in communities],
+        'values': [(freqs.get(c.pk) or {}).get('avg_present', 0) for c in communities],
+    }
+    return {'cards': cards, 'chart': chart}
+
+
 def create_community(
     *,
     church,
