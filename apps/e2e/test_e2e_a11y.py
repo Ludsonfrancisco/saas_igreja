@@ -68,6 +68,31 @@ def test_a11y_gatherings(page, e2e):
 
 
 @pytest.mark.django_db(transaction=True)
+def test_a11y_attendance_mark(page, e2e):
+    """Presença (chamada de um encontro) — design v3, checkbox sr-only + label."""
+    import datetime
+
+    from django_tenants.utils import schema_context
+
+    from apps.e2e.conftest import E2E_SCHEMA
+    from apps.gatherings.models import Gathering
+    from apps.people.models import Person
+
+    ls = e2e['live_server']
+    with schema_context(E2E_SCHEMA):
+        Person.objects.create(name='Ana E2E', status='member')
+        g = Gathering.objects.create(
+            gathering_type='worship', date=datetime.date.today(), title='Culto E2E'
+        )
+        gid = g.pk
+
+    login(page, ls, 'pastor@e2e.com')
+    page.goto(f'{ls.url}/encontros/{gid}/presenca/')
+    v = _violations(page)
+    assert not v, f'WCAG AA (marcar presença): {_summary(v)}'
+
+
+@pytest.mark.django_db(transaction=True)
 def test_a11y_ministry_list(page, e2e):
     """Ministérios (lista) com cards + barra "Saúde do Ministério" (GAP, RF-121)."""
     from django_tenants.utils import schema_context
@@ -87,7 +112,7 @@ def test_a11y_ministry_list(page, e2e):
 
 @pytest.mark.django_db(transaction=True)
 def test_a11y_community_list(page, e2e):
-    """Comunidades (lista) com os cards + gráfico de barra "Frequência por célula" (RF-119)."""
+    """Comunidades (lista): cards + barra "Frequência por célula" (RF-119)."""
     from django_tenants.utils import schema_context
 
     from apps.communities.models import Community

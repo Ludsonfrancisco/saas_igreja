@@ -63,7 +63,9 @@ def test_marcar_presenca_mobile(page, e2e):
     login(page, ls, 'pastor@e2e.com')
 
     page.goto(f'{ls.url}/encontros/{gid}/presenca/')
-    page.check(f'input[name="present"][value="{pid}"]')
+    # UI v3: o checkbox `present` é sr-only e alternado pela LABEL (toque na linha) —
+    # clicar a label marca a presença, como um usuário real faz no mobile.
+    page.click(f'label:has(input[name="present"][value="{pid}"])')
     page.click('button[type="submit"]')
     page.wait_for_load_state('networkidle')
 

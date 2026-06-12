@@ -1,48 +1,162 @@
 {% extends 'app_base.html' %}
-{% comment %}Lista de Ministérios (Sprint 6.5 / Bloco 3).{% endcomment %}
+{% load form_extras %}
+{% comment %}Lista de Ministérios — layout "Oikonos/Athos v3" (design ministerios.html).
+RF-050/RF-051 (ministérios e voluntários, church-wide §3.5: todos os papéis de gestão
+veem todos) · RF-124 (category = tipo/área → tag colorida) · RF-121 (analytics da
+tela: cards + barra "Saúde do Ministério"/GAP, OD-029) · RNF-021.
+
+Conteúdo reconstruído fielmente sobre o design system VIVO do projeto
+(`.card`/`.card-md`/`.btn-terra`/`.btn-soft`, tokens Oikonos v2, fontes Inter/Poppins,
+`tnum`), igual às telas de Comunidades e Pessoas. Dados 100% reais de `ministries`
+(name, get_category_display, coordinators, members_count, volunteers_needed, is_active).
+
+CONTRATO PRESERVADO (há testes que verificam):
+ • Includes de analytics: `_stat_cards.html with cards=stats.cards` (contém o card
+   "Faltam (GAP)") e `_chart.html` com chart_id='ministry-gap-chart',
+   chart_title='Saúde do Ministério'.
+ • Lista de `ministries` (church-wide); link de cada card → ministries:detail.
+ • CTA "Novo ministério" (ministries:create) e empty_state.
+
+GAP por ministério = max(volunteers_needed − members_count, 0). Quando
+volunteers_needed=0 ("sem meta"), mostra só o nº de voluntários — sem % nem barra,
+como o design trata os ministérios sem escala.
+
+OMITIDO por falta de dado real (como em Comunidades/Pessoas): "Treinamento/Onboarding
+(Passo 1/2/3)", "Voluntários em integração", "Escala deste Domingo", "Escalas
+Preenchidas", horários de ensaio. Usa só: tipo, coordenadores, nº de voluntários, meta
+e status.
+
+Busca por nome = filtro client-side (Alpine) — não há filtro de backend ainda; o input
+só esconde/mostra os cards já renderizados (a lista vem escopada do servidor).{% endcomment %}
 {% block title %}Ministérios · Oikonos{% endblock %}
 
 {% block content %}
-  <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
-    <div>
-      <h1 class="font-display text-2xl font-bold tracking-tight text-ink">Ministérios</h1>
-      <p class="mt-1 text-sm text-muted">Departamentos e equipes da sua igreja.</p>
-    </div>
-    <a href="{% url 'ministries:create' %}" class="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="plus" class="h-4 w-4"></i> Novo ministério</a>
-  </div>
+  <div x-data="{ q: '' }">
+    {# ── Cabeçalho + ações ── #}
+    <section class="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <div>
+        <p class="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-accent">Gestão de equipes</p>
+        <h1 class="font-display text-2xl font-bold tracking-tight text-ink md:text-[1.7rem]">Ministérios e departamentos</h1>
+        <p class="mt-1 text-sm text-muted">Acompanhe a saúde, os voluntários e os coordenadores dos ministérios.</p>
+      </div>
 
-  {# Analytics da tela (RF-121): cards + GAP de voluntários por ministério (OD-029). #}
-  {% include 'components/_stat_cards.html' with cards=stats.cards %}
-  <div class="mb-6">
-    {% include 'components/_chart.html' with chart_id='ministry-gap-chart' chart_type='bar' chart_title='Saúde do Ministério' chart_subtitle='Voluntários faltando por ministério' chart_payload=stats.chart chart_label='Faltam' %}
-  </div>
-
-  {% if ministries %}
-    <div class="card hidden overflow-hidden md:block">
-      <table class="w-full text-sm">
-        <thead class="bg-bg-soft text-left text-muted">
-          <tr><th class="px-4 py-3 font-medium">Nome</th><th class="px-4 py-3 font-medium">Coordenadores</th><th class="px-4 py-3 font-medium">Status</th></tr>
-        </thead>
-        <tbody class="divide-y divide-hairline">
-          {% for ministry in ministries %}
-            <tr class="hover:bg-bg-soft/50">
-              <td class="px-4 py-3"><a href="{% url 'ministries:detail' pk=ministry.pk %}" class="font-medium text-ink hover:text-accent">{{ ministry.name }}</a></td>
-              <td class="px-4 py-3 text-muted">{% for c in ministry.coordinators.all %}{{ c.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</td>
-              <td class="px-4 py-3">{% if ministry.is_active %}{% include 'components/badge.html' with text='Ativo' variant='success' %}{% else %}{% include 'components/badge.html' with text='Inativo' variant='muted' %}{% endif %}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    <div class="grid gap-3 md:hidden">
-      {% for ministry in ministries %}
-        <a href="{% url 'ministries:detail' pk=ministry.pk %}" class="card flex items-center justify-between p-4">
-          <div><p class="font-medium text-ink">{{ ministry.name }}</p><p class="mt-0.5 text-xs text-muted">{% for c in ministry.coordinators.all %}{{ c.name }}{% if not forloop.last %}, {% endif %}{% empty %}Sem coordenador{% endfor %}</p></div>
-          {% if ministry.is_active %}{% include 'components/badge.html' with text='Ativo' variant='success' %}{% else %}{% include 'components/badge.html' with text='Inativo' variant='muted' %}{% endif %}
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="relative w-full sm:w-64">
+          <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden="true"></i>
+          <label for="ministry-search" class="sr-only">Buscar ministério ou coordenador</label>
+          <input id="ministry-search" type="search" x-model="q"
+                 placeholder="Buscar ministério, coordenador..."
+                 class="w-full rounded-xl border border-hairline bg-paper/90 py-2 pl-9 pr-3 text-sm text-ink shadow-soft outline-none placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/15">
+        </div>
+        <a href="{% url 'ministries:create' %}" class="btn-terra shrink-0">
+          <i data-lucide="plus" aria-hidden="true"></i> Novo ministério
         </a>
-      {% endfor %}
+      </div>
+    </section>
+
+    {# ── Analytics da tela (RF-121): KPIs + "Saúde do Ministério" (GAP de voluntários) ── #}
+    {% include 'components/_stat_cards.html' with cards=stats.cards %}
+    <div class="mb-7">
+      {% include 'components/_chart.html' with chart_id='ministry-gap-chart' chart_type='bar' chart_title='Saúde do Ministério' chart_subtitle='Voluntários faltando por ministério' chart_payload=stats.chart chart_label='Faltam' %}
     </div>
-  {% else %}
-    {% include 'components/empty_state.html' with title='Nenhum ministério ainda' message='Crie o primeiro departamento ou equipe.' cta_url='/ministerios/novo/' cta_label='Novo ministério' %}
-  {% endif %}
+
+    {# ── Grade de ministérios (cards) ── #}
+    {% if ministries %}
+      <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {% for ministry in ministries %}
+          <a href="{% url 'ministries:detail' pk=ministry.pk %}"
+             x-show="q === '' || '{{ ministry.name|escapejs|lower }}'.includes(q.toLowerCase()) || '{% for c in ministry.coordinators.all %}{{ c.name|escapejs|lower }} {% endfor %}'.includes(q.toLowerCase())"
+             x-transition.opacity
+             class="card card-md flex flex-col p-5 transition hover:-translate-y-0.5 hover:border-accent/25">
+            <div class="flex-1">
+              {# Tipo (RF-124) + Status #}
+              <div class="mb-3 flex items-start justify-between gap-2">
+                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-accent" style="background: color-mix(in srgb, var(--accent) 12%, transparent);">
+                  <i data-lucide="layers" class="h-3 w-3" aria-hidden="true"></i> {{ ministry.get_category_display }}
+                </span>
+                {% if ministry.is_active %}
+                  <span class="inline-flex items-center gap-1.5 rounded px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-success" style="background: color-mix(in srgb, var(--color-success) 12%, transparent);">
+                    <span class="h-1.5 w-1.5 rounded-full bg-success" aria-hidden="true"></span> Ativo
+                  </span>
+                {% else %}
+                  <span class="inline-flex items-center gap-1.5 rounded bg-line/40 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-muted">
+                    <span class="h-1.5 w-1.5 rounded-full bg-muted" aria-hidden="true"></span> Inativo
+                  </span>
+                {% endif %}
+              </div>
+
+              {# Nome #}
+              <h3 class="mb-4 font-display text-lg font-bold text-ink">{{ ministry.name }}</h3>
+
+              {# Coordenadores #}
+              <div class="flex items-center gap-3 border-t border-hairline pt-4">
+                {% if ministry.coordinators.all %}
+                  <div class="flex -space-x-2">
+                    {% for coordinator in ministry.coordinators.all|slice:':3' %}
+                      <span class="grid h-8 w-8 place-items-center rounded-full border-2 border-paper bg-amber-soft/40 text-xs font-semibold text-accent-2" title="{{ coordinator.name }}">{{ coordinator.name|make_list|first|upper }}</span>
+                    {% endfor %}
+                  </div>
+                  <div class="min-w-0 text-sm">
+                    <p class="truncate font-semibold leading-tight text-ink">{% for coordinator in ministry.coordinators.all %}{{ coordinator.name }}{% if not forloop.last %} & {% endif %}{% endfor %}</p>
+                    <p class="text-xs text-muted">{{ ministry.coordinators.all|length|pluralize:'Coordenador,Coordenadores' }}</p>
+                  </div>
+                {% else %}
+                  <span class="grid h-8 w-8 place-items-center rounded-full border-2 border-paper bg-bg-soft text-xs font-semibold text-muted" aria-hidden="true">—</span>
+                  <p class="text-sm text-muted">Sem coordenador definido</p>
+                {% endif %}
+              </div>
+            </div>
+
+            {# Voluntários + meta (GAP = volunteers_needed − members_count, OD-029) — dados reais #}
+            <div class="mt-5 rounded-lg bg-bg-soft/60 p-3">
+              {% if ministry.volunteers_needed %}
+                {% with gap=ministry.volunteers_needed|sub:ministry.members_count %}
+                  <div class="mb-1 flex items-center justify-between text-xs font-semibold text-ink">
+                    <span class="flex items-center gap-1.5">
+                      <i data-lucide="users" class="h-3.5 w-3.5 text-muted" aria-hidden="true"></i>
+                      <span class="tnum">{{ ministry.members_count }}</span> de <span class="tnum">{{ ministry.volunteers_needed }}</span> voluntários
+                    </span>
+                    {% if gap %}
+                      <span class="tnum text-danger">faltam {{ gap }}</span>
+                    {% else %}
+                      <span class="tnum text-success">100%</span>
+                    {% endif %}
+                  </div>
+                  {% widthratio ministry.members_count ministry.volunteers_needed 100 as fill_pct %}
+                  <div class="h-1.5 w-full overflow-hidden rounded-full bg-line/50" aria-hidden="true">
+                    <div class="h-full rounded-full {% if gap %}bg-danger{% else %}bg-success{% endif %}" style="width: {% if fill_pct > 100 %}100{% else %}{{ fill_pct }}{% endif %}%"></div>
+                  </div>
+                  {% if gap %}
+                    <p class="mt-2 text-[0.7rem] text-muted">Faltam <span class="tnum font-semibold text-danger">{{ gap }}</span> {{ gap|pluralize:'voluntário,voluntários' }} para a meta.</p>
+                  {% else %}
+                    <p class="mt-2 text-[0.7rem] text-muted"><span class="tnum font-semibold text-ink">{{ ministry.members_count }}</span> {{ ministry.members_count|pluralize:'voluntário,voluntários' }} — meta atingida.</p>
+                  {% endif %}
+                {% endwith %}
+              {% else %}
+                <div class="flex items-center justify-between text-xs font-semibold text-ink">
+                  <span class="flex items-center gap-1.5">
+                    <i data-lucide="users" class="h-3.5 w-3.5 text-muted" aria-hidden="true"></i>
+                    <span class="tnum">{{ ministry.members_count }}</span> {{ ministry.members_count|pluralize:'voluntário,voluntários' }}
+                  </span>
+                </div>
+                <p class="mt-2 text-[0.7rem] text-muted">Sem meta de voluntários definida.</p>
+              {% endif %}
+            </div>
+          </a>
+        {% endfor %}
+
+        {# CTA: novo ministério (criação é Pastor/Secretário; backend reforça). #}
+        <a href="{% url 'ministries:create' %}"
+           class="flex min-h-[280px] flex-col items-center justify-center rounded-xl2 border-2 border-dashed border-line bg-transparent p-5 text-center transition hover:border-accent/40 hover:bg-bg-soft/40">
+          <span class="mb-3 grid h-12 w-12 place-items-center rounded-full text-accent" style="background: color-mix(in srgb, var(--accent) 12%, transparent);">
+            <i data-lucide="plus" class="h-6 w-6" aria-hidden="true"></i>
+          </span>
+          <h3 class="font-display text-base font-bold text-ink">Adicionar ministério</h3>
+          <p class="mt-2 max-w-[200px] text-xs text-muted">Crie um novo departamento, atribua os coordenadores e o tipo de serviço.</p>
+        </a>
+      </div>
+    {% else %}
+      {% include 'components/empty_state.html' with title='Nenhum ministério ainda' message='Crie o primeiro departamento ou equipe da sua igreja.' cta_url='/ministerios/novo/' cta_label='Novo ministério' %}
+    {% endif %}
+  </div>
 {% endblock %}

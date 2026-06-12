@@ -11,6 +11,7 @@ Sem service/limite de plano (ministério não tem teto de plano nem gate de
 """
 
 from django.contrib import messages
+from django.db.models import Count, Q
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -40,7 +41,19 @@ class MinistryListView(TenantRequiredMixin, LeaderOrPastorMixin, ListView):
     context_object_name = 'ministries'
 
     def get_queryset(self):
-        return Ministry.objects.prefetch_related('coordinators').order_by('name')
+        # `members_count` (RF-124 design): nº de voluntários por ministério anotado no
+        # banco (sem N+1), p/ o card. `coordinators` prefetch p/ os avatares.
+        return (
+            Ministry.objects.prefetch_related('coordinators')
+            .annotate(
+                members_count=Count(
+                    'members',
+                    filter=Q(members__anonymized_at__isnull=True),
+                    distinct=True,
+                )
+            )
+            .order_by('name')
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

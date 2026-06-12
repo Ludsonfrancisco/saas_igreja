@@ -1,6 +1,6 @@
 ---
 name: design-pilot-list-pages
-description: Padrão para recriar telas de listagem no design "Oikonos/Athos v3" (Comunidades + Pessoas feitos; replicar p/ Ministérios/Presença)
+description: Padrão para recriar telas de listagem no design "Oikonos/Athos v3" (Comunidades + Pessoas + Ministérios feitos; replicar p/ Presença)
 metadata:
   type: project
 ---
@@ -34,5 +34,15 @@ O dono exportou um bundle do Claude Design (`/tmp/design_bundle/oikonos/`) e que
 - **Omitido (sem dado real):** idade, estado civil, "Envolvimento"/engajamento, selos de integração, checkboxes de seleção em massa, contadores fictícios. Status reais: visitor/congregant/member/leader/inactive. Badge: member/leader=success, inactive=muted, resto=accent.
 - **"Tempo de casa":** `{{ joined_at|date:'Y' }}` + `há {{ joined_at|timesince }}` (built-ins; não há filtro custom de idade/anos).
 - Verificação: `uv run pytest apps/people -q` (58 verdes) + `uv run pytest apps/e2e/test_e2e_a11y.py -k person_list -q` (1 verde, gate axe). Rodar a11y SOZINHO.
+
+**MINISTÉRIOS feito (`apps/ministries/templates/ministries/ministry_list.html`):** clone da estrutura de GRADE de Comunidades (não tabela como Pessoas):
+- **Busca = client-side Alpine** (igual Comunidades; `x-data="{ q: '' }"` filtra por `name` + `coordinators`). Não há filtro backend.
+- **Card:** tag de tipo (`get_category_display`, RF-124) + badge Ativo/Inativo + nome + avatares de iniciais dos `coordinators` (`|make_list|first|upper`, slice `:3`) + bloco de métricas.
+- **Métrica = GAP de voluntários (OD-029):** `members_count` (anotado na view, `Count('members', filter=anonymized_at isnull)`) vs `volunteers_needed` (meta; 0 = "sem meta" → mostra só o nº, sem barra). Barra via `{% widthratio members_count volunteers_needed 100 %}` (capada em 100), verde se meta atingida, danger se falta.
+- **Filtro `sub` NOVO:** Django não tem subtração nativa (só `add`). Criei `@register.filter sub` em `apps/core/templatetags/form_extras.py` (`max(int(value)-int(arg), 0)`, piso 0) p/ o GAP. Carregar com `{% load form_extras %}`. Reutilizável em outras telas.
+- **Includes de analytics FIXOS (contrato):** `_stat_cards.html with cards=stats.cards` (card "Faltam (GAP)") + `_chart.html` com `chart_id='ministry-gap-chart'` e `chart_title='Saúde do Ministério'`. Testes: `assert 'ministry-gap-chart' in html`, `'Saúde do Ministério'`, `'Faltam (GAP)'` (apps/ministries/tests/test_page_stats.py).
+- **Lista church-wide (§3.5):** todos os papéis de gestão veem todos os ministérios (não escopado por coordenador na LISTA).
+- **Omitido (sem dado real):** Treinamento/Onboarding (Passo 1/2/3), "Voluntários em integração", "Escala deste Domingo", "Escalas Preenchidas", horários de ensaio. Ícone da tag de tipo = lucide `layers`.
+- Verificação: `uv run pytest apps/ministries -q` (18 verdes) + `uv run pytest apps/e2e/test_e2e_a11y.py -k ministry_list -q` (1 verde). Rodar a11y SOZINHO.
 
 Ver [[shell-athos-v2]] e [[tailwind-v4-build]].

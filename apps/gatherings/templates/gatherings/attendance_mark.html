@@ -1,38 +1,124 @@
 {% extends 'app_base.html' %}
-{% comment %}Marcar presença em lote (Sprint 6.5 / Bloco 4 — fluxo-estrela mobile).
-Linhas grandes (toque ≥44px), botão fixo no rodapé. POST com checkboxes `present`.{% endcomment %}
+{% comment %}Marcar presença em lote — layout "Oikonos/Athos v3" (fluxo-estrela mobile).
+RF-040/RF-041 (registrar presença de um encontro, RN-009 unique person×gathering)
+· RNF-020 (mobile-first, alvos de toque ≥44px) · RNF-012 (WCAG AA).
+
+Polimento visual v3 aplicado ao FORMULÁRIO de chamada (roster + checkbox por pessoa
++ resumo + salvar), no mesmo sistema vivo das telas de Pessoas/Ministérios/Comunidades
+(.card, avatar de iniciais, tokens --accent/--hot, Inter/Poppins, tnum). NÃO é o painel
+de overview de `presenca.html` (visitantes/faixas etárias/stats multi-culto) — esses
+dados não existem nesta tela e foram OMITIDOS de propósito; só emprestamos a estética
+das linhas de "Lançar Chamada".
+
+CONTRATO PRESERVADO (há testes/e2e que dependem disto):
+ • <form method="post"> + {% templatetag openblock %} csrf_token {% templatetag closeblock %}.
+ • Cada pessoa = <input type="checkbox" name="present" value="{{ person.pk }}"
+   {% if False %}{% endif %}checked se person.pk in present_ids> — name/value/marcação intactos.
+ • Contador Alpine: x-data="{ n: ... }"; cada checkbox @change ajusta n; <strong x-text="n">.
+ • Botão "Salvar presença" (type=submit). Empty state quando roster vazio.
+ • Link "Voltar ao encontro" → gatherings:detail. Contexto: gathering, roster, present_ids.{% endcomment %}
 {% block title %}Marcar presença · Oikonos{% endblock %}
 
 {% block content %}
-  <div class="mx-auto max-w-xl pb-20">
-    <a href="{% url 'gatherings:detail' pk=gathering.pk %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Voltar ao encontro</a>
-    <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">Marcar presença</h1>
-    <p class="mt-1 text-sm text-muted">{{ gathering }}</p>
+  <div class="mx-auto max-w-2xl pb-28 md:pb-8"
+       x-data="{
+         n: {{ present_ids|length }},
+         total: {{ roster|length }},
+         sync() { this.n = this.$root.querySelectorAll('input[name=present]:checked').length },
+         markAll(v) { this.$root.querySelectorAll('input[name=present]').forEach(c => c.checked = v); this.sync() }
+       }">
 
-    <form method="post" x-data="{ n: {{ present_ids|length }} }" class="mt-4">
-      {% csrf_token %}
-      {% if roster %}
-        <div class="card divide-y divide-hairline overflow-hidden">
+    {# ── Voltar + cabeçalho ── #}
+    <a href="{% url 'gatherings:detail' pk=gathering.pk %}"
+       class="inline-flex items-center gap-1.5 text-sm font-medium text-muted transition hover:text-accent">
+      <i data-lucide="arrow-left" class="h-4 w-4" aria-hidden="true"></i> Voltar ao encontro
+    </a>
+
+    <section class="mt-3">
+      <p class="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-accent">Frequência</p>
+      <h1 class="font-display text-2xl font-bold tracking-tight text-ink md:text-[1.7rem]">Marcar presença</h1>
+      <p class="mt-1 text-sm text-muted">{{ gathering }}</p>
+    </section>
+
+    {% if roster %}
+      <form method="post" class="mt-6">
+        {% csrf_token %}
+
+        {# ── Resumo (contador Alpine ao vivo) ── #}
+        <div class="card flex flex-wrap items-center justify-between gap-3 p-4">
+          <div class="flex items-center gap-3">
+            <span class="grid h-11 w-11 place-items-center rounded-xl text-accent" style="background: color-mix(in srgb, var(--accent) 12%, transparent);">
+              <i data-lucide="user-check" class="h-5 w-5" aria-hidden="true"></i>
+            </span>
+            <div>
+              <p class="text-sm font-semibold text-ink">
+                <strong x-text="n" class="tnum text-lg text-accent">{{ present_ids|length }}</strong>
+                <span class="text-muted">de</span>
+                <span class="tnum">{{ roster|length }}</span> presente(s)
+              </p>
+              <p class="text-xs text-muted">Toque na pessoa para alternar a presença.</p>
+            </div>
+          </div>
+
+          {# Marcar todos / limpar (opcional, acessível) #}
+          <div class="flex items-center gap-2">
+            <button type="button" @click="markAll(true)"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-hairline bg-paper px-3 py-2 text-xs font-semibold text-ink transition hover:border-accent/30 hover:text-accent">
+              <i data-lucide="check-check" class="h-3.5 w-3.5" aria-hidden="true"></i> Marcar todos
+            </button>
+            <button type="button" @click="markAll(false)"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-hairline bg-paper px-3 py-2 text-xs font-semibold text-muted transition hover:border-line hover:text-ink">
+              <i data-lucide="x" class="h-3.5 w-3.5" aria-hidden="true"></i> Limpar
+            </button>
+          </div>
+        </div>
+
+        {# ── Roster: uma linha por pessoa (toque ≥44px) ── #}
+        <div class="card mt-4 divide-y divide-hairline overflow-hidden">
           {% for person in roster %}
-            <label class="flex cursor-pointer items-center gap-3 px-4 py-3 hover:bg-bg-soft">
-              <input type="checkbox" name="present" value="{{ person.pk }}" @change="n += $event.target.checked ? 1 : -1"
+            <label class="group flex cursor-pointer items-center gap-3 px-4 py-3 transition hover:bg-bg-soft/60 has-[:checked]:bg-accent/[0.06]">
+              <input type="checkbox" name="present" value="{{ person.pk }}"
+                     @change="sync()"
                      {% if person.pk in present_ids %}checked{% endif %}
-                     class="h-5 w-5 rounded border-line text-accent focus:ring-accent/30">
-              <span class="text-sm text-ink">{{ person.name }}</span>
+                     class="peer sr-only">
+
+              {# Avatar de iniciais (igual Membros) #}
+              {% include 'components/avatar.html' with name=person.name %}
+
+              <span class="min-w-0 flex-1">
+                <span class="block truncate text-sm font-medium text-ink">{{ person.name }}</span>
+                <span class="block text-xs text-muted peer-checked:text-success">
+                  <span class="peer-checked:hidden">Ausente</span>
+                  <span class="hidden peer-checked:inline">Presente</span>
+                </span>
+              </span>
+
+              {# Indicador visual de presente/ausente (espelha o checkbox) #}
+              <span aria-hidden="true"
+                    class="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-line text-transparent transition peer-checked:border-success peer-checked:bg-success peer-checked:text-paper">
+                <i data-lucide="check" class="h-4 w-4"></i>
+              </span>
             </label>
           {% endfor %}
         </div>
 
-        {# Barra de ação fixa (mobile-friendly) #}
-        <div class="fixed inset-x-0 bottom-0 z-20 border-t border-hairline bg-paper/95 px-4 py-3 backdrop-blur md:static md:mt-4 md:border-0 md:bg-transparent md:p-0">
-          <div class="mx-auto flex max-w-xl items-center justify-between gap-3">
-            <span class="text-sm text-muted"><strong x-text="n" class="text-ink"></strong> presente(s)</span>
-            <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="check" class="h-4 w-4"></i> Salvar presença</button>
+        {# ── Barra de ação: fixa no rodapé (mobile) / inline (desktop) ── #}
+        <div class="fixed inset-x-0 bottom-0 z-20 border-t border-hairline bg-paper/95 px-4 py-3 backdrop-blur md:static md:mt-5 md:rounded-xl2 md:border md:bg-paper md:px-4 md:shadow-soft">
+          <div class="mx-auto flex max-w-2xl items-center justify-between gap-3">
+            <span class="text-sm text-muted">
+              <strong x-text="n" class="tnum text-ink">{{ present_ids|length }}</strong> presente(s)
+            </span>
+            <button type="submit"
+                    class="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-paper transition hover:bg-accent-2 focus:outline-none focus:ring-2 focus:ring-accent/30">
+              <i data-lucide="check" class="h-4 w-4" aria-hidden="true"></i> Salvar presença
+            </button>
           </div>
         </div>
-      {% else %}
+      </form>
+    {% else %}
+      <div class="mt-6">
         {% include 'components/empty_state.html' with title='Ninguém elegível' message='Não há pessoas elegíveis para marcar presença neste encontro.' %}
-      {% endif %}
-    </form>
+      </div>
+    {% endif %}
   </div>
 {% endblock %}
