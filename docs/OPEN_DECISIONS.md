@@ -157,17 +157,22 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 | Status | ✅ Fechada (2026-05-27) |
 | Impacto | Alto (custo + previsibilidade) |
 | Owner | Ops |
-| Decisão | **Hostinger KVM 2 (8GB RAM, 2 vCPU, 100GB NVMe)** |
+| Decisão | **Lançamento: Hostinger KVM 2 (8GB/2vCPU/100GB NVMe). Piloto: Contabo VPS 10 (já contratada) ou servidor caseiro. Orquestração: Docker Compose + Traefik (NÃO EasyPanel). Observabilidade: Sentry.** |
 
-**Decisão:** Hostinger KVM 2 desde Sprint 1.
+**Decisão (revisada 2026-06-13):**
+- **Tier de lançamento = KVM 2** (confirmado pelo dono p/ 1–15 igrejas no início; sobe pra **KVM 4** quando o nº de igrejas/uso pedir — upgrade in-place no Hostinger).
+- **Piloto** roda na **Contabo VPS 10** (já paga, always-on) ou no servidor caseiro (Ubuntu + cloudflared); **migração Contabo→Hostinger é de baixo atrito** (só `pg_dump`/`pg_restore` + flip de DNS; mídia fica no R2; app é stateless Docker) — ver `docs/DEPLOY.md`.
+- **Orquestração = Docker Compose + Traefik** (proxy reverso + SSL), **substituindo o EasyPanel** (decisão anterior). Motivo: o dono **já opera esse padrão** noutro projeto (reúso/consistência), é **mais leve de RAM** no KVM 2 (sem painel) e fica **versionado em arquivos**. Alternativa de painel (Coolify, OSS grátis) fica anotada se um dia quiser UI.
+- **Observabilidade = Sentry** (erros/APM, externo, 0 RAM no VPS, tag `tenant_id` + `before_send` sanitiza PII) + **uptime monitor externo** + painel do VPS/Cloudflare p/ infra. **Prometheus/Grafana permanecem fora** (proibidos; só fariam sentido em escala multi-servidor).
 
 **Justificativa:**
-- 8GB RAM acomoda Django + Celery + Redis + Postgres confortavelmente.
-- Custo ~R\$ 60/mês (renovação) cabe no bootstrap.
-- Athos + 9 igrejas pequenas em piloto cabem sem aperto.
-- Backup offsite no R2 mitiga risco de provedor.
-- Gatilho de migração para DigitalOcean ou banco gerenciado: >10 igrejas com uso pesado ou CPU/RAM acima de 70% sustentado.
+- 8GB RAM acomoda Django + Celery + Redis + Postgres confortavelmente (sem painel comendo RAM).
+- Custo de lançamento ~R\$ 45–60/mês (VPS + domínio; Cloudflare/R2/Brevo/Sentry/CI em free tier). Piloto ~R\$ 0 (recursos já pagos).
+- Backup offsite no R2 mitiga risco de provedor **e** torna a migração trivial.
+- Gatilho de upgrade (KVM 4 / banco gerenciado): >10–15 igrejas com uso pesado ou CPU/RAM > 70% sustentado.
 - **Reforço do gatilho (pós-piloto):** Sprint 8 (Financeiro Avançado) e sobretudo Sprint 9 (**Evolution API** = +1 serviço Node + sessão por tenant) devem **exigir upgrade de VPS** — reavaliar dimensionamento antes da Sprint 9 (OD-024/OD-025).
+
+> Detalhe completo da arquitetura de deploy em **`docs/DEPLOY.md`** (Compose+Traefik, Cloudflare + Origin Cert wildcard multi-tenant, R2, backup `pg_dump`→R2, Sentry).
 
 ---
 
@@ -656,7 +661,7 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 | OD-030 | Home = painel "Painel Oikonos" (design igreja-athos-dashboard) | 2026-06-09 | A home (`/`) adota o design analítico premium, **adaptado a dados reais**; Saúde do Ministério segue GAP (OD-029); seções sem backend = "Em breve"; **calendário (RF-102) sai da home → Encontros**; aberta a todo papel logado |
 | OD-031 | Escalas v2: conflito / opt-out / gatilho de pendência | 2026-06-11 | (a) já-escalado = cinza + escalável via exceção; (b) opt-out **por ministério** (coordenador), model `MinistryEventOptOut`; (c) gatilho **configurável** `Church.schedule_pending_open_day` (default 25); RF-111..117 / RN-020..023; `SPEC_ESCALAS_V2` |
 | OD-003a | Storage de mídia | 2026-05-27 | Cloudflare R2 (S3-compatible) desde Sprint 6 |
-| OD-006 | VPS definitivo | 2026-05-27 | Hostinger KVM 2 (8GB, 2 vCPU, 100GB NVMe) |
+| OD-006 | VPS + orquestração + observabilidade | 2026-05-27 (rev. 2026-06-13) | Lançamento Hostinger KVM 2 (→KVM 4 ao escalar); piloto Contabo VPS 10/caseiro; **Docker Compose + Traefik** (não EasyPanel); **Sentry** (Prometheus/Grafana fora). Detalhe: `docs/DEPLOY.md` |
 | OD-007 | Storage offsite | 2026-05-27 | Cloudflare R2 (mesma conta de OD-003a) |
 | OD-012 | Email transacional | 2026-05-27 | Brevo (ex-Sendinblue) free tier 300/dia, via `django-anymail` |
 | OD-015 | Plataforma de CI/CD | 2026-05-27 | GitHub Actions; pipeline mínimo em `.github/workflows/ci.yml` |
