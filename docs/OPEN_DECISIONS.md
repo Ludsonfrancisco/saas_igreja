@@ -157,11 +157,11 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 | Status | ✅ Fechada (2026-05-27) |
 | Impacto | Alto (custo + previsibilidade) |
 | Owner | Ops |
-| Decisão | **Lançamento: Hostinger KVM 2 (8GB/2vCPU/100GB NVMe). Piloto: Contabo VPS 10 (já contratada) ou servidor caseiro. Orquestração: Docker Compose + Traefik (NÃO EasyPanel). Observabilidade: Sentry.** |
+| Decisão | **Lançamento: Hostinger KVM 2 (8GB/2vCPU/100GB NVMe). Piloto: Contabo VPS 10 (já contratada) — CRAVADO. Orquestração: Docker Compose + Traefik (NÃO EasyPanel). Observabilidade: Sentry.** |
 
 **Decisão (revisada 2026-06-13):**
 - **Tier de lançamento = KVM 2** (confirmado pelo dono p/ 1–15 igrejas no início; sobe pra **KVM 4** quando o nº de igrejas/uso pedir — upgrade in-place no Hostinger).
-- **Piloto** roda na **Contabo VPS 10** (já paga, always-on) ou no servidor caseiro (Ubuntu + cloudflared); **migração Contabo→Hostinger é de baixo atrito** (só `pg_dump`/`pg_restore` + flip de DNS; mídia fica no R2; app é stateless Docker) — ver `docs/DEPLOY.md`.
+- **Piloto** roda na **Contabo VPS 10** (já paga, always-on) — **decisão cravada (2026-06-13)**; o servidor caseiro fica **só para dev/teste rápido** (uptime residencial não serve pra igreja depender). **Migração Contabo→Hostinger é de baixo atrito** (só `pg_dump`/`pg_restore` + flip de DNS; mídia fica no R2; app é stateless Docker) — ver `docs/DEPLOY.md`.
 - **Orquestração = Docker Compose + Traefik** (proxy reverso + SSL), **substituindo o EasyPanel** (decisão anterior). Motivo: o dono **já opera esse padrão** noutro projeto (reúso/consistência), é **mais leve de RAM** no KVM 2 (sem painel) e fica **versionado em arquivos**. Alternativa de painel (Coolify, OSS grátis) fica anotada se um dia quiser UI.
 - **Observabilidade = Sentry** (erros/APM, externo, 0 RAM no VPS, tag `tenant_id` + `before_send` sanitiza PII) + **uptime monitor externo** + painel do VPS/Cloudflare p/ infra. **Prometheus/Grafana permanecem fora** (proibidos; só fariam sentido em escala multi-servidor).
 

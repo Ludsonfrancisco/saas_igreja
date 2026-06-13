@@ -67,8 +67,8 @@ flowchart TD
 
 | Ambiente | Onde | Pra quê |
 |---|---|---|
-| **Dev** | Local (`docker compose up` + `runserver`) | Desenvolvimento. |
-| **Piloto** | **Contabo VPS 10** (já paga) *ou* caseiro (Ubuntu + cloudflared) | Athos validar por algumas semanas. Caseiro só p/ teste rápido (uptime residencial). |
+| **Dev** | Local (`docker compose up` + `runserver`); caseiro Ubuntu + cloudflared p/ teste rápido | Desenvolvimento / smoke test (uptime residencial não serve pra piloto real). |
+| **Piloto** | **Contabo VPS 10** (já paga, always-on) — **cravado** | Athos validar por algumas semanas. |
 | **Produção (lançamento)** | **Hostinger KVM 2** (→ KVM 4 ao escalar) | Igrejas pagantes. |
 
 > 📈 **Caminho de escala horizontal (futuro, não-MVP).** O Traefik já atua como **load balancer**: quando o uso pedir, sobe-se **réplicas do container Django** e o Traefik balanceia — **sem trocar de arquitetura** (Redis já externaliza fila/cache; sessões no banco/Redis). **Atenção:** réplicas no **mesmo** VPS dão concorrência, **não HA** (caem juntas). HA de verdade = **2+ VPS + Postgres gerenciado/replicado** — só ao escalar (mesmo gatilho do KVM 4 / §10).
