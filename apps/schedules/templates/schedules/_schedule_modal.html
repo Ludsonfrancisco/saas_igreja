@@ -23,7 +23,7 @@ aprovação de exceção (RF-113); botão "não atuaremos nesse evento" (opt-out
 {% endif %}
 
 {% for b in blocks %}
-  <section class="mb-4 card p-4" aria-label="Ministério {{ b.ministry.name }}">
+  <section class="mb-4 card p-4" aria-label="{{ terms.ministry }} {{ b.ministry.name }}">
     <div class="mb-3 flex items-center justify-between gap-2">
       <h3 class="font-display text-base font-semibold text-ink">{{ b.ministry.name }}</h3>
       {% if b.opted_out %}
@@ -32,7 +32,7 @@ aprovação de exceção (RF-113); botão "não atuaremos nesse evento" (opt-out
     </div>
 
     {% if b.opted_out %}
-      <p class="mb-3 text-sm text-muted">Este ministério marcou que <strong>não atuará</strong> neste evento.</p>
+      <p class="mb-3 text-sm text-muted">Sinalizado que <strong>não atuará</strong> neste evento.</p>
       {% if b.can_clear %}
         <form hx-post="{% url 'schedules:event_optout' pk=gathering.pk ministry_pk=b.ministry.pk %}"
               hx-target="#schedule-modal-body" hx-swap="innerHTML">
@@ -78,7 +78,7 @@ aprovação de exceção (RF-113); botão "não atuaremos nesse evento" (opt-out
             </button>
           </div>
         {% else %}
-          <p class="text-sm text-muted">Nenhum voluntário cadastrado neste ministério.</p>
+          <p class="text-sm text-muted">Nenhum voluntário cadastrado aqui.</p>
         {% endif %}
       </form>
       {% comment %}Opt-out em form próprio (RF-114) — só o coordenador marca (RN-022).{% endcomment %}
@@ -95,5 +95,5 @@ aprovação de exceção (RF-113); botão "não atuaremos nesse evento" (opt-out
     {% endif %}
   </section>
 {% empty %}
-  <p class="card p-6 text-center text-sm text-muted">Você não coordena nenhum ministério, então não há o que escalar aqui.</p>
+  <p class="card p-6 text-center text-sm text-muted">Você ainda não coordena {{ terms.ministry_plural|lower }}, então não há o que escalar aqui.</p>
 {% endfor %}

@@ -28,7 +28,7 @@ e status.
 
 Busca por nome = filtro client-side (Alpine) — não há filtro de backend ainda; o input
 só esconde/mostra os cards já renderizados (a lista vem escopada do servidor).{% endcomment %}
-{% block title %}Ministérios · Oikonos{% endblock %}
+{% block title %}{{ terms.ministry_plural }} · Oikonos{% endblock %}
 
 {% block content %}
   <div x-data="{ q: '' }">
@@ -36,20 +36,20 @@ só esconde/mostra os cards já renderizados (a lista vem escopada do servidor).
     <section class="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
       <div>
         <p class="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-accent">Gestão de equipes</p>
-        <h1 class="font-display text-2xl font-bold tracking-tight text-ink md:text-[1.7rem]">Ministérios e departamentos</h1>
-        <p class="mt-1 text-sm text-muted">Acompanhe a saúde, os voluntários e os coordenadores dos ministérios.</p>
+        <h1 class="font-display text-2xl font-bold tracking-tight text-ink md:text-[1.7rem]">{{ terms.ministry_plural }}</h1>
+        <p class="mt-1 text-sm text-muted">Acompanhe a saúde, os voluntários e os coordenadores das equipes.</p>
       </div>
 
       <div class="flex flex-wrap items-center gap-3">
         <div class="relative w-full sm:w-64">
           <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden="true"></i>
-          <label for="ministry-search" class="sr-only">Buscar ministério ou coordenador</label>
+          <label for="ministry-search" class="sr-only">Buscar {{ terms.ministry|lower }} ou coordenador</label>
           <input id="ministry-search" type="search" x-model="q"
-                 placeholder="Buscar ministério, coordenador..."
+                 placeholder="Buscar {{ terms.ministry|lower }}, coordenador..."
                  class="w-full rounded-xl border border-hairline bg-paper/90 py-2 pl-9 pr-3 text-sm text-ink shadow-soft outline-none placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/15">
         </div>
         <a href="{% url 'ministries:create' %}" class="btn-terra shrink-0">
-          <i data-lucide="plus" aria-hidden="true"></i> Novo ministério
+          <i data-lucide="plus" aria-hidden="true"></i> Adicionar {{ terms.ministry }}
         </a>
       </div>
     </section>
@@ -57,7 +57,9 @@ só esconde/mostra os cards já renderizados (a lista vem escopada do servidor).
     {# ── Analytics da tela (RF-121): KPIs + "Saúde do Ministério" (GAP de voluntários) ── #}
     {% include 'components/_stat_cards.html' with cards=stats.cards %}
     <div class="mb-7">
-      {% include 'components/_chart.html' with chart_id='ministry-gap-chart' chart_type='bar' chart_title='Saúde do Ministério' chart_subtitle='Voluntários faltando por ministério' chart_payload=stats.chart chart_label='Faltam' %}
+      {% with ministry_lc=terms.ministry|lower %}
+        {% include 'components/_chart.html' with chart_id='ministry-gap-chart' chart_type='bar' chart_title='Saúde do '|add:terms.ministry chart_subtitle='Voluntários faltando por '|add:ministry_lc chart_payload=stats.chart chart_label='Faltam' %}
+      {% endwith %}
     </div>
 
     {# ── Grade de ministérios (cards) ── #}
@@ -151,12 +153,14 @@ só esconde/mostra os cards já renderizados (a lista vem escopada do servidor).
           <span class="mb-3 grid h-12 w-12 place-items-center rounded-full text-accent" style="background: color-mix(in srgb, var(--accent) 12%, transparent);">
             <i data-lucide="plus" class="h-6 w-6" aria-hidden="true"></i>
           </span>
-          <h3 class="font-display text-base font-bold text-ink">Adicionar ministério</h3>
-          <p class="mt-2 max-w-[200px] text-xs text-muted">Crie um novo departamento, atribua os coordenadores e o tipo de serviço.</p>
+          <h3 class="font-display text-base font-bold text-ink">Adicionar {{ terms.ministry|lower }}</h3>
+          <p class="mt-2 max-w-[200px] text-xs text-muted">Cadastre {{ terms.ministry|lower }}, atribua os coordenadores e o tipo de serviço.</p>
         </a>
       </div>
     {% else %}
-      {% include 'components/empty_state.html' with title='Nenhum ministério ainda' message='Crie o primeiro departamento ou equipe da sua igreja.' cta_url='/ministerios/novo/' cta_label='Novo ministério' %}
+      {% with ministry_lc=terms.ministry|lower ministry_plural_lc=terms.ministry_plural|lower %}
+        {% include 'components/empty_state.html' with title='Sem '|add:ministry_plural_lc|add:' ainda' message='Cadastre '|add:ministry_lc|add:' da sua igreja.' cta_url='/ministerios/novo/' cta_label='Adicionar '|add:ministry_lc %}
+      {% endwith %}
     {% endif %}
   </div>
 {% endblock %}

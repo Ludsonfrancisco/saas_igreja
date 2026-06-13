@@ -611,6 +611,26 @@ Toda decisão aberta com impacto técnico ou de produto vive aqui até ser fecha
 
 **Implicações:** adiciona **RF-111..117** e **RN-020..023** ao PRD; 2 models novos (`MinistryEventOptOut` no tenant; `Church.schedule_pending_open_day` no público → migração **shared**, afeta tenants existentes com o default). Fatiamento em 3 blocos (backend → frontend/modal → matrizes/docs). Cards/gráficos (RF-117) ligam no item transversal de cards por página. Magic-link do voluntário (OD-022) **inalterado**.
 
+### OD-032 — Terminologia configurável por igreja (renomear Comunidade/Ministério) — F2
+
+| Campo | Valor |
+|---|---|
+| Status | 🕓 ABERTA (backlog — feature F2 do dono; adiada da Sprint 6.6, OD-028) |
+| Impacto | Médio (rótulos por toda a UI; cross-cutting de cópia, não de regra de negócio) |
+| Owner | Dono |
+| Decisão (a fechar) | Permitir que cada igreja **renomeie o rótulo exibido** de "Comunidade" (→ Célula, Grupo, GC…) e "Ministério" (→ Departamento, Equipe…), espelhando o que `Church.leader_title` já faz para o líder principal. **Backend só rótulo** (o model continua `Community`/`Ministry`); a UI lê o termo configurado. |
+
+**Contexto (2026-06-12/13):** o dono levantou a necessidade de o cliente escolher o nome visível (ex.: "célula" em vez de "comunidade", "departamento" em vez de "ministério"). Já existe o **precedente `Church.leader_title`** (rótulo configurável do líder principal: Pastor/Padre/Reverendo). A feature é a **F2** da lista F1–F7, **explicitamente deixada de fora** da Sprint 6.6 (ver OD-028 / SPRINTS §6.6: *"Fora: F2 (renomear Células/Departamentos)"*). Ainda **sem RF/model detalhado** até agora — formalizada aqui como **RF-126/RF-127**.
+
+**A definir antes de implementar (G-05):**
+1. **Campos na `Church`:** singular **e** plural — ex.: `community_label`/`community_label_plural` (default "Comunidade/Comunidades") e `ministry_label`/`ministry_label_plural` (default "Ministério/Ministérios"). Plural é necessário porque a UI usa os dois.
+2. **Abrangência:** começar **só por Comunidade e Ministério** (citados pelo dono); Encontro/Pessoa ficam fora por ora.
+3. **Propagação:** os rótulos saem de **um lugar só** (context processor + template tag, ex.: `{% term 'community' %}`/`{% term 'community_plural' %}`) e substituem **todas** as strings hardcoded "Comunidade(s)"/"Ministério(s)" na UI (sidebar, títulos, botões, empty states, breadcrumbs). É o **grosso do trabalho** (varredura de templates).
+4. Interação com `has_communities=False` (que já esconde o módulo de comunidades) — inalterada.
+5. Editável na tela de Configurações da igreja (RF-002), junto de `leader_title`.
+
+**Recomendação de timing (Produto):** **NÃO é bloqueador do piloto** — fazer **depois** do piloto/deploy (ou só uma versão mínima se o Athos exigir vocabulário próprio para a credibilidade do piloto). Implementar logo após o re-skin significaria **re-tocar todos os templates de novo**; melhor fazer **uma vez, bem feito**, com a varredura de strings num passe só. Registrada para agendar quando o dono priorizar.
+
 ---
 
 ## Histórico — decisões fechadas

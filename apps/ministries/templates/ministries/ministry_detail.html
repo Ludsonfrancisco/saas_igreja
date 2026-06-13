@@ -5,7 +5,7 @@
 {% block content %}
   <div class="mb-6 flex flex-wrap items-start justify-between gap-3">
     <div>
-      <a href="{% url 'ministries:list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Ministérios</a>
+      <a href="{% url 'ministries:list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> {{ terms.ministry_plural }}</a>
       <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">{{ ministry.name }}</h1>
     </div>
     <div class="flex items-center gap-2">

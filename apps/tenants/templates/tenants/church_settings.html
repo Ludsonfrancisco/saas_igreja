@@ -1,0 +1,29 @@
+{% extends 'app_base.html' %}
+{% comment %}Configurações da igreja (RF-002 parcial / RF-126-127 · F2). Pastor edita os
+rótulos exibidos (Comunidade/Ministério) + título do líder. Só conteúdo; shell herdado.{% endcomment %}
+{% block title %}Configurações · Oikonos{% endblock %}
+
+{% block content %}
+  <div class="mx-auto max-w-2xl">
+    <section class="mb-6">
+      <p class="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-accent">Administração</p>
+      <h1 class="font-display text-2xl font-bold tracking-tight text-ink">Configurações da igreja</h1>
+      <p class="mt-1 text-sm text-muted">Personalize os nomes que sua igreja usa na plataforma.</p>
+    </section>
+
+    <form method="post" class="card card-md space-y-5 p-6">
+      {% csrf_token %}
+      {% include 'components/form.html' with form=form %}
+      <div class="flex justify-end pt-2">
+        <button type="submit" class="btn-terra">
+          <i data-lucide="check" aria-hidden="true"></i> Salvar configurações
+        </button>
+      </div>
+    </form>
+
+    <p class="mt-4 text-xs text-muted">
+      Os nomes valem para toda a interface (menu, títulos, botões). Ex.: troque
+      “Comunidade” por <strong>Célula</strong> e “Ministério” por <strong>Departamento</strong>.
+    </p>
+  </div>
+{% endblock %}

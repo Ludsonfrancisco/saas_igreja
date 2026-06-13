@@ -86,7 +86,7 @@ Estado do drawer = Alpine `x-data="{ open: false }"`. Telas fazem
         </button>
         <label class="topbar-search sm:flex" :class="searchOpen ? 'flex' : 'hidden'">
           <i data-lucide="search" class="h-[18px] w-[18px] shrink-0 text-muted-2" aria-hidden="true"></i>
-          <input x-ref="searchInput" type="search" placeholder="Buscar membros, ministérios, escalas…" aria-label="Buscar">
+          <input x-ref="searchInput" type="search" placeholder="Buscar membros, {{ terms.ministry_plural|lower }}, escalas…" aria-label="Buscar">
           <button type="button" class="shrink-0 text-muted-2 hover:text-ink sm:hidden"
                   :class="searchOpen ? '' : 'hidden'" @click="searchOpen = false"
                   aria-label="Fechar busca">

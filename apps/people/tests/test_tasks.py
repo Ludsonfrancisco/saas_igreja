@@ -113,6 +113,24 @@ def test_csv_import_creates_persons(church_a):
 
 
 @pytest.mark.django_db(transaction=True)
+def test_csv_import_accepts_ptbr_headers_and_status(church_a):
+    """Importa com cabeçalho e situação em pt-BR (interface 100% pt-BR), com acento."""
+    csv_pt = (
+        'Nome,E-mail,Telefone,Situação,Consentimento\n'
+        'Carla Dias,carla@a.com,,Membro,sim\n'
+        'Diego Reis,,,Líder,\n'  # situação pt com acento + sem contato
+        'Sem Situacao,,,,\n'  # situação vazia → Visitante
+    )
+    result = import_persons_csv(church_a.schema_name, csv_pt, 'lote-pt')
+
+    assert result['created'] == 3
+    with schema_context(church_a.schema_name):
+        assert Person.objects.get(name='Carla Dias').status == Person.Status.MEMBER
+        assert Person.objects.get(name='Diego Reis').status == Person.Status.LEADER
+        assert Person.objects.get(name='Sem Situacao').status == Person.Status.VISITOR
+
+
+@pytest.mark.django_db(transaction=True)
 def test_csv_import_idempotent(church_a):
     """Re-rodar o mesmo import_id é no-op — não duplica (RF-033)."""
     import_persons_csv(church_a.schema_name, _CSV, 'lote-1')

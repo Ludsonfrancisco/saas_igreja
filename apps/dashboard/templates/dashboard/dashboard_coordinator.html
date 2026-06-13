@@ -1,7 +1,9 @@
 {% extends 'app_base.html' %}
 {% comment %}Dashboard simplificado do Ministério — home do Coordenador (Sprint 6.5/Bloco 2).{% endcomment %}
-{% block title %}Painel do ministério · Oikonos{% endblock %}
+{% block title %}Painel · {{ terms.ministry_plural }} · Oikonos{% endblock %}
 {% block content %}
-  {% include 'components/page_header.html' with title='Painel do ministério' subtitle='Números dos seus ministérios.' %}
+  {% with ministry_plural_lc=terms.ministry_plural|lower %}
+    {% include 'components/page_header.html' with title='Painel'|add:' — '|add:terms.ministry_plural subtitle='Números de '|add:ministry_plural_lc|add:'.' %}
+  {% endwith %}
   {% include 'dashboard/_metrics.html' %}
 {% endblock %}

@@ -63,6 +63,26 @@ class PersonForm(forms.ModelForm):
 
     def __init__(self, *args, church=None, user=None, **kwargs):
         super().__init__(*args, **kwargs)
+        # Tooltip de ajuda no campo Situação (renderizado pelo form_field.html).
+        self.fields['status'].tooltip_items = [
+            {
+                'term': 'Visitante',
+                'desc': 'Visitou; ainda não frequenta com regularidade.',
+            },
+            {
+                'term': 'Congregado',
+                'desc': 'Frequenta e participa, mas ainda não é membro oficial.',
+            },
+            {
+                'term': 'Membro',
+                'desc': 'Membro oficial da igreja (ex.: após batismo/recepção).',
+            },
+            {
+                'term': 'Líder',
+                'desc': 'Membro que lidera uma comunidade ou ministério.',
+            },
+            {'term': 'Inativo', 'desc': 'Não participa mais (afastado).'},
+        ]
         # Pré-marca o checkbox quando a pessoa já tem consentimento registrado.
         if self.instance and self.instance.pk and self.instance.consent_given_at:
             self.fields['consent_given'].initial = True
@@ -97,7 +117,7 @@ class PersonImportForm(forms.Form):
     """
 
     file = forms.FileField(
-        label='Arquivo CSV (colunas: name, email, phone, status, consent)'
+        label='Arquivo CSV (colunas: Nome, E-mail, Telefone, Situação, Consentimento)'
     )
 
     def clean_file(self):

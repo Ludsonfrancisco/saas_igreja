@@ -9,7 +9,7 @@ Linhas grandes (toque ≥44px), botão de confirmar no rodapé.{% endcomment %}
   <div class="mx-auto max-w-xl pb-24">
     <a href="{% url 'communities:detail' pk=community.pk %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> {{ community.name }}</a>
     <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">Lançar presença</h1>
-    <p class="mt-1 text-sm text-muted">{{ gathering.title|default:'Reunião de célula' }} · {{ gathering.date|date:'d/m/Y' }}</p>
+    <p class="mt-1 text-sm text-muted">{% if gathering.title %}{{ gathering.title }}{% else %}Reunião de {{ terms.community|lower }}{% endif %} · {{ gathering.date|date:'d/m/Y' }}</p>
 
     <form method="post" x-data="{ n: {{ present_ids|length }} }" class="mt-4 space-y-4">
       {% csrf_token %}
@@ -29,7 +29,7 @@ Linhas grandes (toque ≥44px), botão de confirmar no rodapé.{% endcomment %}
             {% endfor %}
           </div>
         {% else %}
-          <p class="card p-4 text-sm text-muted">Nenhum membro cadastrado nesta célula ainda. Peça ao Pastor ou Secretário para adicionar.</p>
+          <p class="card p-4 text-sm text-muted">Nenhum membro cadastrado ainda. Peça ao Pastor ou Secretário para adicionar.</p>
         {% endif %}
       </div>
 

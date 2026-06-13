@@ -18,7 +18,7 @@
   <div class="card max-w-3xl p-6">
     <dl class="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
       <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Encontro</dt><dd class="mt-0.5 text-sm text-ink">{{ schedule.gathering }}</dd></div>
-      <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Ministério</dt><dd class="mt-0.5 text-sm text-ink">{{ schedule.ministry.name }}</dd></div>
+      <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">{{ terms.ministry }}</dt><dd class="mt-0.5 text-sm text-ink">{{ schedule.ministry.name }}</dd></div>
       <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Voluntário</dt><dd class="mt-0.5 text-sm text-ink">{{ schedule.person.name|default:'(removida)' }}</dd></div>
       <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Função</dt><dd class="mt-0.5 text-sm text-ink">{{ schedule.role|default:'—' }}</dd></div>
       <div class="sm:col-span-2"><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Observações</dt><dd class="mt-0.5 text-sm text-ink">{{ schedule.notes|default:'—' }}</dd></div>

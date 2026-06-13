@@ -1,0 +1,25 @@
+{% comment %}Tooltip de ajuda discreto (ícone "i" + popover). Reutilizável em qualquer
+campo/contexto. Uso:
+  {% include 'components/_info_tooltip.html' with items=field.field.tooltip_items %}
+`items` = lista de {term, desc}. Opcional: `title` (cabeçalho do popover).
+Alpine: clique abre/fecha; Escape e clique-fora fecham. A11y: botão com aria-label +
+aria-expanded; o popover não rouba o foco (apenas informativo).{% endcomment %}
+<span x-data="{ open: false }" class="relative inline-flex align-middle">
+  <button type="button" @click="open = !open" @keydown.escape="open = false"
+          :aria-expanded="open" aria-label="O que significa cada situação?"
+          class="grid h-4 w-4 place-items-center rounded-full text-muted transition hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent/30">
+    <i data-lucide="info" class="h-3.5 w-3.5" aria-hidden="true"></i>
+  </button>
+  <div x-show="open" x-cloak x-transition @click.outside="open = false"
+       role="tooltip"
+       class="absolute left-1/2 top-6 z-30 w-72 -translate-x-1/2 rounded-xl border border-hairline bg-paper p-3 text-left shadow-md2">
+    {% if title %}<p class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-2">{{ title }}</p>{% endif %}
+    <ul class="space-y-1.5">
+      {% for item in items %}
+        <li class="text-xs leading-snug text-muted">
+          <strong class="text-ink">{{ item.term }}</strong> — {{ item.desc }}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</span>

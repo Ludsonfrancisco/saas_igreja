@@ -33,8 +33,8 @@
       <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">E-mail</dt><dd class="mt-0.5 text-sm text-ink">{{ person.email|default:'—' }}</dd></div>
       <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Telefone</dt><dd class="mt-0.5 text-sm text-ink">{{ person.phone|default:'—' }}</dd></div>
       <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Nascimento</dt><dd class="mt-0.5 text-sm text-ink">{{ person.birth_date|default:'—' }}</dd></div>
-      <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Comunidade</dt><dd class="mt-0.5 text-sm text-ink">{{ person.community.name|default:'—' }}</dd></div>
-      <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Ministérios</dt><dd class="mt-0.5 text-sm text-ink">{% for m in person.ministries.all %}{{ m.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</dd></div>
+      <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">{{ terms.community }}</dt><dd class="mt-0.5 text-sm text-ink">{{ person.community.name|default:'—' }}</dd></div>
+      <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">{{ terms.ministry_plural }}</dt><dd class="mt-0.5 text-sm text-ink">{% for m in person.ministries.all %}{{ m.name }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</dd></div>
       <div><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Consentimento LGPD</dt><dd class="mt-0.5 text-sm">{% if person.consent_given_at %}{% include 'components/badge.html' with text='Concedido' variant='success' %}{% else %}{% include 'components/badge.html' with text='Pendente' variant='muted' %}{% endif %}</dd></div>
       <div class="sm:col-span-2"><dt class="text-xs font-medium uppercase tracking-wide text-muted-2">Observações</dt><dd class="mt-0.5 text-sm text-ink">{{ person.notes|default:'—' }}</dd></div>
     </dl>

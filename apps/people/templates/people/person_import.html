@@ -6,11 +6,50 @@
   <div class="mx-auto max-w-xl">
     <a href="{% url 'people:list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Pessoas</a>
     <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">Importar pessoas via CSV</h1>
+    <p class="mt-1 text-sm text-muted">Baixe o modelo, preencha com as pessoas e envie o arquivo <code class="text-ink">.csv</code>.</p>
+
+    {# Modelo + exemplo na própria página (RF-033) #}
+    <div class="card mt-4 space-y-4 p-6">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="font-display text-base font-semibold text-ink">Modelo da planilha</h2>
+          <p class="text-sm text-muted">Estas são as colunas que o sistema lê.</p>
+        </div>
+        <a href="{% url 'people:import_template' %}" class="inline-flex items-center gap-2 rounded-lg border border-line bg-paper px-3 py-2 text-sm font-medium text-ink hover:bg-bg-soft">
+          <i data-lucide="download" class="h-4 w-4"></i> Baixar modelo (.csv)
+        </a>
+      </div>
+
+      {# Exemplo inline das colunas + linhas-modelo #}
+      <div class="overflow-x-auto rounded-lg border border-hairline">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-bg-soft text-muted">
+            <tr>
+              <th class="px-3 py-2 font-semibold text-ink">Nome</th>
+              <th class="px-3 py-2">E-mail</th>
+              <th class="px-3 py-2">Telefone</th>
+              <th class="px-3 py-2">Situação</th>
+              <th class="px-3 py-2">Consentimento</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-hairline">
+            <tr><td class="px-3 py-2 text-ink">Maria Oliveira</td><td class="px-3 py-2 text-muted">maria@email.com</td><td class="px-3 py-2 text-muted">(11) 99999-0001</td><td class="px-3 py-2 text-muted">Membro</td><td class="px-3 py-2 text-muted">sim</td></tr>
+            <tr><td class="px-3 py-2 text-ink">João Santos</td><td class="px-3 py-2 text-muted-2">—</td><td class="px-3 py-2 text-muted-2">—</td><td class="px-3 py-2 text-muted">Visitante</td><td class="px-3 py-2 text-muted-2">—</td></tr>
+            <tr><td class="px-3 py-2 text-ink">Ana Carolina</td><td class="px-3 py-2 text-muted">ana.c@email.com</td><td class="px-3 py-2 text-muted-2">—</td><td class="px-3 py-2 text-muted">Congregado</td><td class="px-3 py-2 text-muted">sim</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="space-y-1.5 text-sm text-muted">
+        <p><strong class="text-ink">Nome</strong> é obrigatório · <strong class="text-ink">E-mail</strong> e <strong class="text-ink">Telefone</strong> são opcionais.</p>
+        <p><strong class="text-ink">Situação</strong>: Visitante · Congregado · Membro · Líder · Inativo. Em branco = Visitante.</p>
+        <p class="rounded-lg border-l-4 border-l-amber-soft bg-amber-soft/10 px-3 py-2 text-ink">
+          <strong>LGPD:</strong> linhas com e-mail ou telefone preenchidos exigem <strong>Consentimento = sim</strong> (a pessoa autorizou). Sem o consentimento, deixe e-mail e telefone <strong>em branco</strong> — a pessoa entra só com o nome.
+        </p>
+      </div>
+    </div>
 
     <div class="card mt-4 space-y-4 p-6">
-      <div class="rounded-lg border border-hairline bg-bg-soft px-4 py-3 text-sm text-muted">
-        Colunas: <code class="text-ink">name</code> (obrigatório), <code class="text-ink">email</code>, <code class="text-ink">phone</code>, <code class="text-ink">status</code>, <code class="text-ink">consent</code>. Linhas com e-mail/telefone exigem <code class="text-ink">consent=sim</code> (LGPD) — senão são puladas.
-      </div>
       <form method="post" enctype="multipart/form-data" class="space-y-4">
         {% csrf_token %}
         {% include 'components/form.html' with form=form %}

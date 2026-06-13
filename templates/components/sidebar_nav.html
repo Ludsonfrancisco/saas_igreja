@@ -14,8 +14,10 @@ tem dashboard de papel (§3.9).{% endcomment %}
 {% endif %}
 {% if 'pastor' in user.roles or 'secretary' in user.roles or 'leader' in user.roles %}
   {% side_link '/pessoas/' 'Pessoas' 'users' %}
-  {% side_link '/comunidades/' 'Comunidades' 'home' %}
-  {% side_link '/ministerios/' 'Ministérios' 'heart-handshake' %}
+  {% comment %}Rótulos configuráveis por igreja (F2/OD-032): termos vêm do context
+  processor `church_terms` (default Comunidades/Ministérios).{% endcomment %}
+  {% side_link '/comunidades/' terms.community_plural 'home' %}
+  {% side_link '/ministerios/' terms.ministry_plural 'heart-handshake' %}
   {% side_link '/encontros/' 'Encontros' 'calendar' %}
   {% side_link '/escalas/eventos/' 'Escalas' 'clipboard-list' match='/escalas' %}
 {% endif %}
@@ -29,4 +31,7 @@ tem dashboard de papel (§3.9).{% endcomment %}
   <div class="side-section">Administração</div>
   {% side_link '/configuracoes/usuarios/' 'Acessos' 'shield' %}
   {% side_link '/configuracoes/convites/' 'Convites' 'mail' %}
+  {% if 'pastor' in user.roles %}
+    {% side_link '/configuracoes/igreja/' 'Configurações' 'settings' %}
+  {% endif %}
 {% endif %}

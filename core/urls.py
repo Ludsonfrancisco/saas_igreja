@@ -43,6 +43,8 @@ urlpatterns: list[path] = [
     path('', include('apps.dashboard.urls')),
     # App finance: tesouraria sob `financeiro/` (namespace 'finance'), Pastor+Tesoureiro.
     path('', include('apps.finance.urls')),
+    # App tenants: Configurações da igreja sob `configuracoes/igreja/` (namespace 'tenants').
+    path('', include('apps.tenants.urls')),
     # Fluxos de autenticacao do allauth (login, logout, reset/confirm de senha)
     # sob prefixo pt-BR. O cadastro publico esta fechado (AccountAdapter), mas a
     # rota de signup ainda e incluida pelo allauth — ela responde fechada.

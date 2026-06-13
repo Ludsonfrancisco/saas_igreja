@@ -27,7 +27,7 @@ Congregado/Membro/Líder/Inativo. Avatar = iniciais (componente avatar.html).{% 
     <div>
       <p class="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-accent">Cadastro da igreja</p>
       <h1 class="font-display text-2xl font-bold tracking-tight text-ink md:text-[1.7rem]">Pessoas</h1>
-      <p class="mt-1 text-sm text-muted">Gestão de pessoas, cadastro e acompanhamento da comunidade.</p>
+      <p class="mt-1 text-sm text-muted">Gestão de pessoas, cadastro e acompanhamento da igreja.</p>
     </div>
 
     <div class="flex flex-wrap items-center gap-3">
@@ -63,17 +63,17 @@ Congregado/Membro/Líder/Inativo. Avatar = iniciais (componente avatar.html).{% 
       {% for value, label in status_choices %}<option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
     </select>
 
-    <label for="filter-community" class="sr-only">Filtrar por comunidade</label>
+    <label for="filter-community" class="sr-only">Filtrar por {{ terms.community|lower }}</label>
     <select id="filter-community" name="community"
             class="rounded-xl border border-hairline bg-paper/90 px-3 py-2 text-sm text-ink shadow-soft outline-none focus:border-accent focus:ring-2 focus:ring-accent/15">
-      <option value="">Todas as comunidades</option>
+      <option value="">Qualquer {{ terms.community|lower }}</option>
       {% for c in communities %}<option value="{{ c.id }}" {% if filters.community == c.id|stringformat:'s' %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
     </select>
 
-    <label for="filter-ministry" class="sr-only">Filtrar por ministério</label>
+    <label for="filter-ministry" class="sr-only">Filtrar por {{ terms.ministry|lower }}</label>
     <select id="filter-ministry" name="ministry"
             class="rounded-xl border border-hairline bg-paper/90 px-3 py-2 text-sm text-ink shadow-soft outline-none focus:border-accent focus:ring-2 focus:ring-accent/15">
-      <option value="">Todos os ministérios</option>
+      <option value="">Qualquer {{ terms.ministry|lower }}</option>
       {% for m in ministries %}<option value="{{ m.id }}" {% if filters.ministry == m.id|stringformat:'s' %}selected{% endif %}>{{ m.name }}</option>{% endfor %}
     </select>
 
@@ -92,7 +92,7 @@ Congregado/Membro/Líder/Inativo. Avatar = iniciais (componente avatar.html).{% 
               <th scope="col" class="px-5 py-3.5">Pessoa</th>
               <th scope="col" class="px-5 py-3.5">Contato</th>
               <th scope="col" class="px-5 py-3.5">Situação</th>
-              <th scope="col" class="px-5 py-3.5">Comunidade e ministérios</th>
+              <th scope="col" class="px-5 py-3.5">{{ terms.community }} e {{ terms.ministry_plural|lower }}</th>
               <th scope="col" class="px-5 py-3.5">Membro desde</th>
               <th scope="col" class="px-5 py-3.5 text-right">Ações</th>
             </tr>
@@ -221,6 +221,6 @@ Congregado/Membro/Líder/Inativo. Avatar = iniciais (componente avatar.html).{% 
 
     {% include 'components/pagination.html' %}
   {% else %}
-    {% include 'components/empty_state.html' with title='Nenhuma pessoa encontrada' message='Ajuste os filtros ou cadastre a primeira pessoa da sua comunidade.' cta_url='/pessoas/nova/' cta_label='Cadastrar pessoa' %}
+    {% include 'components/empty_state.html' with title='Nenhuma pessoa encontrada' message='Ajuste os filtros ou cadastre a primeira pessoa da sua igreja.' cta_url='/pessoas/nova/' cta_label='Cadastrar pessoa' %}
   {% endif %}
 {% endblock %}

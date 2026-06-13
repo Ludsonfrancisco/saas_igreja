@@ -6,7 +6,7 @@
   <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
     <div>
       <h1 class="font-display text-2xl font-bold tracking-tight text-ink">Encontros</h1>
-      <p class="mt-1 text-sm text-muted">Cultos, células, eventos e reuniões.</p>
+      <p class="mt-1 text-sm text-muted">Cultos, {{ terms.community_plural|lower }}, eventos e reuniões.</p>
     </div>
     <a href="{% url 'gatherings:create' %}" class="inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-paper hover:bg-accent-2"><i data-lucide="plus" class="h-4 w-4"></i> Novo encontro</a>
   </div>
@@ -33,7 +33,7 @@
     <div class="card hidden overflow-hidden md:block">
       <table class="w-full text-sm">
         <thead class="bg-bg-soft text-left text-muted">
-          <tr><th class="px-4 py-3 font-medium">Data</th><th class="px-4 py-3 font-medium">Tipo</th><th class="px-4 py-3 font-medium">Título</th><th class="px-4 py-3 font-medium">Comunidade</th></tr>
+          <tr><th class="px-4 py-3 font-medium">Data</th><th class="px-4 py-3 font-medium">Tipo</th><th class="px-4 py-3 font-medium">Título</th><th class="px-4 py-3 font-medium">{{ terms.community }}</th></tr>
         </thead>
         <tbody class="divide-y divide-hairline">
           {% for g in gatherings %}
@@ -60,6 +60,8 @@
     </div>
     {% include 'components/pagination.html' %}
   {% else %}
-    {% include 'components/empty_state.html' with title='Nenhum encontro' message='Crie o primeiro culto, célula ou evento.' cta_url='/encontros/novo/' cta_label='Novo encontro' %}
+    {% with community_lc=terms.community|lower %}
+      {% include 'components/empty_state.html' with title='Nenhum encontro' message='Crie o primeiro culto, '|add:community_lc|add:' ou evento.' cta_url='/encontros/novo/' cta_label='Novo encontro' %}
+    {% endwith %}
   {% endif %}
 {% endblock %}

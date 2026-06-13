@@ -281,3 +281,41 @@ class PersonImportView(TenantRequiredMixin, PastorOrSecretaryMixin, FormView):
         import_persons_csv.delay(connection.schema_name, content, str(uuid.uuid4()))
         messages.success(self.request, 'Importacao iniciada.')
         return super().form_valid(form)
+
+
+class PersonImportTemplateView(TenantRequiredMixin, PastorOrSecretaryMixin, View):
+    """Baixa um CSV-modelo pronto para a importação (RF-033) — cabeçalho exato que o
+    importador lê + linhas de exemplo. Servido na página de Importar."""
+
+    def get(self, request):
+        import csv as _csv
+        import io as _io
+
+        buffer = _io.StringIO()
+        writer = _csv.writer(buffer)
+        # Cabeçalho em pt-BR (interface 100% pt-BR); o importador aceita pt e inglês.
+        writer.writerow(['Nome', 'E-mail', 'Telefone', 'Situação', 'Consentimento'])
+        # Exemplos válidos cobrindo os casos (com/sem contato, com/sem consentimento).
+        writer.writerows(
+            [
+                [
+                    'Maria Oliveira',
+                    'maria.oliveira@email.com',
+                    '(11) 99999-0001',
+                    'Membro',
+                    'sim',
+                ],
+                ['João Santos', '', '', 'Visitante', ''],
+                ['Ana Carolina', 'ana.c@email.com', '', 'Congregado', 'sim'],
+                ['Pedro Henrique', '', '(11) 98888-0004', 'Líder', 'sim'],
+                ['Lúcia Fernandes', '', '', 'Inativo', ''],
+            ]
+        )
+        # BOM p/ Excel abrir UTF-8 (acentos) corretamente.
+        response = HttpResponse(
+            '﻿' + buffer.getvalue(), content_type='text/csv; charset=utf-8'
+        )
+        response['Content-Disposition'] = (
+            'attachment; filename="modelo_cadastro_membros.csv"'
+        )
+        return response

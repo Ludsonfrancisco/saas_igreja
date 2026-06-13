@@ -1,11 +1,11 @@
 {% extends 'app_base.html' %}
 {% comment %}Cadastro/edição de Ministério (Sprint 6.5 / Bloco 3).{% endcomment %}
-{% block title %}{% if form.instance.pk %}Editar ministério{% else %}Novo ministério{% endif %} · Oikonos{% endblock %}
+{% block title %}{% if form.instance.pk %}Editar {{ terms.ministry|lower }}{% else %}Adicionar {{ terms.ministry|lower }}{% endif %} · Oikonos{% endblock %}
 
 {% block content %}
   <div class="mb-6">
-    <a href="{% url 'ministries:list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Ministérios</a>
-    <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">{% if form.instance.pk %}Editar ministério{% else %}Novo ministério{% endif %}</h1>
+    <a href="{% url 'ministries:list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> {{ terms.ministry_plural }}</a>
+    <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">{% if form.instance.pk %}Editar {{ terms.ministry|lower }}{% else %}Adicionar {{ terms.ministry|lower }}{% endif %}</h1>
   </div>
   <form method="post" class="card max-w-2xl space-y-4 p-6">
     {% csrf_token %}

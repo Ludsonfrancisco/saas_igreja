@@ -10,7 +10,7 @@ Clicar em "Escalar" carrega o modal (`schedules:event_modal`) via HTMX em
   <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
     <div>
       <h1 class="font-display text-2xl font-bold tracking-tight text-ink">Escalas</h1>
-      <p class="mt-1 text-sm text-muted">Escale por evento: abra um culto e marque os voluntários do seu ministério.</p>
+      <p class="mt-1 text-sm text-muted">Escale por evento: abra um culto e marque os voluntários de cada {{ terms.ministry|lower }}.</p>
     </div>
     <a href="{% url 'schedules:list' %}" class="inline-flex items-center gap-2 rounded-lg border border-line bg-paper px-3 py-2 text-sm font-medium text-ink hover:bg-bg-soft">
       <i data-lucide="list" class="h-4 w-4"></i> Lista detalhada

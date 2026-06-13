@@ -37,4 +37,14 @@ def church_theme(request):
         'theme_hot': hot,
         'theme_logo_url': logo.url if logo else '',
         'church_name': getattr(church, 'name', '') or 'Oikonos',
+        # F2 / OD-032: rótulos configuráveis (Comunidade/Ministério) — a UI lê daqui
+        # via `{{ terms.community }}` etc. Fallback nos termos padrão.
+        'terms': {
+            'community': getattr(church, 'community_label', '') or 'Comunidade',
+            'community_plural': getattr(church, 'community_label_plural', '')
+            or 'Comunidades',
+            'ministry': getattr(church, 'ministry_label', '') or 'Ministério',
+            'ministry_plural': getattr(church, 'ministry_label_plural', '')
+            or 'Ministérios',
+        },
     }

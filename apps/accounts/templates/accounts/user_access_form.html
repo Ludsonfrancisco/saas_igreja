@@ -17,6 +17,6 @@ Travas RISK-015 e RN-004 vivem no service (erros aparecem no form).{% endcomment
       </div>
     </form>
 
-    <p class="mt-3 text-xs text-muted">Para definir <strong>de qual grupo</strong> a pessoa é líder/coordenador, use <a href="{% url 'communities:list' %}" class="text-accent hover:underline">Comunidades</a> e <a href="{% url 'ministries:list' %}" class="text-accent hover:underline">Ministérios</a>.</p>
+    <p class="mt-3 text-xs text-muted">Para definir <strong>de qual grupo</strong> a pessoa é líder/coordenador, use <a href="{% url 'communities:list' %}" class="text-accent hover:underline">{{ terms.community_plural }}</a> e <a href="{% url 'ministries:list' %}" class="text-accent hover:underline">{{ terms.ministry_plural }}</a>.</p>
   </div>
 {% endblock %}

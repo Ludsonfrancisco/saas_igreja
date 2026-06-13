@@ -5,7 +5,7 @@
 {% block content %}
   <div class="mb-6 flex flex-wrap items-start justify-between gap-3">
     <div>
-      <a href="{% url 'communities:list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Comunidades</a>
+      <a href="{% url 'communities:list' %}" class="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> {{ terms.community_plural }}</a>
       <h1 class="mt-2 font-display text-2xl font-bold tracking-tight text-ink">{{ community.name }}</h1>
     </div>
     <div class="flex items-center gap-2">
@@ -27,7 +27,7 @@
   {% comment %}Frequência da célula (RF-109) + dias a lançar (RF-107).{% endcomment %}
   <div class="mt-5 grid gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
     <div class="card p-5">
-      <h2 class="mb-3 font-display text-base font-semibold text-ink">Frequência da célula</h2>
+      <h2 class="mb-3 font-display text-base font-semibold text-ink">Frequência da {{ terms.community|lower }}</h2>
       {% if frequency.sessions %}
         <div class="grid grid-cols-3 gap-3 text-center">
           <div><p class="font-display text-2xl font-bold text-ink tnum">{{ frequency.last_present }}</p><p class="text-[0.68rem] text-muted">última reunião</p></div>
@@ -47,7 +47,7 @@
             <li class="flex items-center justify-between gap-3 py-2.5">
               <div class="min-w-0">
                 <span class="block text-sm font-medium text-ink">{{ day.date|date:'d/m/Y' }}</span>
-                <span class="text-xs text-muted">{{ day.title|default:'Reunião de célula' }}</span>
+                <span class="text-xs text-muted">{% if day.title %}{{ day.title }}{% else %}Reunião de {{ terms.community|lower }}{% endif %}</span>
               </div>
               <div class="flex items-center gap-3">
                 {% if day.is_launched %}
@@ -61,7 +61,7 @@
           {% endfor %}
         </ul>
       {% else %}
-        <p class="text-sm text-muted">Nenhuma reunião de célula cadastrada. O Pastor ou Secretário cria os encontros em <a href="{% url 'gatherings:list' %}" class="text-accent hover:underline">Encontros</a>.</p>
+        <p class="text-sm text-muted">Nenhuma reunião de {{ terms.community|lower }} cadastrada. O Pastor ou Secretário cria os encontros em <a href="{% url 'gatherings:list' %}" class="text-accent hover:underline">Encontros</a>.</p>
       {% endif %}
     </div>
   </div>

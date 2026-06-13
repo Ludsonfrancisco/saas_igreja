@@ -110,6 +110,8 @@ def test_community_list_renders_cards_and_chart(tenant_client, church_a):
     tenant_client.force_login(pastor)
     resp = tenant_client.get(COMM_URL)
     html = resp.content.decode()
-    assert 'Frequência por célula' in html
+    # Título do gráfico usa o rótulo configurável (F2/OD-032). Sem customização,
+    # o default é "Comunidade" → "Frequência por comunidade".
+    assert 'Frequência por comunidade' in html
     assert 'cell-freq-chart' in html
     assert 'Lançamento pendente' in html

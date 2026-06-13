@@ -8,8 +8,9 @@
   </label>
 {% else %}
   <div class="space-y-1">
-    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-ink">
-      {{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}
+    <label for="{{ field.id_for_label }}" class="flex items-center gap-1.5 text-sm font-medium text-ink">
+      <span>{{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}</span>
+      {% if field.field.tooltip_items %}{% include 'components/_info_tooltip.html' with items=field.field.tooltip_items %}{% endif %}
     </label>
     {{ field|add_class:"w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm text-ink placeholder:text-muted-2 focus:border-accent focus:ring-2 focus:ring-accent/20" }}
     {% if field.help_text %}<p class="text-xs text-muted">{{ field.help_text }}</p>{% endif %}

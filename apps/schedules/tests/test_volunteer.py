@@ -31,7 +31,7 @@ def tenant_client():
 
 
 def _scheduled_person(name='Ana', date=FUTURE, role='Vocal'):
-    """Cria pessoa + ministério + encontro + escala no schema atual. Retorna a pessoa."""
+    """Cria pessoa + ministério + encontro + escala no schema atual; retorna a pessoa."""  # noqa: E501
     ministry = Ministry.objects.create(name='Louvor')
     person = Person.objects.create(name=name)
     person.ministries.add(ministry)
@@ -91,7 +91,7 @@ def test_volunteer_valid_token_shows_own_future_schedule(tenant_client, church_a
 def test_volunteer_hides_past_and_others_schedules(tenant_client, church_a):
     with schema_context(church_a.schema_name):
         person = _scheduled_person(name='Ana', date=PAST)  # escala passada
-        other = _scheduled_person(name='Bruno', date=FUTURE)  # de outra pessoa
+        _scheduled_person(name='Bruno', date=FUTURE)  # de outra pessoa (não deve vazar)
         token = make_volunteer_token(person_id=person.pk, tenant=church_a.schema_name)
     resp = tenant_client.get(_url(token))
     assert resp.status_code == 200

@@ -31,7 +31,7 @@ Decisões do dono (2026-06-09): design vira a home, adaptado a dados REAIS.
     <div class="panel-dark p-5 lg:col-span-7">
       <div class="mb-4 flex items-center justify-between gap-3">
         <div class="flex items-center gap-2">
-          <h2 class="font-display text-base font-semibold text-white">Saúde do Ministério</h2>
+          <h2 class="font-display text-base font-semibold text-white">Saúde do {{ terms.ministry }}</h2>
           <i data-lucide="info" class="h-3.5 w-3.5 text-sidebar-muted" aria-hidden="true"></i>
         </div>
         <span class="text-[0.72rem] text-sidebar-muted">voluntários atuais × meta</span>
@@ -60,7 +60,7 @@ Decisões do dono (2026-06-09): design vira a home, adaptado a dados REAIS.
       {% else %}
         <div class="flex min-h-[120px] flex-col items-center justify-center gap-1 text-center">
           <i data-lucide="heart-handshake" class="h-7 w-7 text-sidebar-muted" aria-hidden="true"></i>
-          <p class="text-sm text-sidebar-muted">Nenhum ministério no seu escopo.</p>
+          <p class="text-sm text-sidebar-muted">Sem {{ terms.ministry_plural|lower }} no seu escopo.</p>
         </div>
       {% endif %}
     </div>
@@ -117,7 +117,7 @@ Decisões do dono (2026-06-09): design vira a home, adaptado a dados REAIS.
       <div class="flex items-start gap-3">
         <span class="stat-ic" style="background: linear-gradient(135deg, #E89A3A, #E0892D);"><i data-lucide="home" aria-hidden="true"></i></span>
         <div>
-          <div class="text-[0.82rem] font-medium text-muted">Comunidades</div>
+          <div class="text-[0.82rem] font-medium text-muted">{{ terms.community_plural }}</div>
           <div class="kpi-num mt-0.5 text-2xl font-bold text-ink">{{ metrics.active_communities }}</div>
         </div>
       </div>
@@ -160,10 +160,10 @@ Decisões do dono (2026-06-09): design vira a home, adaptado a dados REAIS.
       </div>
     </div>
     <div class="panel-card p-5 lg:col-span-4">
-      <h2 class="mb-3 font-display text-[0.95rem] font-semibold text-ink">Frequência das comunidades</h2>
+      <h2 class="mb-3 font-display text-[0.95rem] font-semibold text-ink">Frequência por {{ terms.community|lower }}</h2>
       <div class="soon-pane">
         <i data-lucide="bar-chart-3" class="h-6 w-6" aria-hidden="true"></i>
-        <p class="text-sm">Comparativo por comunidade</p>
+        <p class="text-sm">Comparativo por {{ terms.community|lower }}</p>
         <span class="soon-badge">Em breve</span>
       </div>
     </div>

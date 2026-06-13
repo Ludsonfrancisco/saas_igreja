@@ -6,7 +6,7 @@
   <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
     <div>
       <h1 class="font-display text-2xl font-bold tracking-tight text-ink">Escalas</h1>
-      <p class="mt-1 text-sm text-muted">Voluntários escalados por encontro e ministério.</p>
+      <p class="mt-1 text-sm text-muted">Voluntários escalados por encontro e {{ terms.ministry|lower }}.</p>
     </div>
     <div class="flex items-center gap-2">
       {% if 'pastor' in user.roles or 'leader' in user.roles %}<a href="{% url 'schedules:exception' %}" class="inline-flex items-center gap-2 rounded-lg border border-line bg-paper px-3 py-2 text-sm font-medium text-ink hover:bg-bg-soft"><i data-lucide="alert-triangle" class="h-4 w-4"></i> Aprovar exceção</a>{% endif %}
@@ -18,7 +18,7 @@
     <div class="card hidden overflow-hidden md:block">
       <table class="w-full text-sm">
         <thead class="bg-bg-soft text-left text-muted">
-          <tr><th class="px-4 py-3 font-medium">Encontro</th><th class="px-4 py-3 font-medium">Ministério</th><th class="px-4 py-3 font-medium">Voluntário</th><th class="px-4 py-3 font-medium">Função</th></tr>
+          <tr><th class="px-4 py-3 font-medium">Encontro</th><th class="px-4 py-3 font-medium">{{ terms.ministry }}</th><th class="px-4 py-3 font-medium">Voluntário</th><th class="px-4 py-3 font-medium">Função</th></tr>
         </thead>
         <tbody class="divide-y divide-hairline">
           {% for s in schedules %}

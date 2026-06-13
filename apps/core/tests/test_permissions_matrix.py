@@ -23,11 +23,13 @@ from apps.accounts.models import User
 GOOD_PASSWORD = 'Senha@123'
 
 USER_LIST = '/configuracoes/usuarios/'
+CHURCH_SETTINGS = '/configuracoes/igreja/'
 INVITE_LIST = '/configuracoes/convites/'
 INVITE_CREATE = '/configuracoes/convites/novo/'
 PEOPLE_LIST = '/pessoas/'
 PEOPLE_CREATE = '/pessoas/nova/'
 PEOPLE_IMPORT = '/pessoas/importar/'
+PEOPLE_IMPORT_TEMPLATE = '/pessoas/importar/modelo.csv'
 COMM_LIST = '/comunidades/'
 COMM_CREATE = '/comunidades/nova/'
 MIN_LIST = '/ministerios/'
@@ -141,11 +143,14 @@ def _login_only(url):
 
 PERMISSION_CASES = (
     _admin(USER_LIST)
+    # Configurações da igreja (RF-002/F2): só Pastor (Secretário/Líder/Membro → 403).
+    + _pastor_only(CHURCH_SETTINGS)
     + _admin(INVITE_LIST)
     + _admin(INVITE_CREATE)
     + _staff_scoped(PEOPLE_LIST)
     + _admin(PEOPLE_CREATE)
     + _admin(PEOPLE_IMPORT)
+    + _admin(PEOPLE_IMPORT_TEMPLATE)  # baixar modelo CSV = mesma barreira do importar
     + _staff_scoped(COMM_LIST)
     + _admin(COMM_CREATE)
     + _staff_scoped(MIN_LIST)

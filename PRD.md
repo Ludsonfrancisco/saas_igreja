@@ -455,6 +455,15 @@ ID `RF-XXX` · Título · Descrição · Ator · Prioridade (P0/P1/P2) · Módul
 | RF-124 | Tipo de ministério | Pastor, Secretário | P2 | Ministries | `Ministry.category` (TextChoices: Adoração/Crianças/Mídia/Serviço/Acolhimento/Ensino/Outro) → tag no card; default Outro | `test_ministry_category_field` | pré-7 |
 | RF-125 | Membro desde | Pastor, Secretário, Líder | P2 | People | `Person.joined_at` (data opcional) → "membro desde / há X anos" no card de Membros | `test_person_joined_at_field` | pré-7 |
 
+### 11.10e Terminologia configurável por igreja (F2 · backlog — OD-032)
+
+> Estende o padrão de `Church.leader_title` (rótulo configurável do líder) para Comunidade e Ministério. **Só rótulo de UI** — os models seguem `Community`/`Ministry`. **Adiada** (pós-piloto, ver OD-032 — recomendação de timing).
+
+| ID | Título | Ator | Prio | Módulo | Critério de aceite | Teste | Sprint |
+|---|---|---|---|---|---|---|---|
+| RF-126 | Rótulo configurável de Comunidade | Pastor | P3 | Tenants | `Church.community_label`/`community_label_plural` (default "Comunidade/Comunidades"); a UI exibe o termo escolhido (Célula, Grupo, GC…) em todas as telas via term tag/context processor | `test_community_label_propagates` | pós-piloto |
+| RF-127 | Rótulo configurável de Ministério | Pastor | P3 | Tenants | `Church.ministry_label`/`ministry_label_plural` (default "Ministério/Ministérios"); a UI exibe o termo escolhido (Departamento, Equipe…) em todas as telas | `test_ministry_label_propagates` | pós-piloto |
+
 ### 11.11 Backup e restore
 
 | ID | Título | Ator | Prio | Módulo | Critério de aceite | Teste | Sprint |

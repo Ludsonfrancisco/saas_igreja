@@ -19,6 +19,21 @@ class Church(TenantMixin):
         default=True,
         help_text='True = igreja em celulas. False = tradicional.',
     )
+    # F2 / OD-032 / RF-126-127: rótulos configuráveis por igreja (só UI; o model segue
+    # Community/Ministry). Espelha `leader_title`. A UI lê estes termos via o context
+    # processor `church_terms` + a tag {% term %}. Ex.: "Célula"/"Departamento".
+    community_label = models.CharField(
+        max_length=30,
+        default='Comunidade',
+        help_text='Como esta igreja chama a Comunidade (ex.: Celula, Grupo, GC).',
+    )
+    community_label_plural = models.CharField(max_length=30, default='Comunidades')
+    ministry_label = models.CharField(
+        max_length=30,
+        default='Ministério',
+        help_text='Como esta igreja chama o Ministerio (ex.: Departamento, Equipe).',
+    )
+    ministry_label_plural = models.CharField(max_length=30, default='Ministérios')
     # Escalas v2 (RN-023 / OD-031): dia em que abrem as pendências de escala do mês
     # SEGUINTE. Antes desse dia, eventos do próximo mês não geram pendência. Faixa
     # 1–28 evita meses curtos (fevereiro). O mês corrente está sempre na janela.
