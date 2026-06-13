@@ -348,6 +348,15 @@ class Church(TenantMixin):
         default=True,
         help_text='True = igreja em celulas. False = tradicional.',
     )
+    # F2 / OD-032 / RF-126-127: rótulos configuráveis por igreja (só UI; models seguem
+    # Community/Ministry). UI lê via context processor `church_terms` (terms.*).
+    community_label = models.CharField(max_length=30, default='Comunidade')
+    community_label_plural = models.CharField(max_length=30, default='Comunidades')
+    ministry_label = models.CharField(max_length=30, default='Ministério')
+    ministry_label_plural = models.CharField(max_length=30, default='Ministérios')
+    # Escalas v2 / RN-023 / OD-031: dia em que abrem as pendências de escala do mês
+    # seguinte (1–28). Mês corrente está sempre na janela.
+    schedule_pending_open_day = models.PositiveSmallIntegerField(default=25)
     accent_color = models.CharField(max_length=7, default='#864507')  # primary Oikonos
     hot_color = models.CharField(max_length=7, default='#F59A17')
     logo = models.ImageField(upload_to='logos/', null=True, blank=True)
@@ -393,6 +402,8 @@ class Person(BaseModel, AuditLogMixin):  # Sprint 3: + AuditLogMixin (audit auto
     email = models.EmailField(null=True, blank=True)
     phone = models.CharField(max_length=20, null=True, blank=True)
     birth_date = models.DateField(null=True, blank=True)
+    # RF-125 (design Athos v3): data de entrada na igreja → "membro desde / há X anos".
+    joined_at = models.DateField(null=True, blank=True)
     status = models.CharField(
         max_length=12,
         choices=Status.choices,
@@ -427,11 +438,16 @@ class Person(BaseModel, AuditLogMixin):  # Sprint 3: + AuditLogMixin (audit auto
 # apps/communities/models.py
 class Community(BaseModel, AuditLogMixin):
     """Comunidade. Ativa apenas se Church.has_communities=True."""
+    class Category(models.TextChoices):  # RF-122 (design Athos v3): tipo/segmento
+        MIXED='mixed','Mista'; YOUTH='youth','Jovens'; COUPLES='couples','Casais'
+        WOMEN='women','Mulheres'; MEN='men','Homens'; KIDS='kids','Criancas'; OTHER='other','Outra'
     name = models.CharField(max_length=80)
     # OD-019 (2026-06-04): M2M, não FK — uma comunidade pode ter VÁRIOS líderes
     # (ex.: casal de líderes, líder + auxiliar). Cada líder é um Person cujo
     # `user_id` aponta ao User-staff. Escopo: ScopedToCommunityMixin -> leaders__user_id.
     leaders = models.ManyToManyField('people.Person', blank=True, related_name='communities_led')
+    category = models.CharField(max_length=10, choices=Category.choices, default=Category.MIXED)  # RF-122
+    max_members = models.PositiveSmallIntegerField(default=0)  # RF-123: lotação (0 = sem limite)
     meeting_day = models.CharField(max_length=15, null=True, blank=True)
     meeting_time = models.TimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
@@ -440,7 +456,11 @@ class Community(BaseModel, AuditLogMixin):
 # apps/ministries/models.py
 class Ministry(BaseModel, AuditLogMixin):
     """Ministério ou departamento."""
+    class Category(models.TextChoices):  # RF-124 (design Athos v3): tipo/área
+        WORSHIP='worship','Adoracao'; KIDS='kids','Criancas'; MEDIA='media','Midia'
+        SERVICE='service','Servico'; WELCOME='welcome','Acolhimento'; TEACHING='teaching','Ensino'; OTHER='other','Outro'
     name = models.CharField(max_length=80)
+    category = models.CharField(max_length=10, choices=Category.choices, default=Category.OTHER)  # RF-124
     # OD-019: M2M, não FK — vários coordenadores por ministério.
     coordinators = models.ManyToManyField('people.Person', blank=True, related_name='ministries_led')
     # Sprint 6.6 (RF-104/OD-029): meta de voluntários p/ card "Saúde do Ministério" (GAP = atuais × needed).
@@ -499,6 +519,15 @@ class Attendance(BaseModel):
 
     class Meta:
         unique_together = ('person', 'gathering')
+
+
+class AttendanceSession(BaseModel):  # Comunidades v2 / RN-016: nota do dia da célula
+    """Sessão de presença de um encontro de Comunidade (1:1 com Gathering). Guarda a
+    nota da reunião + quem/quando confirmou. Sem auditoria por linha de presença (OD-020)."""
+    gathering = models.OneToOneField('Gathering', on_delete=models.CASCADE, related_name='session')
+    note = models.TextField(blank=True, default='')
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+    confirmed_by = models.IntegerField(null=True, blank=True, db_index=True)  # user_id (TENANT-04)
 ```
 
 ### 5.7 Schedule (schema `tenant`)
@@ -527,6 +556,18 @@ class ScheduleConflictApproval(BaseModel):
     approved_by_id = models.IntegerField(help_text='User.id do coordenador competente')
     justification = models.TextField()
     approved_at = models.DateTimeField(auto_now_add=True)
+
+
+class MinistryEventOptOut(BaseModel, AuditLogMixin):  # Escalas v2 / RF-114 / RN-022
+    """"Não atuaremos nesse evento": opt-out de um ministério num Gathering. Único por
+    (ministry, gathering); marcado pelo coordenador. Some a pendência daquele par."""
+    ministry = models.ForeignKey('ministries.Ministry', on_delete=models.CASCADE, related_name='event_optouts')
+    gathering = models.ForeignKey('gatherings.Gathering', on_delete=models.CASCADE, related_name='ministry_optouts')
+    marked_by_id = models.IntegerField()  # user_id do coordenador (TENANT-04)
+    reason = models.CharField(max_length=120, blank=True, default='')
+
+    class Meta:
+        unique_together = (('ministry', 'gathering'),)
 ```
 
 ### 5.8 FileAsset (schema `tenant`)

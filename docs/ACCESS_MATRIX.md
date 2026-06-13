@@ -88,6 +88,9 @@ Permissões são resolvidas via vínculo (`ScopedToCommunityMixin`, `ScopedToMin
 | Desativar usuário (não-Pastor) | ❌ | ✅ 📝 | ✅ 📝 🔒 | ❌ | ❌ | ❌ | ❌ |
 | **Desativar um Pastor** | ❌ | ✅ 📝 | ❌ 🔒 | ❌ | ❌ | ❌ | ❌ |
 | Reativar usuário | ❌ | ✅ 📝 | ✅ 📝 | ❌ | ❌ | ❌ | ❌ |
+| Configurações da igreja (rótulos Comunidade/Ministério, título do líder) | ❌ | ✅ 📝 | ❌ | ❌ | ❌ | ❌ | ❌ |
+
+> **Configurações da igreja (RF-002 parcial / RF-126-127 · F2 / OD-032):** tela `/configuracoes/igreja/` (Administração → Configurações), **só Pastor**. Edita os rótulos configuráveis (`Church.community_label`/`ministry_label` + plurais) e o `leader_title`. A UI exibe o termo escolhido em toda a interface via o context processor `church_terms`.
 
 > 🔒 **Travas de segurança da Gestão de Acessos (OD-019 / RISK-015).** O Secretário concede acesso, mas com teto: (a) **não pode conceder/atribuir o papel `pastor`** nem **desativar um Pastor** — só Pastor cria/derruba Pastor; (b) **ninguém altera os próprios papéis** (sem auto-escalonamento); (c) tudo escopado ao tenant (`church`); (d) toda concessão é auditada (`AuditLog` + `SecurityLog` `role_change`); (e) RN-004 (último Pastor) permanece. MFA do Secretário passa a ser exigido na Sprint 7 (junto com Pastor/PlatformAdmin).
 

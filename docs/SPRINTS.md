@@ -699,6 +699,22 @@ Detalhamento operacional das 9 sprints do MVP (0–7, com **Sprint 6.5 — Desig
 
 ---
 
+## Sprint 6.8 — Ajustes pré-piloto (mini-sprint) — MVP
+
+**Objetivo:** refinamentos pedidos pelo dono antes do piloto, sem dependência de infra. Cada item teve SDD/decisão própria (G-05) e fechou com regressão + e2e/a11y verdes. **Tudo MVP, antes da Sprint 7.**
+
+- [x] (P1) **Ajuste do calendário de Encontros** — clique no dia restaurado + layout 70/30 (células de altura baixa; `cell_size` param no grid compartilhado). *(commit `9cdb521`)*
+- [x] (P1) **Comunidades v2** — lançamento de presença da célula (visitante + nota do dia + frequência); `AttendanceSession`; travas RF-106/RN-018/RN-019. `SPEC_COMUNIDADES_V2`. *(commits `10e5afa`/`76899a9`/`3e69908`)*
+- [x] (P1) **Escalas v2** (coordenador-cêntrica) — tela por evento + modal de escalação (cinza/exceção + opt-out por ministério) + janela de pendência configurável. RF-111..117 / RN-020..023 / OD-031; models `MinistryEventOptOut` + `Church.schedule_pending_open_day`. `SPEC_ESCALAS_V2`. *(commit `9cdb521`)*
+- [x] (P2) **Cards/gráficos por página** (Pessoas/Comunidades/Encontros/Ministérios) — KPIs + Chart.js, escopado por papel, sem dado fictício. RF-118..121; componentes `_stat_cards.html`/`_chart.html`. `SPEC_CARDS_GRAFICOS`. *(commit `251f83f`)*
+- [x] (P2) **Re-skin design "Oikonos/Athos v3"** das 4 telas de conteúdo (Comunidades/Membros/Ministérios/Presença) a partir do bundle Claude Design (só conteúdo; shell preservado). + campos do design RF-122..125 (`Community.category`/`max_members`, `Ministry.category`, `Person.joined_at`). *(commits `a9221bf`/`251f83f`)*
+- [x] (P3) **F2 — Terminologia configurável por igreja** (Comunidade/Ministério) — RF-126/127 / OD-032: campos de rótulo na `Church` + tela `/configuracoes/igreja/` (Pastor) + context processor `church_terms` + varredura completa da UI. *(a versionar)*
+- [x] (P2) **Cadastro em massa pt-BR** — importador bilíngue (cabeçalho/situação em pt ou inglês, com/sem acento) + **modelo na página de Importar** (download CSV + exemplo inline) + `docs/modelo_cadastro_membros.xlsx`. Tooltip de ajuda no campo Situação (componente reutilizável `_info_tooltip.html`). *(a versionar)*
+
+> **Sprint 6.8 — status:** itens acima entregues e verdes (regressão completa 658 + e2e 18; matrizes 187). Os últimos (F2 + cadastro pt-BR + tooltip) **aguardam versionamento do dono**.
+
+---
+
 ## Sprint 7 — Deploy Beta, Backup, Restore, Hardening, Piloto Athos
 
 **Objetivo:** entrar em produção controlada com piloto Athos.

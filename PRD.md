@@ -794,20 +794,22 @@ erDiagram
 
 | Entidade | Schema | Notas |
 |---|---|---|
-| Church | public | TenantMixin; campos: name, slug, leader_title, has_communities, accent_color, hot_color, logo, plan, privacy_policy_url, created_at |
+| Church | public | TenantMixin; campos: name, slug, leader_title, has_communities, **community_label/_plural, ministry_label/_plural (F2/RF-126-127)**, **schedule_pending_open_day (Escalas v2/RN-023)**, accent_color, hot_color, logo, plan, privacy_policy_url, created_at |
 | Plan | public | name (PK), max_persons, max_communities, price_monthly |
 | User | public | AbstractUser sem username; email único; `roles ArrayField` (multi-role com união); `has_any_role()` / `has_all_roles()` |
 | Invite | public | UUID token, expires_at, `roles ArrayField`, unique(church, email) |
 | PlatformAdmin | public | OneToOne com User; MFA obrigatório |
 | SupportAccess | public | admin, church, justification, expires_at (4h); habilita Platform Admin a acessar tenant |
 | Domain | public | django-tenants padrão |
-| Person | tenant | name, email, phone, birth_date, status, community, ministries M2M, consent_given_at, notes |
-| Community | tenant | name, leader (FK Person SET_NULL related_name=communities_led), meeting_day, meeting_time, is_active |
-| Ministry | tenant | name, coordinator (FK Person SET_NULL related_name=ministries_led), is_active |
+| Person | tenant | name, email, phone, birth_date, **joined_at (RF-125)**, status, user_id, community, ministries M2M, consent_given_at, anonymized_at, notes |
+| Community | tenant | name, leaders (M2M Person, OD-019, related_name=communities_led), **category (RF-122)**, **max_members (RF-123)**, meeting_day, meeting_time, is_active |
+| Ministry | tenant | name, **category (RF-124)**, coordinators (M2M Person, OD-019, related_name=ministries_led), volunteers_needed (RF-104/OD-029), is_active |
 | Gathering | tenant | gathering_type (WORSHIP/COMMUNITY/EVENT/MEETING), title, date, community (nullable), description |
-| Attendance | tenant | person FK, gathering FK, is_present; unique(person, gathering) |
-| Schedule | tenant | ministry FK, person FK, gathering FK, role/notes |
+| Attendance | tenant | person FK (SET_NULL), gathering FK, is_present; unique(person, gathering) |
+| AttendanceSession | tenant | gathering OneToOne, note, confirmed_at, confirmed_by (user_id) — nota do dia da célula (Comunidades v2/RN-016) |
+| Schedule | tenant | ministry FK, person FK (SET_NULL), gathering FK, role/notes |
 | ScheduleConflictApproval | tenant | schedule FK, approved_by_id IntegerField, justification, approved_at |
+| MinistryEventOptOut | tenant | ministry FK, gathering FK, marked_by_id, reason; unique(ministry, gathering) — opt-out "não atuaremos" (Escalas v2/RF-114/RN-022) |
 | FileAsset | tenant | filename, mime_type, size_bytes, storage_path, uploaded_by_id, related_model, related_object_id |
 | AuditLog | tenant | user_id, tenant_id, action, model_name, object_id, object_repr, changes JSON, ip_address, created_at |
 | SecurityLog | tenant | user_id, tenant_id, event_type, payload JSON, ip_address, created_at |
